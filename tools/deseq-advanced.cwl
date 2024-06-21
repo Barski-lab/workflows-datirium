@@ -137,15 +137,17 @@ inputs:
       - "null"
       - type: enum
         symbols:
+          - "both"
           - "up"
           - "down"
-          - "both"
     inputBinding:
       prefix: "--regulation"
     doc: |
-      Direction of differential expression comparison.
-      'up' for upregulated genes, 'down' for downregulated genes,
-      'both' for both up and downregulated genes. Default: both
+      Direction of differential expression comparison. β is the log2 fold change.
+      - 'both' for both up and downregulated genes (|β| > lfcThreshold for greaterAbs and |β| < lfcThreshold for lessAbs, with p-values being two-tailed or maximum of the upper and lower tests, respectively).
+      - 'up' for upregulated genes (β > lfcThreshold in condition2 compared to condition1).
+      - 'down' for downregulated genes (β < -lfcThreshold in condition2 compared to condition1).
+      Default: both
     default: "both"
     
   batchcorrection:
@@ -153,15 +155,17 @@ inputs:
       - "null"
       - type: enum
         symbols:
+          - "none"
           - "combatseq"
-          - "limma"
+          - "limmaremovebatcheffect"
     inputBinding:
       prefix: "--batchcorrection"
     doc: |
-      Batch correction method to be applied.
-      'combatseq' applies ComBat_seq at the beginning of the analysis.
-      'limma' applies removeBatchEffect after differential expression analysis (DEA). Default: combatseq
-    default: "combatseq"
+      Specifies the batch correction method to be applied.
+      - 'combatseq' applies ComBat_seq at the beginning of the analysis, removing batch effects from the design formula before differential expression analysis.
+      - 'limmaremovebatcheffect' applies removeBatchEffect from the limma package after differential expression analysis, incorporating batch effects into the model during DE analysis.
+      - Default: none
+    default: "none"
     
   batch_file:
     type: File?
@@ -324,9 +328,9 @@ s:about: |
         [-h] -u UNTREATED [UNTREATED ...] -t TREATED [TREATED ...]
         [-ua [UALIAS ...]] [-ta [TALIAS ...]] [-un UNAME] [-tn TNAME]
         [-bf BATCHFILE] [-cu CUTOFF] [--fdr FDR]
-        [--regulation {up,down,both}]
+        [--regulation {both,up,down}]
         [--lfcthreshold LFCTHRESHOLD]
-        [--batchcorrection {combatseq,limma}]
+        [--batchcorrection {none, combatseq,limmaremovebatcheffect}]
         [--cluster {row,column,both}]
         [--rowdist {cosangle,abscosangle,euclid,abseuclid,cor,abscor}]
         [--columndist {cosangle,abscosangle,euclid,abseuclid,cor,abscor}]
@@ -383,11 +387,12 @@ s:about: |
                           Log2 fold change threshold for determining significant differential expression.
                           Genes with absolute log2 fold change greater than this threshold will be considered.
                           Default: 0.59 (about 1.5 fold change)
-    --regulation {up,down,both}
+    --regulation {both,up,down}
                           Direction of differential expression comparison.
                           'up' for upregulated genes, 'down' for downregulated genes,
                           'both' for both up and downregulated genes. Default: both
-    --batchcorrection {combatseq,limma}
-                          Batch correction method to be applied.
-                          'combatseq' applies ComBat_seq at the beginning of the analysis.
-                          'limma' applies removeBatchEffect after differential expression analysis (DEA). Default: combatseq
+    --batchcorrection {none, combatseq,limmaremovebatcheffect}
+                          Specifies the batch correction method to be applied.
+                          - 'combatseq' applies ComBat_seq at the beginning of the analysis, removing batch effects from the design formula before differential expression analysis.
+                          - 'limmaremovebatcheffect' applies removeBatchEffect from the limma package after differential expression analysis, incorporating batch effects into the model during DE analysis.
+                          - Default: none
