@@ -331,10 +331,7 @@ s:about: |
         [--regulation {both,up,down}]
         [--lfcthreshold LFCTHRESHOLD]
         [--batchcorrection {none, combatseq,limmaremovebatcheffect}]
-        [--cluster {row,column,both}]
-        [--rowdist {cosangle,abscosangle,euclid,abseuclid,cor,abscor}]
-        [--columndist {cosangle,abscosangle,euclid,abseuclid,cor,abscor}]
-        [-o OUTPUT] [-d DIGITS] [-p THREADS]
+
 
   Run BioWardrobe DESeq/DESeq2 for untreated-vs-treated groups (condition-1-vs-
   condition-2)
