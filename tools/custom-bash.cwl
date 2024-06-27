@@ -19,6 +19,7 @@ inputs:
   input_file:
     type:
       - File
+      - File?
       - File[]
     inputBinding:
       position: 2
@@ -27,6 +28,11 @@ inputs:
     type:
     - string?
     - string[]
+    - enum
+      symbols:
+          - "none"
+          - "combatseq"
+          - "limmaremovebatcheffect"
     inputBinding:
       position: 3
 
