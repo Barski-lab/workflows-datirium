@@ -108,12 +108,14 @@ inputs:
     'sd:layout':
       advanced: true
 
+
   test_mode:
     type: boolean
     default: false
     label: "Run only 100 genes for testing purposes to speed up DESeq2"
     'sd:layout':
       advanced: true
+
 
 
 outputs:
