@@ -434,11 +434,17 @@ steps:
     run: ../tools/ma-plot.cwl
     scatter:
       - diff_expr_file
-      - contrast_indices
+      - contrast_indices  # Changed from 'contrast_indices_array' to 'contrast_indices'
     scatterMethod: dotproduct
     in:
       diff_expr_file: deseq/diff_expr_file  # Should be an array of Files
-      contrast_indices: contrast_indices     # Should be an array of strings (e.g., ["1", "4", "7"])
+      contrast_indices:
+        source: contrast_indices  # Changed from 'contrast_indices_array' to 'contrast_indices'
+        valueFrom: |
+          ${
+            // Split the comma-separated string into an array
+            return self.split(',').map(function(item) { return item.trim(); });
+          }
       x_axis_column:
         default: "baseMean"
       y_axis_column:
@@ -458,9 +464,10 @@ steps:
       output_filename:
         valueFrom: |
           ${
+            // 'self' here refers to the current 'contrast_indices' element
             return "_" + self + ".html";
           }
-        source: contrast_indices
+        source: contrast_indices  # Changed from 'contrast_indices_array' to 'contrast_indices'
     out:
       - html_file
       - html_data
