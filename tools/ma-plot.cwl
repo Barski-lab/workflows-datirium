@@ -13,11 +13,13 @@ inputs:
       position: 1
     doc: "TSV file holding data for the plot"
 
-  contrast_indices:
-    type: string[]  # Expecting an array of strings
+  contrast_index:
+    type:
+      - "null"
+      - "string"
     inputBinding:
       position: 2
-    doc: "Array of contrast indices"
+    doc: "Contrast index (optional)"
 
   x_axis_column:
     type: string

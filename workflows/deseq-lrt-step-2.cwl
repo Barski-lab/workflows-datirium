@@ -434,21 +434,41 @@ steps:
     run: ../tools/ma-plot.cwl
     scatter:
       - diff_expr_file
-      - contrast_indices  # Changed from 'contrast_indices_array' to 'contrast_indices'
-    scatterMethod: dotproduct
+      - contrast_index  # Scatter over 'contrast_index'
+    scatterMethod: flat_crossproduct  # Use a valid scatter method in CWL v1.0
     in:
       diff_expr_file: deseq/diff_expr_file  # Should be an array of Files
-      contrast_indices:
-        source: contrast_indices  # Changed from 'contrast_indices_array' to 'contrast_indices'
+
+      contrast_index:
+        source: contrast_indices
         valueFrom: |
           ${
-            // Split the comma-separated string into an array
-            return self.split(',').map(function(item) { return item.trim(); });
+            if (self != "") {
+              // Split the comma-separated string into an array
+              return self.split(',').map(function(item) { return item.trim(); });
+            } else {
+              // Default to a single empty string if not provided
+              return [""];
+            }
           }
+
+      output_filename:
+        valueFrom: |
+          ${
+            if (self != "") {
+              return "_" + self + ".html";
+            } else {
+              return "index.html";
+            }
+          }
+        # Removed 'source: contrast_index' to avoid referencing undefined identifier
+
       x_axis_column:
         default: "baseMean"
+
       y_axis_column:
         default: "log2FoldChange"
+
       label_column:
         source: group_by
         valueFrom: |
@@ -461,13 +481,7 @@ steps:
               return "GeneId";
             }
           }
-      output_filename:
-        valueFrom: |
-          ${
-            // 'self' here refers to the current 'contrast_indices' element
-            return "_" + self + ".html";
-          }
-        source: contrast_indices  # Changed from 'contrast_indices_array' to 'contrast_indices'
+
     out:
       - html_file
       - html_data
