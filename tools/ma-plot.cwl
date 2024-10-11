@@ -2,80 +2,59 @@
 cwlVersion: v1.0
 class: CommandLineTool
 
-hints:
+requirements:
+  - class: InlineJavascriptRequirement
   - class: DockerRequirement
     dockerPull: biowardrobe2/visualization:v0.0.9
 
 inputs:
   diff_expr_file:
     type: File
-    inputBinding:
-      position: 1
     doc: "TSV file holding data for the plot"
-
-  contrast_index:
-    type:
-      - "null"
-      - "string"
-    inputBinding:
-      position: 2
-    doc: "Contrast index (optional)"
 
   x_axis_column:
     type: string
-    inputBinding:
-      position: 3
     doc: "Name of column in file for the plot's x-axis (e.g., 'baseMean')"
 
   y_axis_column:
     type: string
-    inputBinding:
-      position: 4
     doc: "Name of column in file for the plot's y-axis (e.g., 'log2FoldChange')"
 
   label_column:
     type: string
-    inputBinding:
-      position: 5
     doc: "Name of column in file for each data point's 'name' (e.g., 'GeneId')"
 
   output_filename:
     type: string?
     default: "index.html"
-    inputBinding:
-      position: 6
     doc: "Desired output HTML filename."
 
 outputs:
   html_data:
     type: Directory
     outputBinding:
-      glob: |
-        volcano_plot/MD-MA_plot_${inputs.output_filename.replace('.html','')}
-    doc: "Directory containing HTML data for MA-plot"
+      glob: "volcano_plot/MD-MA_plot_*/html_data"
+    doc: "Directory containing HTML data for MA-plot."
 
   html_file:
     type: File
     outputBinding:
-      glob: |
-        volcano_plot/MD-MA_plot_${inputs.output_filename.replace('.html','')}/html_data/${inputs.output_filename}
-    doc: "HTML output file for MA-plot"
+      glob: "volcano_plot/MD-MA_plot_*/html_data/*.html"
+    doc: "HTML output file for MA-plot."
 
 baseCommand: ["ma_plot.sh"]
 
 arguments:
-  - valueFrom: "${inputs.diff_expr_file.path}"
+  - valueFrom: "$(inputs.diff_expr_file.path)"
     position: 1
-  - valueFrom: "${inputs.contrast_indices.join(' ')}"  # Joins array into space-separated string
+  - valueFrom: "$(inputs.x_axis_column)"
     position: 2
-  - valueFrom: "${inputs.x_axis_column}"
+  - valueFrom: "$(inputs.y_axis_column)"
     position: 3
-  - valueFrom: "${inputs.y_axis_column}"
+  - valueFrom: "$(inputs.label_column)"
     position: 4
-  - valueFrom: "${inputs.label_column}"
+  - valueFrom: "$(inputs.output_filename)"
     position: 5
-  - valueFrom: "${inputs.output_filename}"
-    position: 6
 
 $namespaces:
   s: http://schema.org/

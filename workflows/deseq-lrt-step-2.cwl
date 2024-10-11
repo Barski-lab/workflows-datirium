@@ -435,7 +435,7 @@ steps:
     scatter:
       - diff_expr_file
       - contrast_index  # Scatter over 'contrast_index'
-    scatterMethod: flat_crossproduct  # Use a valid scatter method in CWL v1.0
+    scatterMethod: dotproduct  # Use a valid scatter method in CWL v1.0
     in:
       diff_expr_file: deseq/diff_expr_file  # Should be an array of Files
 
@@ -455,13 +455,12 @@ steps:
       output_filename:
         valueFrom: |
           ${
-            if (self != "") {
-              return "_" + self + ".html";
+            if (inputs.contrast_index != "") {
+              return "contrast_" + inputs.contrast_index + ".html";
             } else {
               return "index.html";
             }
           }
-        # Removed 'source: contrast_index' to avoid referencing undefined identifier
 
       x_axis_column:
         default: "baseMean"
