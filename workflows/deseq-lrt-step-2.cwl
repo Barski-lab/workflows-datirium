@@ -511,7 +511,6 @@ steps:
       - html_data
       - html_file
 
-  # TODO: remove scatter, add merged read_counts_file_filtered to create only one combined heatmap for all contrasts
   morpheus_heatmap:
     run: ../tools/morpheus-heatmap.cwl
     in:
