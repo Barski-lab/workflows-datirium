@@ -23,7 +23,6 @@ requirements:
   deseq_lrt_step1:
     - "deseq-lrt-step-1.cwl"
 
-
 inputs:
 
   alias:
@@ -270,11 +269,11 @@ steps:
   deseq:
     run: deseq-lrt-step-2.cwl
     in:
-      expression_data_rds: expression_data_rds
-      contrasts_rds: contrasts_rds
-      dsq_wald_rds: dsq_wald_rds
-      metadata_rds: metadata_rds
-      batch_correction_method_rds: batch_correction_method_rds
+      expression_data_rds: deseq_step1/expression_data_rds
+      contrasts_rds: deseq_step1/contrasts_rds
+      dsq_wald_rds: deseq_step1/dsq_wald_rds
+      metadata_rds: deseq_step1/metadata_rds
+      batch_correction_method_rds: deseq_step1/batch_correction_method_rds
       contrast_indices: contrast_indices
       fdr: fdr
       lfcthreshold: lfcthreshold
