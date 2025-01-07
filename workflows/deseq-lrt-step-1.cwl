@@ -28,7 +28,6 @@ inputs:
     sd:preview:
       position: 1
   
-  # Remove "test" suffix then
   test_expression_files:
     type: File[]
     format: "http://edamontology.org/format_3752"
@@ -130,6 +129,22 @@ inputs:
     doc: |
       Hopach clustering method to be run on normalized read counts for the
       exploratory visualization analysis. Default: do not run clustering
+    'sd:layout':
+      advanced: true
+
+  k_hopach:
+    type: int?
+    default: 3
+    label: "Number of levels for HOPACH clustering"
+    doc: "Number of levels (depth) for Hopach clustering: min - 1, max - 15. Default: 3."
+    'sd:layout':
+      advanced: true
+
+  kmax_hopach:
+    type: int?
+    default: 5
+    label: "Maximum number of clusters at each level for HOPACH clustering"
+    doc: "Maximum number of clusters at each level for Hopach clustering: min - 2, max - 9. Default: 5."
     'sd:layout':
       advanced: true
 
@@ -294,6 +309,8 @@ steps:
       lfcthreshold: lfcthreshold
       use_lfc_thresh: use_lfc_thresh
       cluster_method: cluster_method
+      k_hopach: k_hopach
+      kmax_hopach: kmax_hopach
       output_prefix: alias
       threads: threads
       test_mode: test_mode

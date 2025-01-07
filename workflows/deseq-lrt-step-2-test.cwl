@@ -112,6 +112,22 @@ inputs:
   #    'sd:layout':
   #      advanced: true
 
+  k_hopach:
+    type: int?
+    default: 3
+    label: "Number of levels for Hopach clustering"
+    doc: "Number of levels (depth) for Hopach clustering: min - 1, max - 15. Default: 3."
+    #    'sd:layout':
+    #      advanced: true
+
+  kmax_hopach:
+    type: int?
+    default: 5
+    label: "Maximum number of clusters at each level for Hopach clustering"
+    doc: "Maximum number of clusters at each level for Hopach clustering: min - 2, max - 9. Default: 5."
+    #    'sd:layout':
+    #      advanced: true
+
   threads:
     type: int?
     label: "Number of threads"
@@ -233,6 +249,8 @@ steps:
       regulation: regulation
       use_lfc_thresh: use_lfc_thresh
       cluster_method: cluster_method
+      kmax_hopach: kmax_hopach
+      k_hopach: k_hopach
       output_prefix: alias
       threads: threads
       test_mode: test_mode

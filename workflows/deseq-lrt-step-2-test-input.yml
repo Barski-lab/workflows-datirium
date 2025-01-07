@@ -1,14 +1,16 @@
 use_lfc_thresh: true
-threads: 6
-test_mode: false
+threads: 1
+test_mode: true
+k_hopach: 3
+kmax_hopach: 5
 regulation: both
-lfcthreshold: 0
+lfcthreshold: 0.59
 group_by: genes
-fdr: 0.9
-contrast_indices: "5,9,10"
+fdr: 0.1
+contrast_indices: "5,11,21"
 batchcorrection: "none"
 dsq_obj_data:
   class: File
   path: "/Users/biocode/Documents/GitHub/CCHMC/BarskiiLab/workflows/tests/data/dm3_chr4/main_inputs/geep/AFOS_LRT_step_1_test/AFOS_LRT_step_1_test_contrasts.rds"
-alias: AFOS_LRT_step_1_test_step_2
-cluster_method: "none"
+alias: "AFOS_LRT_step_2_test"
+cluster_method: "row"

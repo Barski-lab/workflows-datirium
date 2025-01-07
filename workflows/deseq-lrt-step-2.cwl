@@ -27,7 +27,7 @@ inputs:
     default: "1,5,13 (Example of list of 3 contrasts)"
     doc: "Comma-separated list of integers representing contrast indices (e.g., 1,5,13)"
 
-  fdr:
+  fdr_cutoff:
     type: float?
     default: 0.1
     label: "Maximum P-adjusted to show features in the exploratory visualization analysis"
@@ -71,6 +71,22 @@ inputs:
     doc: |
       Hopach clustering method to be run on normalized read counts for the
       exploratory visualization analysis. Default: do not run clustering
+    'sd:layout':
+      advanced: true
+
+  k_hopach:
+    type: int?
+    default: 3
+    label: "Number of levels for Hopach clustering"
+    doc: "Number of levels (depth) for Hopach clustering: min - 1, max - 15. Default: 3."
+    'sd:layout':
+      advanced: true
+
+  kmax_hopach:
+    type: int?
+    default: 5
+    label: "Maximum number of clusters at each level for Hopach clustering"
+    doc: "Maximum number of clusters at each level for Hopach clustering: min - 2, max - 9. Default: 5."
     'sd:layout':
       advanced: true
 
@@ -233,10 +249,12 @@ steps:
       dsq_obj_data: dsq_obj_data
       batchcorrection: batchcorrection
       contrast_indices: contrast_indices
-      fdr: fdr
+      fdr_cutoff: fdr_cutoff
       lfcthreshold: lfcthreshold
       use_lfc_thresh: use_lfc_thresh
       cluster_method: cluster_method
+      k_hopach: k_hopach
+      kmax_hopach: kmax_hopach
       regulation: regulation
       output_prefix: alias
       threads: threads
