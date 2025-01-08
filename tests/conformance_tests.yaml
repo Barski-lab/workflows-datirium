@@ -829,15 +829,17 @@
 - job: ./trim-atacseq-se-1.json
   tool: ../workflows/trim-atacseq-se.cwl
   output:
-    multimapped_fastq: null
-    unaligned_fastq:
-    - class: File
-      location: unaligned_reads.fastq
     atdp_log:
       location: read_1_atdp.log
       class: File
     atdp_result:
       location: read_1_atdp.tsv
+      class: File
+    bam_statistics_report:
+      location: read_1_bam_statistics_report.txt
+      class: File
+    bam_statistics_report_after_filtering:
+      location: read_1_bam_statistics_report_after_filtering.txt
       class: File
     bambai_pair:
       location: read_1.bam
@@ -851,6 +853,7 @@
     bowtie_log:
       location: read_1.bw
       class: File
+    estimated_fragment_size: 150
     fastx_statistics:
       location: read_1.fastxstat
       class: File
@@ -869,39 +872,29 @@
     iaintersect_result:
       location: read_1_macs_peaks_iaintersect.tsv
       class: File
-    macs2_broad_peaks: null
     macs2_called_peaks:
       location: read_1_macs_peaks.xls
       class: File
-    macs2_fragment_stat:
-      location: read_1_fragment_stat.tsv
-      class: File
-    macs2_gapped_peak: null
     macs2_log:
       location: read_1_macs.log
       class: File
-    macs2_moder_r: null
     macs2_narrow_peaks:
       location: read_1_macs_peaks.narrowPeak
       class: File
     macs2_peak_summits:
       location: read_1_macs_summits.bed
       class: File
-    preseq_estimates: null
-    samtools_rmdup_log:
-      location: read_1.rmdup
+    mapped_reads_number: 90
+    multimapped_fastq: null
+    preseq_estimates_plot_data:
+      location: estimates_file_plot_data.tsv
       class: File
     trim_report:
       location: read_1.fastq_trimming_report.txt
       class: File
-    bam_statistics_report:
-      location: read_1_bam_statistics_report.txt
-      class: File
-    bam_statistics_report_after_filtering:
-      location: read_1_bam_statistics_report_after_filtering.txt
-      class: File
-    estimated_fragment_size: 150
-    mapped_reads_number: 90
+    unaligned_fastq:
+    - class: File
+      location: unaligned_reads.fastq
 
 # ========================================================
 # trim-atacseq-pe
@@ -910,17 +903,17 @@
 - job: ./trim-atacseq-pe-1.json
   tool: ../workflows/trim-atacseq-pe.cwl
   output:
-    multimapped_fastq: null
-    unaligned_fastq:
-    - class: File
-      location: unaligned_reads_1.fastq
-    - class: File
-      location: unaligned_reads_2.fastq
     atdp_log:
       location: read_1_atdp.log
       class: File
     atdp_result:
       location: read_1_atdp.tsv
+      class: File
+    bam_statistics_report:
+      location: read_1_bam_statistics_report.txt
+      class: File
+    bam_statistics_report_after_filtering:
+      location: read_1_bam_statistics_report_after_filtering.txt
       class: File
     bambai_pair:
       location: read_1.bam
@@ -934,6 +927,7 @@
     bowtie_log:
       location: read_1.bw
       class: File
+    estimated_fragment_size: 150
     fastx_statistics_downstream:
       location: read_2.fastxstat
       class: File
@@ -955,27 +949,25 @@
     iaintersect_result:
       location: read_1_macs_peaks_iaintersect.tsv
       class: File
-    macs2_broad_peaks: null
+    insert_size_report_after_filtering:
+      location: is_section.tsv
+      class: File
     macs2_called_peaks:
       location: read_1_macs_peaks.xls
       class: File
-    macs2_fragment_stat:
-      location: read_1_fragment_stat.tsv
-      class: File
-    macs2_gapped_peak: null
     macs2_log:
       location: read_1_macs.log
       class: File
-    macs2_moder_r: null
     macs2_narrow_peaks:
       location: read_1_macs_peaks.narrowPeak
       class: File
     macs2_peak_summits:
       location: read_1_macs_summits.bed
       class: File
-    preseq_estimates: null
-    samtools_rmdup_log:
-      location: read_1.rmdup
+    mapped_reads_number: 31
+    multimapped_fastq: null
+    preseq_estimates_plot_data:
+      location: estimates_file_plot_data.tsv
       class: File
     trim_report_downstream:
       location: read_2.fastq_trimming_report.txt
@@ -983,17 +975,11 @@
     trim_report_upstream:
       location: read_1.fastq_trimming_report.txt
       class: File
-    bam_statistics_report:
-      location: read_1_bam_statistics_report.txt
-      class: File
-    bam_statistics_report_after_filtering:
-      location: read_1_bam_statistics_report_after_filtering.txt
-      class: File
-    estimated_fragment_size: 156
-    mapped_reads_number: 31
-    insert_size_report_after_filtering:
-      location: is_section.tsv
-      class: File
+    unaligned_fastq:
+    - class: File
+      location: unaligned_reads_1.fastq
+    - class: File
+      location: unaligned_reads_2.fastq
 
 # ========================================================
 # trim-chipseq-pe-cut-n-run
