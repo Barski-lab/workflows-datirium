@@ -679,7 +679,7 @@ steps:
       input_file: convert_bam_to_bed/bed_file
       param:
         source: convert_bam_to_bed/bed_file
-        valueFrom: $(get_root(self.basename)+"_tn5_cut.bed")
+        valueFrom: $(get_root(self.basename)+".bed")
       script:
         default: cat "$0" | awk 'BEGIN {OFS = "\t"} ; {if ($6 == "+") print $1, $2 + 4, $2 + 5, $4, $5, $6; else print $1, $3 - 5, $3 - 4, $4, $5, $6}' | sort -k1,1 -k2,2n -k3,3n > $1
     out:
@@ -709,7 +709,7 @@ steps:
         default: ["1,1","2,2n","3,3n"]
       output_filename:
         source: get_tn5_binding_sites/extended_bed_file
-        valueFrom: $(get_root(self.basename)+"_tn5_sorted.bed")
+        valueFrom: $(get_root(self.basename)+".bed")
     out:
     - sorted_file
 
