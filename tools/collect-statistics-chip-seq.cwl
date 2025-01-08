@@ -201,7 +201,7 @@ inputs:
             "total tags in treatment": {
                 "alias": "total reads/pairs in treatment",
                 "function": int,
-                "pair_end_specific": False
+                "pair_end_specific": True
             },
             "fragments after filtering in treatment": {
                 "alias": "reads/pairs after filtering in treatment",
@@ -211,7 +211,7 @@ inputs:
             "tags after filtering in treatment": {
                 "alias": "reads/pairs after filtering in treatment",
                 "function": int,
-                "pair_end_specific": False
+                "pair_end_specific": True
             },
             "Redundant rate in treatment": {
                 "alias": "redundant rate in treatment",
@@ -373,7 +373,7 @@ inputs:
             process_custom_report(args.bowtie, collected_results, "alignment statistics", BOWTIE)
             process_custom_report(args.bamstats, collected_results, "BAM statistics", BAMSTATS, bool(args.paired))
             process_custom_report(args.bamstatsfilter, collected_results, "BAM statistics after filtering", BAMSTATS, bool(args.paired))
-            process_custom_report(args.macs2, collected_results, "peak calling statistics", MACS2)
+            process_custom_report(args.macs2, collected_results, "peak calling statistics", MACS2, bool(args.paired))
             process_macs2_xls(args.macs2, collected_results, "peak calling statistics")
             process_atdp_results(args.atdp, collected_results, "average tag density")
             if args.preseq:
