@@ -585,15 +585,17 @@ steps:
 
   get_tn5_binding_sites:
     doc: |
-      Increases the size of each Tn5 cut site by a 20 bp
-      in two directions. Each region becomes 2 x 20 + 1 long,
+      Increases the size of each Tn5 cut site by
+      exp_fragment_size/2 bp in two directions.
+      Each region becomes exp_fragment_size + 1 long,
       because the original Tn5 cut site was 1 bp long.
     run: ../tools/bedtools-slop.cwl
     in:
       bed_file: get_tn5_cut_sites/output_file
       chrom_length_file: chrom_length
       bi_direction:
-        default: 20
+        source: exp_fragment_size
+        valueFrom: $(parseInt(self/2))
     out:
     - extended_bed_file
 
