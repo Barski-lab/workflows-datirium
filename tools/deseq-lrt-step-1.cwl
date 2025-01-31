@@ -157,7 +157,7 @@ inputs:
 
 outputs:
 
-  contrasts_table_optional:
+  contrasts_table:
     type: File?
     outputBinding:
       glob: "*_contrasts_table.tsv"

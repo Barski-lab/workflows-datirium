@@ -109,26 +109,6 @@ inputs:
 
 outputs:
 
-  fastqc_report_fastq_1:
-    type: File
-    outputSource: run_fastqc_for_fastq_1/html_file
-    label: "FastqQC report for FASTQ file 1"
-    doc: "FastqQC report for FASTQ file 1"
-    'sd:visualPlugins':
-    - linkList:
-        tab: 'Overview'
-        target: "_blank"
-
-  fastqc_report_fastq_2:
-    type: File
-    outputSource: run_fastqc_for_fastq_2/html_file
-    label: "FastqQC report for FASTQ file 2"
-    doc: "FastqQC report for FASTQ file 2"
-    'sd:visualPlugins':
-    - linkList:
-        tab: 'Overview'
-        target: "_blank"
-
   counts_unfiltered_folder:
     type: File
     outputSource: compress_counts_folder/compressed_folder
@@ -258,22 +238,6 @@ steps:
         default: "read_2"
     out:
     - fastq_file
-
-  run_fastqc_for_fastq_1:
-    run: ../tools/fastqc.cwl
-    in:
-      reads_file: extract_fastq_1/fastq_file
-      threads: threads
-    out:
-    - html_file
-
-  run_fastqc_for_fastq_2:
-    run: ../tools/fastqc.cwl
-    in:
-      reads_file: extract_fastq_2/fastq_file
-      threads: threads
-    out:
-    - html_file
 
   generate_counts_matrix:
     run: ../tools/kb-count.cwl
