@@ -188,7 +188,7 @@ outputs:
       glob: "*_counts_all.gct"
 
   counts_filtered_gct:
-    type: File
+    type: File?
     outputBinding:
       glob: "*_counts_filtered.gct"
 

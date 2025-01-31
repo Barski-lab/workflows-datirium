@@ -222,7 +222,7 @@ outputs:
     outputSource: deseq/counts_all_gct
 
   read_counts_file_filtered:
-    type: File
+    type: File?
     label: "Normalized read counts in GCT format filtered by padj"
     format: "http://edamontology.org/format_3709"
     doc: "DESeq generated files of padj-filtered normalized read counts in GCT format. Compatible with Morpheus heatmap"
