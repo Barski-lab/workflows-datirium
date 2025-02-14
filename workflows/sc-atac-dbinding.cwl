@@ -434,7 +434,7 @@ outputs:
   tag_dnst_htmp_html:
     type: File?
     outputSource: sc_atac_dbinding/tag_dnst_htmp_html
-    label: "Tag density heatmap around the centers of filtered diff. accessible regions"
+    label: "Tag Density Heatmap"
     doc: |
       Tag density heatmap around the centers
       of differentially accessible regions.
@@ -448,7 +448,6 @@ outputs:
     "sd:visualPlugins":
     - linkList:
         tab: "Overview"
-        label: "Tag Density Heatmap"
         target: "_blank"
 
   sc_report_html_file:
