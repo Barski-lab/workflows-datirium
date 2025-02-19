@@ -134,13 +134,6 @@ inputs:
     default: "./deseq_lrt_step_1"
     doc: "Output prefix for generated files"
 
-  heatmap_col_order:
-    type: string?
-    inputBinding:
-      prefix: "--heatmap_col_order"
-    default: ""
-    doc: "Columns of heatmap will be displayed in that order; NB - it overwrites the order of clustering"
-
   threads:
     type: int?
     inputBinding:

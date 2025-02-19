@@ -148,15 +148,6 @@ inputs:
     'sd:layout':
       advanced: true
 
-
-  heatmap_col_order:
-    type: string?
-    default: ""
-    label: "Custom order of columns to display on heatmap"
-    doc: "Columns of heatmap will be displayed in that order; NB - it overwrites the order of clustering"
-    'sd:layout':
-      advanced: true
-
   threads:
     type: int?
     default: 6
@@ -329,7 +320,6 @@ steps:
       k_hopach: k_hopach
       kmax_hopach: kmax_hopach
       output_prefix: alias
-      heatmap_col_order: heatmap_col_order
       threads: threads
       lrt_only_mode: lrt_only_mode
       test_mode: test_mode
