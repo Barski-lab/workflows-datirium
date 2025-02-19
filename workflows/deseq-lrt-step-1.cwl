@@ -150,7 +150,7 @@ inputs:
 
 
   heatmap_col_order:
-    type: string
+    type: string?
     default: ""
     label: "Custom order of columns to display on heatmap"
     doc: "Columns of heatmap will be displayed in that order; NB - it overwrites the order of clustering"

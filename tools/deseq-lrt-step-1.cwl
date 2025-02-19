@@ -135,7 +135,7 @@ inputs:
     doc: "Output prefix for generated files"
 
   heatmap_col_order:
-    type: string
+    type: string?
     inputBinding:
       prefix: "--heatmap_col_order"
     default: ""
