@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: Workflow
 
 requirements:
@@ -344,6 +344,7 @@ steps:
       - heatmap_html
       - stdout_log
       - stderr_log
+    when: $(inputs.read_counts_gct != null)
 
 $namespaces:
   s: http://schema.org/
