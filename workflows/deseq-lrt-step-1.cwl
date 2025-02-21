@@ -253,7 +253,7 @@ outputs:
           target: "_blank"
 
   heatmap_html:
-    type: File
+    type: File?
     outputSource: morpheus_heatmap/heatmap_html
     label: "Combined Heatmap of normalized counts"
     doc: |
@@ -344,7 +344,7 @@ steps:
       - heatmap_html
       - stdout_log
       - stderr_log
-    when: $(inputs.read_counts_gct != null)
+    when: $(inputs.read_counts_gct && inputs.read_counts_gct.path)
 
 $namespaces:
   s: http://schema.org/
