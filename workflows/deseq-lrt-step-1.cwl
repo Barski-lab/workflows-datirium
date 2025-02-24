@@ -1,4 +1,4 @@
-cwlVersion: v1.2
+cwlVersion: v1.0
 class: Workflow
 
 requirements:
@@ -112,6 +112,18 @@ inputs:
     default: false
     label: "Use lfcthreshold as the null hypothesis value in the results function call"
     doc: "Use lfcthreshold as the null hypothesis value in the results function call. Default: TRUE"
+    'sd:layout':
+      advanced: true
+
+  rpkm_cutoff:
+    type: int?
+    default: null
+    label: "RPKM cutoff for filtering expression data"
+    doc: |
+      Integer cutoff for filtering rows in the expression data.
+      Rows will be retained if any column with "Rpkm" in its name exceeds this cutoff.
+      If not provided (i.e. remains null), no filtering is applied.
+      Recommended values are: 3, 5.
     'sd:layout':
       advanced: true
 
@@ -316,6 +328,7 @@ steps:
       fdr: fdr
       lfcthreshold: lfcthreshold
       use_lfc_thresh: use_lfc_thresh
+      rpkm_cutoff: rpkm_cutoff
       cluster_method: cluster_method
       k_hopach: k_hopach
       kmax_hopach: kmax_hopach
@@ -344,7 +357,6 @@ steps:
       - heatmap_html
       - stdout_log
       - stderr_log
-    when: $(inputs.read_counts_gct && inputs.read_counts_gct.path)
 
 $namespaces:
   s: http://schema.org/

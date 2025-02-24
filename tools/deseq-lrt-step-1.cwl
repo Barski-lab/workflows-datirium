@@ -13,21 +13,18 @@ inputs:
   test_expression_files:
     type: File[]
     inputBinding:
-      position: 1
       prefix: "--input"
     doc: "Grouped by gene / TSS/ isoform expression files, formatted as CSV/TSV"
 
   expression_file_names:
     type: string[]
     inputBinding:
-      position: 2
       prefix: "--name"
     doc: "Unique names for input files, no special characters, spaces are allowed. Number and order corresponds to --input"
 
   metadata_file:
     type: File
     inputBinding:
-      position: 3
       prefix: "--meta"
     doc: |
       Metadata file to describe relation between samples, where the first column corresponds to --name, formatted as CSV/TSV.
@@ -36,14 +33,12 @@ inputs:
   design_formula:
     type: string
     inputBinding:
-      position: 4
       prefix: "--design"
     doc: "Design formula. Should start with ~. See DESeq2 manual for details"
 
   reduced_formula:
     type: string
     inputBinding:
-      position: 5
       prefix: "--reduced"
     doc: "Reduced formula to compare against with the term(s) of interest removed. Should start with ~. See DESeq2 manual for details"
 
@@ -56,7 +51,6 @@ inputs:
           - "combatseq"
           - "limmaremovebatcheffect"
     inputBinding:
-      position: 6
       prefix: "--batchcorrection"
     default: "none"
     doc: |
@@ -69,7 +63,6 @@ inputs:
   fdr:
     type: float?
     inputBinding:
-      position: 7
       prefix: "--fdr"
     default: 0.1
     doc: |
@@ -79,7 +72,6 @@ inputs:
   lfcthreshold:
     type: float?
     inputBinding:
-      position: 8
       prefix: "--lfcthreshold"
     default: 0.59
     doc: |
@@ -90,10 +82,19 @@ inputs:
   use_lfc_thresh:
     type: boolean
     inputBinding:
-      position: 9
       prefix: "--use_lfc_thresh"
     default: false
     doc: "Use lfcthreshold as the null hypothesis value in the results function call. Default: FALSE"
+
+  rpkm_cutoff:
+    type: int?
+    inputBinding:
+      prefix: "--rpkm_cutoff"
+    default: null
+    doc: |
+      Integer cutoff for filtering rows in the expression data.
+      Rows will be kept if any column whose name contains "Rpkm" has a value greater than this cutoff.
+      If not provided (i.e. remains null), no filtering will be applied.
 
   cluster_method:
     type:
@@ -111,7 +112,6 @@ inputs:
       Hopach clustering method to be run on normalized read counts for the
       exploratory visualization part of the analysis. Default: do not run
       clustering
-
 
   k_hopach:
     type: int?
