@@ -136,19 +136,25 @@ inputs:
     "sd:upstreamSource": "deseq_lrt_step1/group_by"
 
   dsq_obj_data:
-    type: File
+    type: File?
     label: "Contrasts RDS File"
     doc: "RDS file containing the contrasts list from step 1."
     "sd:upstreamSource": "deseq_lrt_step1/dsq_obj_data"
 
   contrasts_table:
-    type: File
+    type: File?
     label: "Contrasts Table TSV File"
     doc: "TSV file containing contrasts data"
     "sd:upstreamSource": "deseq_lrt_step1/contrasts_table"
 
   batchcorrection:
-    type: string
+    type:
+      - "null"
+      - type: enum
+        symbols:
+          - "none"
+          - "combatseq"
+          - "limmaremovebatcheffect"
     label: "Batch Correction Method RDS File"
     doc: "RDS file containing the batch correction method used in step 1."
     "sd:upstreamSource": "deseq_lrt_step1/batchcorrection"

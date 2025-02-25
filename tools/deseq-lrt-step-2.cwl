@@ -11,19 +11,25 @@ hints:
 inputs:
 
   dsq_obj_data:
-    type: File
+    type: File?
     inputBinding:
       prefix: "--dsq_obj_data"
     doc: "RDS file containing the contrasts list from step 1"
 
   contrasts_table:
-    type: File
+    type: File?
     inputBinding:
       prefix: "--contrast_df"
     doc: "TSV file containing contrasts data"
 
   batchcorrection:
-    type: string
+    type:
+      - "null"
+      - type: enum
+        symbols:
+          - "none"
+          - "combatseq"
+          - "limmaremovebatcheffect"
     inputBinding:
       prefix: "--batchcorrection"
     default: "none"
