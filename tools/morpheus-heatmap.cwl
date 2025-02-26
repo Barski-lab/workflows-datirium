@@ -46,9 +46,9 @@ outputs:
 
 baseCommand: [ "bash", "-c" ]
 arguments:
-  - valueFrom: >
-      if [ -n "$(inputs.read_counts_gct ? inputs.read_counts_gct.path : '')" ]; then
-         run_morpheus.R --gct "$(inputs.read_counts_gct.path)" $( (inputs.output_prefix) ? "--output " + inputs.output_prefix : "" );
+ - valueFrom: >
+      if [ ! -z "$(inputs.read_counts_gct)" ] && [ -s "$(inputs.read_counts_gct.path)" ]; then
+         run_morpheus.R --gct "$(inputs.read_counts_gct.path)" $(if [ ! -z "$(inputs.output_prefix)" ]; then echo "--output $(inputs.output_prefix)"; fi);
       else
          echo "Input GCT file is missing or empty, skipping heatmap generation." > morpheus_stdout.log;
          touch morpheus_stderr.log;
