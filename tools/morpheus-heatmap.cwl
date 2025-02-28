@@ -13,7 +13,7 @@ hints:
 
 inputs:
 
-  read_counts_gct_test:
+  read_counts_gct:
     type: File?
     inputBinding:
       prefix: "--gct"
