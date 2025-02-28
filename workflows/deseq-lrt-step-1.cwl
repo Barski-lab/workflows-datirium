@@ -22,7 +22,7 @@ requirements:
 
 inputs:
 
-  alias_trigger_update:
+  alias:
     type: string
     label: "Experiment short name/Alias"
     sd:preview:
