@@ -85,6 +85,24 @@ inputs:
     'sd:layout':
       advanced: true
 
+
+  scaling_type:
+    type:
+      - "null"
+      - type: enum
+        symbols:
+          - "minmax"
+          - "zscore"
+    default: "zscore"
+    label: "Expression Data Scaling Method"
+    doc: |
+      Specifies the type of scaling to be applied to the expression data.
+      - 'minmax' applies Min-Max scaling, normalizing values to a range of [-2, 2].
+      - 'zscore' applies Z-score standardization, centering data to mean = 0 and standard deviation = 1.
+      - Default: none (no scaling applied).
+    'sd:layout':
+      advanced: true
+
   fdr:
     type: float?
     default: 0.1
@@ -330,6 +348,7 @@ steps:
       use_lfc_thresh: use_lfc_thresh
       rpkm_cutoff: rpkm_cutoff
       cluster_method: cluster_method
+      scaling_type: scaling_type
       k_hopach: k_hopach
       kmax_hopach: kmax_hopach
       output_prefix: alias
