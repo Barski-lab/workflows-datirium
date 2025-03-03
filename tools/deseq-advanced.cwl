@@ -182,7 +182,7 @@ inputs:
           - "minmax"
           - "zscore"
     inputBinding:
-    prefix: "--scaling_type"
+      prefix: "--scaling_type"
     default: "zscore"
     doc: |
       Specifies the type of scaling to be applied to the expression data.
