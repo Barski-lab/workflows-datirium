@@ -109,7 +109,7 @@ inputs:
       exploratory visualization part of the analysis. Default: do not run
       clustering
 
-   row_distance:
+  row_distance:
     type:
       - "null"
       - type: enum
