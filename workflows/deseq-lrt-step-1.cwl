@@ -90,16 +90,15 @@ inputs:
       - "null"
       - type: enum
         symbols:
-          - "none"
           - "minmax"
           - "zscore"
-    default: "none"
+    default: "zscore"
     label: "Expression Data Scaling Method"
     doc: |
       Specifies the type of scaling to be applied to the expression data.
       'minmax' applies Min-Max scaling, normalizing values to a range of [-2, 2].
       'zscore' applies Z-score standardization, centering data to mean = 0 and standard deviation = 1.
-      Default: none (no scaling applied).
+      Default: zscore.
     'sd:layout':
       advanced: true
 
