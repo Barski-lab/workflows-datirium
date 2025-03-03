@@ -114,12 +114,12 @@ inputs:
       - "null"
       - type: enum
         symbols:
-        - "cosangle"
-        - "abscosangle"
-        - "euclid"
-        - "abseuclid"
-        - "cor"
-        - "abscor"
+          - "cosangle"
+          - "abscosangle"
+          - "euclid"
+          - "abseuclid"
+          - "cor"
+          - "abscor"
     inputBinding:
       prefix: "--rowdist"
     doc: |
@@ -131,12 +131,12 @@ inputs:
       - "null"
       - type: enum
         symbols:
-        - "cosangle"
-        - "abscosangle"
-        - "euclid"
-        - "abseuclid"
-        - "cor"
-        - "abscor"
+          - "cosangle"
+          - "abscosangle"
+          - "euclid"
+          - "abseuclid"
+          - "cor"
+          - "abscor"
     inputBinding:
       prefix: "--columndist"
     doc: |
