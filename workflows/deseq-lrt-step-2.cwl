@@ -93,15 +93,15 @@ inputs:
 
   row_distance:
     type:
-    - "null"
-    - type: enum
-      symbols:
-      - "cosangle"
-      - "abscosangle"
-      - "euclid"
-      - "abseuclid"
-      - "cor"
-      - "abscor"
+      - "null"
+      - type: enum
+        symbols:
+        - "cosangle"
+        - "abscosangle"
+        - "euclid"
+        - "abseuclid"
+        - "cor"
+        - "abscor"
     default: "cosangle"
     label: "Distance metric for HOPACH row clustering"
     doc: |
@@ -112,15 +112,15 @@ inputs:
 
   column_distance:
     type:
-    - "null"
-    - type: enum
-      symbols:
-      - "cosangle"
-      - "abscosangle"
-      - "euclid"
-      - "abseuclid"
-      - "cor"
-      - "abscor"
+      - "null"
+      - type: enum
+        symbols:
+        - "cosangle"
+        - "abscosangle"
+        - "euclid"
+        - "abseuclid"
+        - "cor"
+        - "abscor"
     default: "euclid"
     label: "Distance metric for HOPACH column clustering"
     doc: |

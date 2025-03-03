@@ -111,15 +111,15 @@ inputs:
 
    row_distance:
     type:
-    - "null"
-    - type: enum
-      symbols:
-      - "cosangle"
-      - "abscosangle"
-      - "euclid"
-      - "abseuclid"
-      - "cor"
-      - "abscor"
+      - "null"
+      - type: enum
+        symbols:
+        - "cosangle"
+        - "abscosangle"
+        - "euclid"
+        - "abseuclid"
+        - "cor"
+        - "abscor"
     inputBinding:
       prefix: "--rowdist"
     doc: |
@@ -128,15 +128,15 @@ inputs:
 
   column_distance:
     type:
-    - "null"
-    - type: enum
-      symbols:
-      - "cosangle"
-      - "abscosangle"
-      - "euclid"
-      - "abseuclid"
-      - "cor"
-      - "abscor"
+      - "null"
+      - type: enum
+        symbols:
+        - "cosangle"
+        - "abscosangle"
+        - "euclid"
+        - "abseuclid"
+        - "cor"
+        - "abscor"
     inputBinding:
       prefix: "--columndist"
     doc: |
