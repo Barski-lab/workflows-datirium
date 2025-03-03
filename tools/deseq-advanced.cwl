@@ -8,7 +8,7 @@ requirements:
 
 hints:
 - class: DockerRequirement
-  dockerPull: biowardrobe2/scidap-deseq:v0.0.29
+  dockerPull: biowardrobe2/scidap-deseq:v0.0.30
 
 
 inputs:
@@ -190,6 +190,30 @@ inputs:
       - 'zscore' applies Z-score standardization, centering data to mean = 0 and standard deviation = 1.
       - Default: none (no scaling applied).
       **Note:** If 'minmax' or 'zscore' is selected, all genes/features will be scaled accordingly before further analysis.
+
+  k_hopach:
+    type: int?
+    inputBinding:
+      prefix: "--k"
+    default: 3
+    doc: "Number of levels (depth) for Hopach clustering: min - 1, max - 15. Default: 3."
+
+  kmax_hopach:
+    type: int?
+    inputBinding:
+      prefix: "--kmax"
+    default: 5
+    doc: "Maximum number of clusters at each level for Hopach clustering: min - 2, max - 9. Default: 5."
+
+  rpkm_cutoff:
+    type: int?
+    inputBinding:
+      prefix: "--rpkm_cutoff"
+    default: null
+    doc: |
+      Integer cutoff for filtering rows in the expression data.
+      Rows will be kept if any column whose name contains "Rpkm" has a value greater than this cutoff.
+      If not provided (i.e. remains null), no filtering will be applied.
 
   batch_file:
     type: File?

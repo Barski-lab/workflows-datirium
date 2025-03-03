@@ -109,6 +109,40 @@ inputs:
       exploratory visualization part of the analysis. Default: do not run
       clustering
 
+   row_distance:
+    type:
+    - "null"
+    - type: enum
+      symbols:
+      - "cosangle"
+      - "abscosangle"
+      - "euclid"
+      - "abseuclid"
+      - "cor"
+      - "abscor"
+    inputBinding:
+      prefix: "--rowdist"
+    doc: |
+      Distance metric for HOPACH row clustering. Ignored if --cluster is not
+      provided. Default: cosangle
+
+  column_distance:
+    type:
+    - "null"
+    - type: enum
+      symbols:
+      - "cosangle"
+      - "abscosangle"
+      - "euclid"
+      - "abseuclid"
+      - "cor"
+      - "abscor"
+    inputBinding:
+      prefix: "--columndist"
+    doc: |
+      Distance metric for HOPACH column clustering. Ignored if --cluster is not
+      provided. Default: euclid
+
   scaling_type:
     type:
       - "null"

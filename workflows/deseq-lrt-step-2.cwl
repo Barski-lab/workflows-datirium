@@ -91,6 +91,44 @@ inputs:
     'sd:layout':
       advanced: true
 
+  row_distance:
+    type:
+    - "null"
+    - type: enum
+      symbols:
+      - "cosangle"
+      - "abscosangle"
+      - "euclid"
+      - "abseuclid"
+      - "cor"
+      - "abscor"
+    default: "cosangle"
+    label: "Distance metric for HOPACH row clustering"
+    doc: |
+      Distance metric for HOPACH row clustering. Ignored if --cluster is not
+      provided. Default: cosangle
+    'sd:layout':
+      advanced: true
+
+  column_distance:
+    type:
+    - "null"
+    - type: enum
+      symbols:
+      - "cosangle"
+      - "abscosangle"
+      - "euclid"
+      - "abseuclid"
+      - "cor"
+      - "abscor"
+    default: "euclid"
+    label: "Distance metric for HOPACH column clustering"
+    doc: |
+      Distance metric for HOPACH column clustering. Ignored if --cluster is not
+      provided. Default: euclid
+    'sd:layout':
+      advanced: true
+
   k_hopach:
     type: int?
     default: 3
@@ -282,6 +320,8 @@ steps:
       fdr_cutoff: fdr_cutoff
       lfcthreshold: lfcthreshold
       use_lfc_thresh: use_lfc_thresh
+      row_distance: row_distance
+      column_distance: column_distance
       cluster_method: cluster_method
       scaling_type: scaling_type
       k_hopach: k_hopach

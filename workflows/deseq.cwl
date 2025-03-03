@@ -160,6 +160,22 @@ inputs:
     'sd:layout':
       advanced: true
 
+  k_hopach:
+    type: int?
+    default: 3
+    label: "Number of levels for HOPACH clustering"
+    doc: "Number of levels (depth) for Hopach clustering: min - 1, max - 15. Default: 3."
+    'sd:layout':
+      advanced: true
+
+  kmax_hopach:
+    type: int?
+    default: 5
+    label: "Maximum number of clusters at each level for HOPACH clustering"
+    doc: "Maximum number of clusters at each level for Hopach clustering: min - 2, max - 9. Default: 5."
+    'sd:layout':
+      advanced: true
+
   row_distance:
     type:
     - "null"
@@ -195,6 +211,18 @@ inputs:
     doc: |
       Distance metric for HOPACH column clustering. Ignored if --cluster is not
       provided. Default: euclid
+    'sd:layout':
+      advanced: true
+
+  rpkm_cutoff:
+    type: int?
+    default: null
+    label: "RPKM cutoff for filtering expression data"
+    doc: |
+      Integer cutoff for filtering rows in the expression data.
+      Rows will be retained if any column with "Rpkm" in its name exceeds this cutoff.
+      If not provided (i.e. remains null), no filtering is applied.
+      Recommended values are: 3, 5.
     'sd:layout':
       advanced: true
       
@@ -568,7 +596,10 @@ steps:
       column_distance: column_distance
       fdr: fdr
       threads: threads
+      rpkm_cutoff: rpkm_cutoff
       lfcthreshold: lfcthreshold
+      k_hopach: k_hopach
+      kmax_hopach: kmax_hopach
       use_lfc_thresh: use_lfc_thresh
       regulation: regulation
       batchcorrection: batchcorrection
