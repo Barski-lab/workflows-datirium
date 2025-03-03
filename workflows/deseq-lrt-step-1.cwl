@@ -79,9 +79,9 @@ inputs:
     label: "Batch Correction Method"
     doc: |
       Specifies the batch correction method to be applied.
-      - 'combatseq' applies ComBat_seq at the beginning of the analysis.
-      - 'limmaremovebatcheffect' notes the batch correction to be applied in step 2.
-      - Default: none
+      'combatseq' applies ComBat_seq at the beginning of the analysis.
+      'limmaremovebatcheffect' notes the batch correction to be applied in step 2.
+      Default: none
     'sd:layout':
       advanced: true
 
@@ -91,15 +91,16 @@ inputs:
       - "null"
       - type: enum
         symbols:
+          - "none"
           - "minmax"
           - "zscore"
-    default: "zscore"
+    default: "none"
     label: "Expression Data Scaling Method"
     doc: |
       Specifies the type of scaling to be applied to the expression data.
-      - 'minmax' applies Min-Max scaling, normalizing values to a range of [-2, 2].
-      - 'zscore' applies Z-score standardization, centering data to mean = 0 and standard deviation = 1.
-      - Default: none (no scaling applied).
+      'minmax' applies Min-Max scaling, normalizing values to a range of [-2, 2].
+      'zscore' applies Z-score standardization, centering data to mean = 0 and standard deviation = 1.
+      Default: none (no scaling applied).
     'sd:layout':
       advanced: true
 

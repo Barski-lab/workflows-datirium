@@ -73,9 +73,9 @@ inputs:
     default: "both"
     doc: |
       Direction of differential expression comparison. β is the log2 fold change.
-      - 'both' for both up and downregulated genes (|β| > lfcThreshold);
-      - 'up' for upregulated genes (β > lfcThreshold);
-      - 'down' for downregulated genes (β < -lfcThreshold).
+      'both' for both up and downregulated genes (|β| > lfcThreshold);
+      'up' for upregulated genes (β > lfcThreshold);
+      'down' for downregulated genes (β < -lfcThreshold).
       Default: both
 
   output_prefix:
@@ -155,9 +155,9 @@ inputs:
     default: "zscore"
     doc: |
       Specifies the type of scaling to be applied to the expression data.
-      - 'minmax' applies Min-Max scaling, normalizing values to a range of [-2, 2].
-      - 'zscore' applies Z-score standardization, centering data to mean = 0 and standard deviation = 1.
-      - Default: none (no scaling applied).
+      'minmax' applies Min-Max scaling, normalizing values to a range of [-2, 2].
+      'zscore' applies Z-score standardization, centering data to mean = 0 and standard deviation = 1.
+      Default: none (no scaling applied).
       **Note:** If 'minmax' or 'zscore' is selected, all genes/features will be scaled accordingly before further analysis.
 
   k_hopach:

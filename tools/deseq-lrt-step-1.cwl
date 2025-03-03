@@ -55,9 +55,9 @@ inputs:
     default: "none"
     doc: |
       Specifies the batch correction method to be applied.
-      - 'combatseq' applies ComBat_seq at the beginning of the analysis, removing batch effects from the counts before differential expression analysis.
-      - 'limmaremovebatcheffect' applies removeBatchEffect from the limma package after differential expression analysis.
-      - Default: none.
+      'combatseq' applies ComBat_seq at the beginning of the analysis, removing batch effects from the counts before differential expression analysis.
+      'limmaremovebatcheffect' applies removeBatchEffect from the limma package after differential expression analysis.
+      Default: none.
       **Note:** The metadata file must include a 'batch' column if batch correction is specified.
 
   scaling_type:
@@ -72,9 +72,9 @@ inputs:
     default: "zscore"
     doc: |
       Specifies the type of scaling to be applied to the expression data.
-      - 'minmax' applies Min-Max scaling, normalizing values to a range of [-2, 2].
-      - 'zscore' applies Z-score standardization, centering data to mean = 0 and standard deviation = 1.
-      - Default: none (no scaling applied).
+      'minmax' applies Min-Max scaling, normalizing values to a range of [-2, 2].
+      'zscore' applies Z-score standardization, centering data to mean = 0 and standard deviation = 1.
+      Default: none (no scaling applied).
       **Note:** If 'minmax' or 'zscore' is selected, all genes/features will be scaled accordingly before further analysis.
 
   fdr:
