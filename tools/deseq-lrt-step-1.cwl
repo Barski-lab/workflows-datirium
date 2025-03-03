@@ -9,7 +9,7 @@ hints:
     dockerPull: biowardrobe2/scidap-deseq:v0.0.30
 
 inputs:
-
+  
   expression_files:
     type: File[]
     inputBinding:
@@ -130,7 +130,7 @@ inputs:
       exploratory visualization part of the analysis. Default: do not run
       clustering
 
-   row_distance:
+  row_distance:
     type:
       - "null"
       - type: enum
