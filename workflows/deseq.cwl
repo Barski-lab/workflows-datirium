@@ -271,6 +271,23 @@ inputs:
     'sd:layout':
       advanced: true
 
+  scaling_type:
+    type:
+      - "null"
+      - type: enum
+        symbols:
+          - "minmax"
+          - "zscore"
+    default: "zscore"
+    label: "Expression Data Scaling Method"
+    doc: |
+      Specifies the type of scaling to be applied to the expression data.
+      - 'minmax' applies Min-Max scaling, normalizing values to a range of [-2, 2].
+      - 'zscore' applies Z-score standardization, centering data to mean = 0 and standard deviation = 1.
+      - Default: none (no scaling applied).
+    'sd:layout':
+      advanced: true
+
   sample_names_cond_1:
     type:
       - "null"
@@ -547,6 +564,7 @@ steps:
         source: cluster_method
         valueFrom: $(self=="none"?null:self)
       row_distance: row_distance
+      scaling_type: scaling_type
       column_distance: column_distance
       fdr: fdr
       threads: threads
@@ -634,8 +652,8 @@ $namespaces:
 $schemas:
 - https://github.com/schemaorg/schemaorg/raw/main/data/releases/11.01/schemaorg-current-http.rdf
 
-s:name: "DESeq - differential gene expression analysis"
-label: "DESeq - differential gene expression analysis"
+s:name: "DESeq2 Wald test - differential gene expression analysis"
+label: "DESeq2 Wald test - differential gene expression analysis"
 s:alternateName: "Differential gene expression analysis based on the negative binomial distribution"
 
 s:downloadUrl: https://raw.githubusercontent.com/datirium/workflows/master/workflows/deseq.cwl
@@ -672,16 +690,6 @@ doc: |
   Differential gene expression analysis based on the negative binomial distribution
 
   Estimate variance-mean dependence in count data from high-throughput sequencing assays and test for differential expression based on a model using the negative binomial distribution.
-
-  DESeq1
-  ------
-
-  High-throughput sequencing assays such as RNA-Seq, ChIP-Seq or barcode counting provide quantitative readouts
-  in the form of count data. To infer differential signal in such data correctly and with good statistical power,
-  estimation of data variability throughout the dynamic range and a suitable error model are required.
-  Simon Anders and Wolfgang Huber propose a method based on the negative binomial distribution, with variance and mean
-  linked by local regression and present an implementation, [DESeq](http://bioconductor.org/packages/release/bioc/html/DESeq.html),
-  as an R/Bioconductor package 
 
   DESeq2
   ------

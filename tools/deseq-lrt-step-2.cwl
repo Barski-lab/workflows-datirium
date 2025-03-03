@@ -109,6 +109,23 @@ inputs:
       exploratory visualization part of the analysis. Default: do not run
       clustering
 
+  scaling_type:
+    type:
+      - "null"
+      - type: enum
+        symbols:
+          - "minmax"
+          - "zscore"
+    inputBinding:
+    prefix: "--scaling_type"
+    default: "zscore"
+    doc: |
+      Specifies the type of scaling to be applied to the expression data.
+      - 'minmax' applies Min-Max scaling, normalizing values to a range of [-2, 2].
+      - 'zscore' applies Z-score standardization, centering data to mean = 0 and standard deviation = 1.
+      - Default: none (no scaling applied).
+      **Note:** If 'minmax' or 'zscore' is selected, all genes/features will be scaled accordingly before further analysis.
+
   k_hopach:
     type: int?
     inputBinding:
