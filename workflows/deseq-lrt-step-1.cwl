@@ -28,7 +28,7 @@ inputs:
     sd:preview:
       position: 1
   
-  test_expression_files:
+  expression_files:
     type: File[]
     format: "http://edamontology.org/format_3752"
     label: "RNA-Seq experiments"
@@ -300,7 +300,7 @@ steps:
   group_isoforms:
     run: ../tools/group-isoforms-batch.cwl
     in:
-      isoforms_file: test_expression_files
+      isoforms_file: expression_files
     out:
       - genes_file
       - common_tss_file
@@ -308,8 +308,8 @@ steps:
   deseq:
     run: ../tools/deseq-lrt-step-1.cwl
     in:
-      test_expression_files:
-        source: [ group_by, test_expression_files, group_isoforms/genes_file, group_isoforms/common_tss_file ]
+      expression_files:
+        source: [ group_by, expression_files, group_isoforms/genes_file, group_isoforms/common_tss_file ]
         valueFrom: |
           ${
             if (self[0] == "isoforms") {
