@@ -85,7 +85,6 @@ inputs:
     'sd:layout':
       advanced: true
 
-
   scaling_type:
     type:
       - "null"
