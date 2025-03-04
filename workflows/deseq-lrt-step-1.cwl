@@ -339,15 +339,15 @@ outputs:
   deseq_stdout_log:
     type: File
     format: "http://edamontology.org/format_2330"
-    label: "DESeq2 stdout log"
-    doc: "DESeq2 stdout log"
+    label: "DESeq2 LRT Step 1 stdout log"
+    doc: "DESeq2 LRT Step 1 stdout log"
     outputSource: deseq/stdout_log
 
   deseq_stderr_log:
     type: File
     format: "http://edamontology.org/format_2330"
-    label: "DESeq2 stderr log"
-    doc: "DESeq2 stderr log"
+    label: "DESeq2 LRT Step 1 stderr log"
+    doc: "DESeq2 LRT Step 1 stderr log"
     outputSource: deseq/stderr_log
 
 steps:

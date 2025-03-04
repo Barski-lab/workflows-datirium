@@ -285,15 +285,15 @@ outputs:
   deseq_stdout_log:
     type: File
     format: "http://edamontology.org/format_2330"
-    label: "DESeq2 stdout log"
-    doc: "DESeq2 stdout log"
+    label: "DESeq2 LRT Step 2 stdout log"
+    doc: "DESeq2 LRT Step 2 stdout log"
     outputSource: deseq/stdout_log
 
   deseq_stderr_log:
     type: File
     format: "http://edamontology.org/format_2330"
-    label: "DESeq2 stderr log"
-    doc: "DESeq2 stderr log"
+    label: "DESeq2 LRT Step 2 stderr log"
+    doc: "DESeq2 LRT Step 2 stderr log"
     outputSource: deseq/stderr_log
 
   morpheus_stdout_log:
