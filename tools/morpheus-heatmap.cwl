@@ -28,14 +28,6 @@ inputs:
       Output prefix for generated files
 
 
-  trigger_update:
-    type: File?
-    inputBinding:
-      prefix: "--trigger_update"
-    doc: |
-      Trigger Update
-
-
 outputs:
 
   heatmap_html:
