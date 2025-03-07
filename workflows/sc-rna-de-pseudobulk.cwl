@@ -362,7 +362,7 @@ outputs:
         query_eval_string: "`data_file=${this.getSampleValue('outputs', 'diff_expr_genes')}&data_col=gene&x_col=log2FoldChange&y_col=padj`"
 
   xpr_htmp_html:
-    type: File
+    type: File?
     outputSource: de_pseudobulk/xpr_htmp_html
     label: "Gene Expression Heatmap"
     doc: |
@@ -480,7 +480,7 @@ outputs:
       TSV format.
 
   xpr_htmp_gct:
-    type: File
+    type: File?
     outputSource: de_pseudobulk/xpr_htmp_gct
     label: "Gene expression heatmap"
     doc: |
