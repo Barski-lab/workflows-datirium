@@ -138,7 +138,6 @@ inputs:
           - "cosangle"
           - "abscosangle"
           - "euclid"
-          - "abseuclid"
           - "cor"
           - "abscor"
     inputBinding:
@@ -155,7 +154,6 @@ inputs:
           - "cosangle"
           - "abscosangle"
           - "euclid"
-          - "abseuclid"
           - "cor"
           - "abscor"
     inputBinding:
