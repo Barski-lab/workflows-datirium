@@ -49,14 +49,14 @@ inputs:
         symbols:
           - "none"
           - "combatseq"
-          - "limmaremovebatcheffect"
+          - "model"
     inputBinding:
       prefix: "--batchcorrection"
     default: "none"
     doc: |
       Specifies the batch correction method to be applied.
       'combatseq' applies ComBat_seq at the beginning of the analysis, removing batch effects from the counts before differential expression analysis.
-      'limmaremovebatcheffect' applies removeBatchEffect from the limma package after differential expression analysis.
+      'model' applies removeBatchEffect from the limma package after differential expression analysis.
       Default: none.
       **Note:** The metadata file must include a 'batch' column if batch correction is specified.
 

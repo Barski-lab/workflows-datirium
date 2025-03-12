@@ -29,7 +29,7 @@ inputs:
         symbols:
           - "none"
           - "combatseq"
-          - "limmaremovebatcheffect"
+          - "model"
     inputBinding:
       prefix: "--batchcorrection"
     default: "none"

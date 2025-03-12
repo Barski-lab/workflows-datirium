@@ -55,7 +55,7 @@ inputs:
     label: "Use lfcthreshold as the null hypothesis value in the results function call"
     doc: "Use lfcthreshold as the null hypothesis value in the results function call. Default: TRUE"
     'sd:layout':
-      advanced: true
+      advanced: false
 
   cluster_method:
     type:
@@ -207,7 +207,7 @@ inputs:
         symbols:
           - "none"
           - "combatseq"
-          - "limmaremovebatcheffect"
+          - "model"
     label: "Batch Correction Method RDS File"
     doc: "RDS file containing the batch correction method used in step 1."
     "sd:upstreamSource": "deseq_lrt_step1/batchcorrection"

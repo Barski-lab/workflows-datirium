@@ -74,7 +74,7 @@ inputs:
         symbols:
           - "none"
           - "combatseq"
-          - "limmaremovebatcheffect"
+          - "model"
     default: "none"
     label: "Batch Correction Method"
     doc: |

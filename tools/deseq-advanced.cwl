@@ -134,7 +134,7 @@ inputs:
     type: boolean
     inputBinding:
       prefix: "--use_lfc_thresh"
-    default: true
+    default: false
     doc: "Use lfcthreshold as the null hypothesis value in the results function call. Default: TRUE"
       
   regulation:
@@ -162,13 +162,13 @@ inputs:
         symbols:
           - "none"
           - "combatseq"
-          - "limmaremovebatcheffect"
+          - "model"
     inputBinding:
       prefix: "--batchcorrection"
     doc: |
       Specifies the batch correction method to be applied.
       - 'combatseq' applies ComBat_seq at the beginning of the analysis, removing batch effects from the design formula before differential expression analysis.
-      - 'limmaremovebatcheffect' applies removeBatchEffect from the limma package after differential expression analysis, incorporating batch effects into the model during DE analysis.
+      - 'model' applies removeBatchEffect from the limma package after differential expression analysis, incorporating batch effects into the model during DE analysis.
       - Default: none
     default: "none"
 
@@ -386,7 +386,7 @@ s:about: |
         [-bf BATCHFILE] [-cu CUTOFF] [--fdr FDR]
         [--regulation {both,up,down}]
         [--lfcthreshold LFCTHRESHOLD]
-        [--batchcorrection {none, combatseq,limmaremovebatcheffect}]
+        [--batchcorrection {none, combatseq,model}]
         [--use_lfc_thresh]
 
 
@@ -445,9 +445,9 @@ s:about: |
                           Direction of differential expression comparison.
                           'up' for upregulated genes, 'down' for downregulated genes,
                           'both' for both up and downregulated genes. Default: both
-    --batchcorrection {none, combatseq,limmaremovebatcheffect}
+    --batchcorrection {none, combatseq,model}
                           Specifies the batch correction method to be applied.
                           - 'combatseq' applies ComBat_seq at the beginning of the analysis, removing batch effects from the design formula before differential expression analysis.
-                          - 'limmaremovebatcheffect' applies removeBatchEffect from the limma package after differential expression analysis, incorporating batch effects into the model during DE analysis.
+                          - 'model' applies removeBatchEffect from the limma package after differential expression analysis, incorporating batch effects into the model during DE analysis.
                           - Default: none
     --use_lfc_thresh      Use lfcthreshold as the null hypothesis value in the results function call. Default: TRUE
