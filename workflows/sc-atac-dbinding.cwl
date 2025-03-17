@@ -201,11 +201,12 @@ inputs:
     - "null"
     - type: enum
       symbols:
-      - "negative-binomial"          # (negbinom) Negative Binomial Generalized Linear Model (use FindMarkers with peaks from Seurat object)
-      - "poisson"                    # (poisson) Poisson Generalized Linear Model (use FindMarkers with peaks from Seurat object)
-      - "logistic-regression"        # (LR) Logistic Regression (use FindMarkers with peaks from Seurat object)
-      - "mast"                       # (MAST) MAST package (use FindMarkers with peaks from Seurat object)
-      - "manorm2"                    # call peaks for each group with MACS2, run MAnorm2
+      - "negative-binomial"                       # (negbinom) Negative Binomial Generalized Linear Model (use FindMarkers with peaks from Seurat object)
+      - "poisson"                                 # (poisson) Poisson Generalized Linear Model (use FindMarkers with peaks from Seurat object)
+      - "logistic-regression"                     # (LR) Logistic Regression (use FindMarkers with peaks from Seurat object)
+      - "mast"                                    # (MAST) MAST package (use FindMarkers with peaks from Seurat object)
+      - "manorm2-peaks-by-dataset"                # call peaks for each dataset with MACS2, then run MAnorm2 with datasets
+      - "manorm2-peaks-by-comparison-category"    # call peaks for each comparison group with MACS2, then run MAnorm2 with datasets
     default: "logistic-regression"
     label: "Statistical test"
     doc: |
@@ -218,9 +219,13 @@ inputs:
       "Subsetting category/values" and/or
       "Selected cell barcodes". The resulting
       fragments will then be splitted by
-      "Comparison category" and, if "manorm2"
-      is selected, aggregated to the pseudo
-      bulk form for peak calling with MACS2.
+      "Comparison category" and, if
+      "manorm2-peaks-by-dataset" or
+      "manorm2-peaks-by-comparison-category"
+      is selected, they will be aggregated to
+      the pseudo bulk form for peak calling
+      with MACS2, either by dataset or
+      comparison category, respectively.
       Othwerwise, the analysis will be run on
       the cells level using peaks already
       available in the loaded single-cell
@@ -292,11 +297,13 @@ inputs:
   minimum_qvalue:
     type: float?
     default: 0.05
-    label: "Minimum MACS2 peak calling FDR (ignored if statistical test is not set to manorm2)"
+    label: "Minimum MACS2 peak calling FDR (ignored if statistical test is not using MAnorm2)"
     doc: |
       Minimum FDR (q-value) cutoff for MACS2
       peak detection. Ignored if "Statistical
-      test" input is not set to "manorm2".
+      test" input is not set to
+      "manorm2-peaks-by-dataset" or
+      "manorm2-peaks-by-comparison-category".
       Default: 0.05
     "sd:layout":
       advanced: true
@@ -304,7 +311,7 @@ inputs:
   maximum_peaks:
     type: int?
     default: 0
-    label: "Maximum number of peaks to keep, set to 0 to keep all (ignored if statistical test is not set to manorm2)"
+    label: "Maximum number of peaks to keep, set to 0 to keep all (ignored if statistical test is not using MAnorm2)"
     doc: |
       The maximum number of the most significant
       peaks to select for each of the comparison
@@ -313,7 +320,8 @@ inputs:
       based on the score column which is calculated
       by MACS2 as int(-10*log10qvalue). Ignored
       if "Statistical test" input is not set to
-      "manorm2".
+      "manorm2-peaks-by-dataset" or
+      "manorm2-peaks-by-comparison-category".
       Default: 0 - keep all peaks.
     "sd:layout":
       advanced: true
@@ -321,7 +329,7 @@ inputs:
   minimum_peak_gap:
     type: int?
     default: 150
-    label: "Minimum distance for merging peaks (ignored if statistical test is not set to manorm2)"
+    label: "Minimum distance for merging peaks (ignored if statistical test is not using MAnorm2)"
     doc: |
       Peaks remained after optional filtering
       by the "Maximum number of peaks to keep"
@@ -332,7 +340,8 @@ inputs:
       splitting them into the reference genomic
       bins of the selected size. Ignored if
       "Statistical test" input is not set to
-      "manorm2".
+      "manorm2-peaks-by-dataset" or
+      "manorm2-peaks-by-comparison-category".
       Default: 150
     "sd:layout":
       advanced: true
@@ -340,13 +349,15 @@ inputs:
   bin_size:
     type: int?
     default: 1000
-    label: "Bin size (ignored if statistical test is not set to manorm2)"
+    label: "Bin size (ignored if statistical test is not using MAnorm2)"
     doc: |
       The size of non-overlapping reference
       genomic bins used by MAnorm2 when
       generating a table of reads per bins
       counts. Ignored if "Statistical test"
-      input is not set to "manorm2".
+      input is not set to
+      "manorm2-peaks-by-dataset" or
+      "manorm2-peaks-by-comparison-category".
       Default: 1000
     "sd:layout":
       advanced: true
@@ -354,14 +365,16 @@ inputs:
   minimum_overlap:
     type: float?
     default: 0.5
-    label: "Minimum overlap fraction between the datasets (ignored if statistical test is not set to manorm2)"
+    label: "Minimum overlap fraction between the datasets (ignored if statistical test is not using MAnorm2)"
     doc: |
       Keep only those reference genomic
       bins that are present in at least
       this fraction of datasets within
       each of the comparison groups.
       Ignored if "Statistical test"
-      input is not set to "manorm2".
+      input is not set to
+      "manorm2-peaks-by-dataset" or
+      "manorm2-peaks-by-comparison-category".
       Default: 0.5
     "sd:layout":
       advanced: true
@@ -563,6 +576,21 @@ outputs:
       (optional)" from the "Subsetting category
       (optional)".
       GCT format.
+
+  tag_dnst_htmp_tsv:
+    type: File?
+    outputSource: sc_atac_dbinding/tag_dnst_htmp_tsv
+    label: "Tag density heatmap around the centers of filtered diff. accessible regions"
+    doc: |
+      Tag density heatmap around the centers
+      of differentially accessible regions.
+      Filtered by "Maximum adjusted p-value"
+      and "Minimum log2 fold change absolute
+      value"; optionally subsetted to include
+      only cells with "Subsetting values
+      (optional)" from the "Subsetting category
+      (optional)".
+      TSV format.
 
   fragments_bigwig_file:
     type:
@@ -811,7 +839,18 @@ steps:
           }
       first_cond: first_cond
       second_cond: second_cond
-      analysis_method: analysis_method
+      analysis_method:
+        source: analysis_method
+        valueFrom: |
+          ${
+            if (self == "manorm2-peaks-by-dataset") {
+              return "manorm2-full";
+            } else if (self == "manorm2-peaks-by-comparison-category") {
+              return "manorm2-half";
+            } else {
+              return self;
+            }
+          }
       genome_type:
         source: genome_type
         valueFrom: $(self=="mm10"?"mm":"hs")
@@ -844,6 +883,7 @@ steps:
     - tag_dnst_htmp_plot_png
     - tag_dnst_htmp_gct
     - tag_dnst_htmp_html
+    - tag_dnst_htmp_tsv
     - diff_bound_sites
     - first_enrch_bed_file
     - second_enrch_bed_file
