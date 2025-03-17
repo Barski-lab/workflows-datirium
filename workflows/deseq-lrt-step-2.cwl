@@ -51,11 +51,11 @@ inputs:
 
   use_lfc_thresh:
     type: boolean
-    default: true
+    default: false
     label: "Use lfcthreshold as the null hypothesis value in the results function call"
     doc: "Use lfcthreshold as the null hypothesis value in the results function call. Default: TRUE"
     'sd:layout':
-      advanced: false
+      advanced: true
 
   cluster_method:
     type:
