@@ -22,7 +22,7 @@ requirements:
 
 inputs:
 
-  alias:
+  alias_trigger:
     type: string
     label: "Experiment short name/Alias"
     sd:preview:
@@ -388,7 +388,7 @@ steps:
       scaling_type: scaling_type
       k_hopach: k_hopach
       kmax_hopach: kmax_hopach
-      output_prefix: alias
+      output_prefix: alias_trigger
       threads: threads
       lrt_only_mode: lrt_only_mode
       test_mode: test_mode
