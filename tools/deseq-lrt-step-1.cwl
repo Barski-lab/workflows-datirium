@@ -5,42 +5,39 @@ requirements:
   - class: InlineJavascriptRequirement
 
 hints:
-  - class: DockerRequirement
-    dockerPull: biowardrobe2/scidap-deseq:v0.0.30
+- class: DockerRequirement
+    dockerPull: "biowardrobe2/scidap-deseq:v0.0.32"
 
 inputs:
-  
   expression_files:
     type: File[]
     inputBinding:
       prefix: "--input"
-    doc: "Grouped by gene / TSS/ isoform expression files, formatted as CSV/TSV"
+    doc: "Expression files"
 
   expression_file_names:
     type: string[]
     inputBinding:
       prefix: "--name"
-    doc: "Unique names for input files, no special characters, spaces are allowed. Number and order corresponds to --input"
+    doc: "Sample names"
 
   metadata_file:
     type: File
     inputBinding:
       prefix: "--meta"
-    doc: |
-      Metadata file to describe relation between samples, where the first column corresponds to --name, formatted as CSV/TSV.
-      **Note:** If batch correction is required, the metadata file must include a 'batch' column named exactly as 'batch', and it must be numeric.
+    doc: "Metadata file"
 
   design_formula:
     type: string
     inputBinding:
       prefix: "--design"
-    doc: "Design formula. Should start with ~. See DESeq2 manual for details"
+    doc: "Design formula"
 
   reduced_formula:
     type: string
     inputBinding:
       prefix: "--reduced"
-    doc: "Reduced formula to compare against with the term(s) of interest removed. Should start with ~. See DESeq2 manual for details"
+    doc: "Reduced formula"
 
   batchcorrection:
     type:
@@ -53,12 +50,7 @@ inputs:
     inputBinding:
       prefix: "--batchcorrection"
     default: "none"
-    doc: |
-      Specifies the batch correction method to be applied.
-      'combatseq' applies ComBat_seq at the beginning of the analysis, removing batch effects from the counts before differential expression analysis.
-      'model' applies removeBatchEffect from the limma package after differential expression analysis.
-      Default: none.
-      **Note:** The metadata file must include a 'batch' column if batch correction is specified.
+    doc: "Batch correction method"
 
   scaling_type:
     type:
@@ -70,48 +62,35 @@ inputs:
     inputBinding:
       prefix: "--scaling_type"
     default: "zscore"
-    doc: |
-      Specifies the type of scaling to be applied to the expression data.
-      'minmax' applies Min-Max scaling, normalizing values to a range of [-2, 2].
-      'zscore' applies Z-score standardization, centering data to mean = 0 and standard deviation = 1.
-      Default: none (no scaling applied).
-      **Note:** If 'minmax' or 'zscore' is selected, all genes/features will be scaled accordingly before further analysis.
+    doc: "Scaling type"
 
   fdr:
     type: float?
     inputBinding:
       prefix: "--fdr"
     default: 0.1
-    doc: |
-      In the exploratory visualization part of the analysis, output only features with adjusted p-value (FDR) not bigger than this value.
-      Also, the significance cutoff used for optimizing the independent filtering. Default: 0.1.
+    doc: "FDR cutoff"
 
   lfcthreshold:
     type: float?
     inputBinding:
       prefix: "--lfcthreshold"
     default: 0.59
-    doc: |
-      Log2 fold change threshold for determining significant differential expression.
-      Genes with absolute log2 fold change greater than this threshold will be considered.
-      Default: 0.59 (about 1.5 fold change)
+    doc: "LFC threshold"
 
   use_lfc_thresh:
     type: boolean
+    default: false
     inputBinding:
       prefix: "--use_lfc_thresh"
-    default: false
-    doc: "Use lfcthreshold as the null hypothesis value in the results function call. Default: FALSE"
+      valueFrom: $(self ? "TRUE" : "FALSE")
+    doc: "Use LFC threshold"
 
   rpkm_cutoff:
     type: int?
     inputBinding:
       prefix: "--rpkm_cutoff"
-    default: null
-    doc: |
-      Integer cutoff for filtering rows in the expression data.
-      Rows will be kept if any column whose name contains "Rpkm" has a value greater than this cutoff.
-      If not provided (i.e. remains null), no filtering will be applied.
+    doc: "RPKM cutoff"
 
   cluster_method:
     type:
@@ -125,10 +104,7 @@ inputs:
     inputBinding:
       prefix: "--cluster"
     default: "none"
-    doc: |
-      Hopach clustering method to be run on normalized read counts for the
-      exploratory visualization part of the analysis. Default: do not run
-      clustering
+    doc: "Clustering method"
 
   row_distance:
     type:
@@ -142,9 +118,7 @@ inputs:
           - "abscor"
     inputBinding:
       prefix: "--rowdist"
-    doc: |
-      Distance metric for HOPACH row clustering. Ignored if --cluster is not
-      provided. Default: cosangle
+    doc: "Row distance"
 
   column_distance:
     type:
@@ -158,54 +132,53 @@ inputs:
           - "abscor"
     inputBinding:
       prefix: "--columndist"
-    doc: |
-      Distance metric for HOPACH column clustering. Ignored if --cluster is not
-      provided. Default: euclid
+    doc: "Column distance"
 
   k_hopach:
     type: int?
     inputBinding:
       prefix: "--k"
     default: 3
-    doc: "Number of levels (depth) for Hopach clustering: min - 1, max - 15. Default: 3."
+    doc: "k hopach"
 
   kmax_hopach:
     type: int?
     inputBinding:
       prefix: "--kmax"
     default: 5
-    doc: "Maximum number of clusters at each level for Hopach clustering: min - 2, max - 9. Default: 5."
+    doc: "kmax hopach"
 
   output_prefix:
     type: string?
     inputBinding:
       prefix: "--output"
     default: "./deseq_lrt_step_1"
-    doc: "Output prefix for generated files"
+    doc: "Output prefix"
 
   threads:
     type: int?
     inputBinding:
       prefix: "--threads"
     default: 1
-    doc: "Number of threads"
+    doc: "Threads"
 
   lrt_only_mode:
     type: boolean
+    default: false
     inputBinding:
       prefix: "--lrt_only_mode"
-    default: false
-    doc: "Run LRT only, no contrasts"
+      valueFrom: $(self ? "TRUE" : "FALSE")
+    doc: "LRT only mode"
 
   test_mode:
     type: boolean
+    default: false
     inputBinding:
       prefix: "--test_mode"
-    default: false
-    doc: "Run for test, only first 500 rows"
+      valueFrom: $(self ? "TRUE" : "FALSE")
+    doc: "Test mode"
 
 outputs:
-
   contrasts_table:
     type: File?
     outputBinding:
@@ -217,12 +190,12 @@ outputs:
       glob: "*_contrasts.rds"
 
   lrt_diff_expr:
-    type: File
+    type: File?
     outputBinding:
       glob: "*_gene_exp_table.tsv"
 
   mds_plots_html:
-    type: File
+    type: File?
     outputBinding:
       glob: "*_mds_plot.html"
 
@@ -232,7 +205,7 @@ outputs:
       glob: "*_mds_plot_corrected.html"
 
   counts_all_gct:
-    type: File
+    type: File?
     outputBinding:
       glob: "*_counts_all.gct"
 
@@ -242,12 +215,12 @@ outputs:
       glob: "*_counts_filtered.gct"
 
   lrt_summary_md:
-    type: File
+    type: File?
     outputBinding:
       glob: "*_lrt_result.md"
 
   alignment_stats_barchart:
-    type: File
+    type: File?
     outputBinding:
       glob: "alignment_stats_barchart.png"
 
@@ -257,7 +230,8 @@ outputs:
   stderr_log:
     type: stderr
 
-baseCommand: [ run_deseq_lrt_step_1.R ]
+baseCommand: ["/usr/bin/Rscript", "/usr/local/bin/run_deseq_lrt_step_1.R"]
+
 stdout: deseq_lrt_step_1_stdout.log
 stderr: deseq_lrt_step_1_stderr.log
 
@@ -348,3 +322,4 @@ doc: |
   DH3,day7,WT,2
   DH4,day7,KO,2
   DH5,day7,KO,2
+  ```
