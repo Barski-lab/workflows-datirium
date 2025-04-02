@@ -15,7 +15,7 @@ requirements:
 
 inputs:
 
-  alias_prefix:
+  alias:
     type: string
     label: "Experiment short name/Alias"
     sd:preview:
@@ -325,7 +325,7 @@ steps:
       k_hopach: k_hopach
       kmax_hopach: kmax_hopach
       regulation: regulation
-      output_prefix: alias_prefix
+      output_prefix: alias
       threads: threads
       test_mode: test_mode
     out:
