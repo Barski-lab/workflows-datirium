@@ -1,0 +1,56 @@
+####################################################################################################################################
+# Software:         sratoolkit, Cell Ranger, E-utilities
+# Software Version: 0.0.5
+# Description:      Set of utilities to download SRA data
+# Base Image:       cumulusprod/cellranger:8.0.1
+# Build Cmd:        docker build --platform linux/amd64 --no-cache --rm -t biowardrobe2/fastqdwnld:v0.0.5 -f fastqdwnld-Dockerfile .
+# Pull Cmd:         docker pull --platform linux/amd64 biowardrobe2/fastqdwnld:v0.0.5
+# Run Cmd:          docker run --platform linux/amd64 --rm -ti biowardrobe2/fastqdwnld:v0.0.5 /bin/bash
+####################################################################################################################################
+#
+# 0.0.5
+# - Use biowardrobe2/fastqdwnld:v0.0.4 as a base image
+# - Set --max-size 104857600 parameter to make prefetch
+#   download files up to 100GB.
+#
+# 0.0.4
+# - Update base image from cumulusprod/cellranger:7.0.0
+#   to cumulusprod/cellranger:8.0.1
+# - Update SRA toolkit version from 3.0.5 to 3.1.1
+#
+# 0.0.3
+# - Uses random prefix to add to the filename
+#
+# 0.0.2
+# - Shows warning if provided SRR identifiers mismatch with the available
+#   in the Experiment runs
+#
+
+### Base Image
+FROM --platform=linux/amd64 cumulusprod/cellranger:8.0.1
+LABEL maintainer="misha.kotliar@gmail.com"
+ENV DEBIAN_FRONTEND noninteractive
+
+################## BEGIN INSTALLATION ######################
+
+WORKDIR /tmp
+
+### Installing sratoolkit
+
+ENV SRA_VERSION 3.1.1
+ENV SRA_URL "https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/${SRA_VERSION}/sratoolkit.${SRA_VERSION}-ubuntu64.tar.gz"
+
+COPY ./scripts/sra_download.sh /usr/local/bin/sra_download.sh
+
+RUN curl $SRA_URL|tar -zxv && \
+    cp -r sratoolkit.${SRA_VERSION}-ubuntu64/bin/* /usr/local/bin && \
+    cp -r sratoolkit.${SRA_VERSION}-ubuntu64/schema /usr/local && \
+    rm -rf sratoolkit.${SRA_VERSION}-ubuntu64 && \
+    sh -c "$(curl -fsSL https://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/install-edirect.sh)" && \
+    cp -r /root/edirect/* /usr/local/bin && \
+    rm -rf /root/edirect && \
+    chmod +x /usr/local/bin/sra_download.sh && \
+    apt-get clean && \
+    apt-get purge && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* && \
+    strip /usr/local/bin/*; true

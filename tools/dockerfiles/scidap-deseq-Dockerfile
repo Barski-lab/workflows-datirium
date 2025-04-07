@@ -1,0 +1,156 @@
+#################################################################
+# Dockerfile - DESeq/DESeq2 Analysis Container
+#
+# Software:         BioWardrobe DESeq/DESeq2 script
+# Software Version: v0.0.32
+# Description:      Dockerized version of DESeq/DESeq2 script from BioWardrobe
+# Website:          https://github.com/Barski-lab/workflows
+#
+# VERSIONING GUIDELINES:
+# 1. ALWAYS update "Software Version" above when making changes
+# 2. For script-only updates: increment third number (v0.0.32 → v0.0.33)
+# 3. For new packages: increment third number and document additions
+# 4. For major R version changes: increment second number (v0.0.x → v0.1.0)
+#
+# BUILD STRATEGIES:
+# - For script updates only: Use incremental build from previous version
+# - For adding single packages: Use incremental build with specific install
+# - For major updates: Uncomment full installation commands and rebuild from base
+#
+#################################################################
+
+# Provided components
+# ------------------
+# run_deseq.R
+# run_deseq_lrt_step_1.R
+# run_deseq_lrt_step_2.R
+# get_gene_n_tss.R
+# 
+# Key packages:
+# ------------------
+# BiocManager       1.30.23
+# BiocParallel      1.38.0
+# DESeq2            1.44.0
+# logger            newest (added in v0.0.33)
+# argparse          latest
+# pheatmap          latest
+# 
+# Build Commands:
+# ------------------
+# Full build: docker build --no-cache --platform linux/amd64 --rm -t biowardrobe2/scidap-deseq:v0.0.33 -f scidap-deseq-Dockerfile .
+# Pull:       docker pull biowardrobe2/scidap-deseq:v0.0.33
+# Run:        docker run --rm -ti biowardrobe2/scidap-deseq:v0.0.33 /bin/bash
+#################################################################
+
+#################################################################
+# VERSION HISTORY
+#################################################################
+#
+# v0.0.32
+# - Reorganized Dockerfile structure for better maintenance
+# - Added logger R package for improved logging capabilities
+#
+# v0.0.31
+# - Updated R scripts for LRT analysis
+#
+# v0.0.28
+# - Added optional --batchcorrection parameter for DESeq2 (combatseq (provided design-formula) or limma)
+# - Changed default adjusted p-value to 0.1 (in correspondance with alpha)
+# - Added regulation parameter for DESeq2 (up, down, both) and appropriate altHypothesis
+# - Added --lfcthreshold parameter for DESeq2 (changed default to 0.59, because it has more biological sense)
+# - Changed center to min-max scaling before HOPACH clustering
+# - Added blind = F parameter for DESeq2 vst and rlog (to take into account design-formula)
+# - Removed RPKM filtering (not needed for DESeq2 as explained by developer while independence filtering provided)
+#
+# v0.0.27
+# - Update run_deseq.R to export baseMean column
+#   needed for MA-plot
+#
+# v0.0.26
+# - Updated run_deseq.R with MDS plot and updated GCT export
+# - Remove run_deseq_manual.R script
+# - Need to install GlimmaV2 from GitHub as on official repo it's old
+#
+# Earlier version history omitted for brevity
+#################################################################
+
+
+#############################################
+# BASE IMAGE SELECTION
+#############################################
+# Incremental build from previous version
+FROM biowardrobe2/scidap-deseq:v0.0.31
+LABEL maintainer="pavlvalera3301@gmail.com"
+ENV DEBIAN_FRONTEND=noninteractive
+
+#############################################
+# PACKAGE INSTALLATIONS (NEW PACKAGES ONLY)
+#############################################
+# Install only new R packages for this version
+RUN R -e 'install.packages("logger", repos="https://cloud.r-project.org/", dependencies=TRUE)'
+RUN R -e 'install.packages("params", repos="https://cloud.r-project.org/", dependencies=TRUE)'
+
+#############################################
+# SCRIPT UPDATES
+#############################################
+# Copy updated script files
+COPY scripts/run_deseq_lrt_step_1.R /usr/local/bin/run_deseq_lrt_step_1.R
+COPY scripts/run_deseq_lrt_step_2.R /usr/local/bin/run_deseq_lrt_step_2.R
+COPY scripts/get_gene_n_tss.R /usr/local/bin/get_gene_n_tss.R
+COPY scripts/run_deseq.R /usr/local/bin/run_deseq.R
+COPY scripts/install_from_source.R /tmp/install_from_source.R
+
+
+# Copy function directories
+COPY scripts/functions/ /usr/local/bin/functions/
+
+#############################################
+# FINALIZE IMAGE
+#############################################
+# Setting permissions
+RUN chmod +x /usr/local/bin/run_deseq.R && \
+    chmod +x /usr/local/bin/run_deseq_lrt_step_1.R && \
+    chmod +x /usr/local/bin/run_deseq_lrt_step_2.R && \
+    chmod +x /usr/local/bin/get_gene_n_tss.R && \
+    # Set permissions for function files
+    chmod -R +r /usr/local/bin/functions/ && \
+    find /usr/local/bin/functions -name "*.R" -exec chmod +x {} \; && \
+    # Cleaning
+    apt-get clean && \
+    apt-get purge && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* && \
+    strip /usr/local/bin/*; true
+
+#############################################
+# FULL BUILD INSTRUCTIONS (COMMENTED)
+#############################################
+# The following sections are for full rebuilds only.
+# Uncomment when starting from a fresh r-base image.
+
+# For full build, use this base instead:
+# FROM r-base:4.4.0
+
+# Uncomment for full installation
+# WORKDIR /tmp
+
+# System dependencies
+# RUN apt-get update --fix-missing && apt-get install -f -y && \
+#    apt-get install -y -f python3 python3-pip \
+#                         build-essential \
+#                         pandoc \
+#                         libcurl4-openssl-dev \
+#                         libssl-dev \
+#                         libxml2-dev \
+#                         libharfbuzz-dev \
+#                         libfribidi-dev \
+#                         libpng-dev \
+#                         libfontconfig1-dev \
+#                         libtiff5-dev \
+#                         libcairo2-dev \
+#                         pkg-config \
+#                         libjpeg-dev \
+#                         libgit2-dev && \
+#    pip3 install --break-system-packages argparse
+
+# R packages installation
+# RUN Rscript /usr/local/bin/functions/common/packages_installation.R

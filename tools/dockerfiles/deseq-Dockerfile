@@ -1,0 +1,78 @@
+###################################################################################################
+# Software:         DESeq2
+# Software Version: v0.0.7
+# Description:      DESeq2
+# Website:          https://bioconductor.org/packages/release/bioc/html/DESeq2.html
+# Provides:         DESeq2
+# Base Image:       r-base:4.3.1
+# Build Cmd:        docker build --platform linux/amd64 --no-cache --rm -t biowardrobe2/deseq:v0.0.7 -f deseq-Dockerfile .
+# Pull Cmd:         docker pull --platform linux/amd64 biowardrobe2/deseq:v0.0.7
+# Run Cmd:          docker run --platform linux/amd64 --rm -ti biowardrobe2/deseq:v0.0.7 /bin/bash
+###################################################################################################
+#
+# v0.0.7
+# - Use biowardrobe2/deseq:v0.0.6 as the base image
+# - Make the script not fail when one of the automatic
+#   contrasts don't have enough samples to produce
+#   the results
+#
+# v0.0.6
+# - Add multiple tests for DESeq MFA in
+#   case contrast wasn't explicitly set
+#
+# v0.0.5
+# - Update base image to 4.3.1
+# - Replace limma with ComBat-seq so now batch
+#   effect can be corrected before running DESEq2
+# - Export HCL columns to the main TSV output file.
+#   Output NA for genes that are not assigned to
+#   any of the clusters.
+# - libfreetype6-dev renamed to libfreetype-dev
+#
+# v0.0.4
+# - Fix issue with non-unique RefseqId when grouping by transcript
+# - Updated Bioconductor version to 3.17, r-base to 4.3.0
+# - Removed run_morpheus.R script
+#
+# v0.0.3
+# - Added clustering labels to the metadata of GCT file
+#
+# v0.0.2
+# - reuse this image for run_deseq_manual.R script as v0.0.1 is not used in any of the CWL tools
+# - installing custom michael-kotliar/morpheus.R to disable clustering completely
+#
+###################################################################################################
+
+### Base Image
+FROM --platform=linux/amd64 r-base:4.3.1
+LABEL maintainer="misha.kotliar@gmail.com"
+ENV DEBIAN_FRONTEND noninteractive
+
+################## BEGIN INSTALLATION ######################
+
+WORKDIR /tmp
+
+ENV R_MAX_VSIZE=200000000000
+
+COPY ./scripts/run_deseq_manual.R /usr/local/bin/run_deseq_manual.R
+
+### Installing python3, pip3 and argparse
+RUN apt-get update && \
+    apt-get install -y vim pandoc gcc-10-base libgcc-10-dev python3-dev python3-pip libxml2-dev libssl-dev \
+                       libcurl4-openssl-dev libfontconfig1-dev libharfbuzz-dev libfribidi-dev \
+                       libfreetype-dev libpng-dev libtiff5-dev libjpeg-dev && \
+    pip3 install --break-system-packages argparse && \
+### Installing R packages
+    R -e "install.packages('BiocManager')" && \
+    R -e "BiocManager::install(version = '3.17', update = FALSE, ask = FALSE)" && \
+    R -e "BiocManager::install(c('BiocParallel', 'DESeq2', 'limma', 'EnhancedVolcano', 'hopach', 'cmapR', 'Glimma', 'sva'))" && \
+    R -e 'install.packages("tidyverse", repo = "https://cloud.r-project.org/")' && \
+    R -e 'install.packages("patchwork", repo = "https://cloud.r-project.org/")' && \
+    R -e 'install.packages("argparse", repo = "https://cloud.r-project.org/")' && \
+### Installing run_deseq_manual.R script
+    chmod +x /usr/local/bin/run_deseq_manual.R && \
+### Cleaning
+    apt-get clean && \
+    apt-get purge && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* && \
+    strip /usr/local/bin/*; true
