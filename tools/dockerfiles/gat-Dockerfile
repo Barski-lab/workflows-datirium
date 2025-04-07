@@ -1,0 +1,39 @@
+#################################################################
+# Dockerfile
+#
+# Software:         gat
+# Software Version: v0.0.1
+# Description:      Genomic Association Tester (GAT) 
+# Website:          https://github.com/AndreasHeger/gat
+# Provides:         gat 1.3.6
+# Base Image:       ubuntu:20.04
+# Build Cmd:        docker build --rm -t biowardrobe2/gat:v0.0.1 -f gat-Dockerfile .
+# Pull Cmd:         docker pull biowardrobe2/gat:v0.0.1
+# Run Cmd:          docker run --rm -ti biowardrobe2/gat:v0.0.1 /bin/bash
+#################################################################
+
+
+### Base Image
+FROM ubuntu:20.04
+LABEL maintainer="misha.kotliar@gmail.com"
+ENV DEBIAN_FRONTEND noninteractive
+
+
+################## BEGIN INSTALLATION ######################
+
+WORKDIR /tmp
+
+ENV VERSION_GAT 1.3.6
+
+### Installing dependencies
+RUN apt-get update && \
+    apt-get install -y python3-dev python3-pip && \
+    pip3 install numpy && \
+    pip3 install cython && \
+### Installing gat
+    pip3 install gat==${VERSION_GAT} && \
+### Cleaning
+    apt-get clean && \
+    apt-get purge && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* && \
+    strip /usr/local/bin/*; true
