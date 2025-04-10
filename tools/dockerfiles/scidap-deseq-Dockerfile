@@ -2,7 +2,7 @@
 # Dockerfile - DESeq/DESeq2 Analysis Container
 #
 # Software:         BioWardrobe DESeq/DESeq2 script
-# Software Version: v0.0.32
+# Software Version: v0.0.33
 # Description:      Dockerized version of DESeq/DESeq2 script from BioWardrobe
 # Website:          https://github.com/Barski-lab/workflows
 #
