@@ -525,170 +525,119 @@ assign("params", params, envir = .GlobalEnv)
 #
 # This module handles all command-line argument parsing and validation
 
-#' Parse command line arguments
+#' Parse command line arguments using base R functions
 #' @return List of parsed arguments
 #' @export
 parse_cli_args <- function() {
-  # First, try to load the required libraries for argument parsing
-  tryCatch({
-    if (!requireNamespace("optparse", quietly = TRUE)) {
-      message("Loading optparse package for argument parsing")
-      suppressPackageStartupMessages(library(optparse))
-    } else {
-      suppressPackageStartupMessages(library(optparse))
-    }
-  }, error = function(e) {
-    stop("Error loading required package 'optparse'. Please install it with install.packages('optparse').")
-  })
+  cat("Parsing command line arguments...\n")
   
-  # Define command line options
-  option_list <- list(
-    make_option(c("--input"), type="character", action="append", help="Expression files"),
-    make_option(c("--name"), type="character", action="append", help="Sample names"),
-    make_option(c("--meta"), type="character", help="Metadata file"),
-    make_option(c("--design"), type="character", help="Design formula"),
-    make_option(c("--reduced"), type="character", help="Reduced formula"),
-    make_option(c("--batchcorrection"), type="character", default="none", help="Batch correction method"),
-    make_option(c("--scaling_type"), type="character", default="zscore", help="Scaling type"),
-    make_option(c("--fdr"), type="double", default=0.1, help="FDR cutoff"),
-    make_option(c("--lfcthreshold"), type="double", default=0.59, help="LFC threshold"),
-    make_option(c("--use_lfc_thresh"), type="logical", default=FALSE, help="Use LFC threshold"),
-    make_option(c("--rpkm_cutoff"), type="integer", help="RPKM cutoff"),
-    make_option(c("--cluster"), type="character", default="none", help="Clustering method"),
-    make_option(c("--rowdist"), type="character", help="Row distance"),
-    make_option(c("--columndist"), type="character", help="Column distance"),
-    make_option(c("--k"), type="integer", default=3, help="k hopach"),
-    make_option(c("--kmax"), type="integer", default=5, help="kmax hopach"),
-    make_option(c("--output"), type="character", default="./deseq_lrt_step_1", help="Output prefix"),
-    make_option(c("--threads"), type="integer", default=1, help="Threads"),
-    make_option(c("--lrt_only_mode"), type="logical", default=FALSE, help="LRT only mode"),
-    make_option(c("--test_mode"), type="logical", default=FALSE, help="Test mode")
+  # Get raw command line arguments
+  args <- commandArgs(trailingOnly = TRUE)
+  
+  # Initialize default values
+  result <- list(
+    input = NULL,
+    name = NULL,
+    meta = NULL,
+    design = NULL,
+    reduced = NULL,
+    batchcorrection = "none",
+    scaling_type = "zscore",
+    fdr = 0.1,
+    lfcthreshold = 0.59,
+    use_lfc_thresh = FALSE,
+    rpkm_cutoff = NULL,
+    cluster = "none",
+    rowdist = "cosangle",
+    columndist = "euclid",
+    k = 3,
+    kmax = 5,
+    output = "./deseq_lrt_step_1",
+    threads = 1,
+    lrt_only_mode = FALSE,
+    test_mode = FALSE
   )
   
-  # Parse command line arguments with better error handling
-  tryCatch({
-    # Get raw command line arguments
-    args <- commandArgs(trailingOnly = TRUE)
+  # Manual parsing of command line arguments
+  i <- 1
+  while (i <= length(args)) {
+    arg <- args[i]
     
-    # First attempt: parse with optparse
-    message("Parsing command line arguments...")
-    opt <- parse_args(OptionParser(option_list=option_list), args)
-    
-    # Handle common errors or missing parameters
-    if (is.null(opt$input)) {
-      stop("Missing required parameter: --input")
-    }
-    if (is.null(opt$name)) {
-      # Try to derive names from input filenames if names not provided
-      message("WARNING: No sample names provided with --name, using filenames as sample names")
-      opt$name <- basename(opt$input)
-      opt$name <- sub("\\.[^.]+$", "", opt$name) # Remove file extension
-    }
-    if (is.null(opt$meta)) {
-      stop("Missing required parameter: --meta")
-    }
-    if (is.null(opt$design)) {
-      stop("Missing required parameter: --design")
-    }
-    if (is.null(opt$reduced)) {
-      stop("Missing required parameter: --reduced")
-    }
-    
-    # Validate parameter values
-    if (!opt$batchcorrection %in% c("none", "combatseq", "model")) {
-      message(paste("WARNING: Invalid batch correction method:", opt$batchcorrection))
-      message("Defaulting to 'none'")
-      opt$batchcorrection <- "none"
-    }
-    
-    if (!opt$scaling_type %in% c("minmax", "zscore")) {
-      message(paste("WARNING: Invalid scaling type:", opt$scaling_type))
-      message("Defaulting to 'zscore'")
-      opt$scaling_type <- "zscore"
-    }
-    
-    if (!opt$cluster %in% c("row", "column", "both", "none")) {
-      message(paste("WARNING: Invalid clustering method:", opt$cluster))
-      message("Defaulting to 'none'")
-      opt$cluster <- "none"
-    }
-    
-    # Return parsed and validated arguments
-    return(opt)
-    
-  }, error = function(e) {
-    # Handle parsing errors
-    message("Error parsing command line arguments: ", e$message)
-    
-    # Manual fallback parsing for critical failures
-    message("Attempting manual fallback parsing...")
-    args <- commandArgs(trailingOnly = TRUE)
-    
-    # Initialize empty result 
-    opt <- list(
-      input = NULL,
-      name = NULL,
-      meta = NULL,
-      design = NULL,
-      reduced = NULL,
-      batchcorrection = "none",
-      scaling_type = "zscore",
-      fdr = 0.1,
-      lfcthreshold = 0.59,
-      use_lfc_thresh = FALSE,
-      cluster = "none",
-      k = 3,
-      kmax = 5,
-      output = "./deseq_lrt_step_1",
-      threads = 1,
-      lrt_only_mode = FALSE,
-      test_mode = FALSE
-    )
-    
-    # Simple manual parsing
-    i <- 1
-    while (i <= length(args)) {
-      if (args[i] == "--input" && i < length(args)) {
-        # Handle multiple inputs
-        inputs <- character(0)
-        j <- i + 1
-        while (j <= length(args) && !startsWith(args[j], "--")) {
-          inputs <- c(inputs, args[j])
-          j <- j + 1
-        }
-        opt$input <- inputs
-        i <- j
-      } else if (args[i] == "--name" && i < length(args)) {
-        # Handle multiple names
-        names <- character(0)
-        j <- i + 1
-        while (j <= length(args) && !startsWith(args[j], "--")) {
-          names <- c(names, args[j])
-          j <- j + 1
-        }
-        opt$name <- names
-        i <- j
-      } else if (startsWith(args[i], "--") && i < length(args) && !startsWith(args[i+1], "--")) {
-        # Handle other parameters
-        param_name <- sub("^--", "", args[i])
-        opt[[param_name]] <- args[i+1]
-        i <- i + 2
-      } else {
-        # Skip unknown parameters
-        i <- i + 1
+    # Handle flags with multiple values (--input, --name)
+    if (arg == "--input" || arg == "--name") {
+      param_name <- substring(arg, 3)  # Remove leading --
+      values <- c()
+      j <- i + 1
+      
+      # Collect all values until next flag
+      while (j <= length(args) && !startsWith(args[j], "--")) {
+        values <- c(values, args[j])
+        j <- j + 1
       }
+      
+      # Store values and update index
+      result[[param_name]] <- values
+      i <- j
     }
-    
-    # Validate crucial parameters
-    critical_params <- c("input", "meta", "design", "reduced")
-    missing_params <- critical_params[sapply(critical_params, function(x) is.null(opt[[x]]))]
-    
-    if (length(missing_params) > 0) {
-      stop(paste("Missing critical parameters after fallback parsing:", 
-                 paste(missing_params, collapse=", ")))
+    # Handle boolean flags
+    else if (arg == "--use_lfc_thresh" || arg == "--lrt_only_mode" || arg == "--test_mode") {
+      param_name <- substring(arg, 3)  # Remove leading --
+      result[[param_name]] <- TRUE
+      i <- i + 1
     }
-    
-    message("Fallback parsing completed. Found all critical parameters.")
-    return(opt)
-  })
+    # Handle flags with single values
+    else if (startsWith(arg, "--") && i < length(args) && !startsWith(args[i+1], "--")) {
+      param_name <- substring(arg, 3)  # Remove leading --
+      value <- args[i+1]
+      
+      # Convert numeric values
+      if (param_name %in% c("fdr", "lfcthreshold")) {
+        value <- as.numeric(value)
+      }
+      else if (param_name %in% c("rpkm_cutoff", "k", "kmax", "threads")) {
+        value <- as.integer(value)
+      }
+      
+      result[[param_name]] <- value
+      i <- i + 2
+    }
+    else {
+      # Skip unknown arguments
+      cat("WARNING: Skipping unknown argument:", arg, "\n")
+      i <- i + 1
+    }
+  }
+  
+  # Validate required parameters
+  missing_params <- c()
+  for (param in c("input", "name", "meta", "design", "reduced")) {
+    if (is.null(result[[param]])) {
+      missing_params <- c(missing_params, param)
+    }
+  }
+  
+  if (length(missing_params) > 0) {
+    stop(paste("Missing required parameters:", paste(missing_params, collapse=", ")))
+  }
+  
+  # Ensure input files and sample names match in length
+  if (length(result$input) != length(result$name)) {
+    cat(paste("WARNING: Number of input files (", length(result$input), 
+              ") does not match number of sample names (", length(result$name), ")\n", sep=""))
+  }
+  
+  cat("Command line arguments parsed successfully\n")
+  
+  # Print the parsed arguments
+  cat("Parsed parameters:\n")
+  for (name in names(result)) {
+    if (name %in% c("input", "name")) {
+      cat(paste("  ", name, ":", paste(result[[name]][1:min(3, length(result[[name]]))], collapse=", "), 
+                if(length(result[[name]]) > 3) "..." else "", "\n", sep=""))
+    } else {
+      cat(paste("  ", name, ":", result[[name]], "\n", sep=""))
+    }
+  }
+  
+  return(result)
 } 
