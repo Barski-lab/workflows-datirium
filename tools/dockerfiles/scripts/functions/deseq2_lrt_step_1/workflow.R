@@ -572,71 +572,235 @@ main_with_memory_management <- function() {
 #
 # This module coordinates the entire DESeq2 LRT analysis workflow
 
+# Source required modules with informative messages
+source_with_message <- function(file_path, fallback_path = NULL) {
+  if (file.exists(file_path)) {
+    cat(paste("Sourcing:", file_path, "\n"))
+    source(file_path)
+    return(TRUE)
+  } else if (!is.null(fallback_path) && file.exists(fallback_path)) {
+    cat(paste("Using fallback path:", fallback_path, "\n"))
+    source(fallback_path)
+    return(TRUE)
+  } else {
+    cat(paste("WARNING: Could not find", file_path, "\n"))
+    return(FALSE)
+  }
+}
+
+#' Get the number of threads to use for parallel processing
+#' @param args Command line arguments
+#' @return Number of threads to use
+#' @export
+get_threads <- function(args = NULL) {
+  # First check if args has threads parameter
+  if (!is.null(args) && !is.null(args$threads) && is.numeric(args$threads)) {
+    threads <- args$threads
+  } else {
+    # Try to get from command line
+    cmd_args <- commandArgs(trailingOnly = TRUE)
+    thread_index <- which(cmd_args == "--threads")
+    
+    if (length(thread_index) > 0 && thread_index < length(cmd_args)) {
+      threads <- as.numeric(cmd_args[thread_index + 1])
+    } else {
+      # Default to 1
+      threads <- 1
+    }
+  }
+  
+  # Ensure it's at least 1
+  if (is.na(threads) || threads < 1) {
+    threads <- 1
+  }
+  
+  return(threads)
+}
+
+# Source common modules
+source_with_message("/usr/local/bin/functions/common/utilities.R")
+source_with_message("/usr/local/bin/functions/common/logging.R")
+source_with_message("/usr/local/bin/functions/common/constants.R")
+source_with_message("/usr/local/bin/functions/common/visualization.R")
+source_with_message("/usr/local/bin/functions/common/clustering.R")
+source_with_message("/usr/local/bin/functions/common/export_functions.R")
+
+# Source DESeq2 LRT specific modules
+source_with_message("/usr/local/bin/functions/deseq2_lrt_step_1/cli_args.R")
+source_with_message("/usr/local/bin/functions/deseq2_lrt_step_1/data_processing.R")
+source_with_message("/usr/local/bin/functions/deseq2_lrt_step_1/deseq2_analysis.R")
+source_with_message("/usr/local/bin/functions/deseq2_lrt_step_1/contrast_generation.R")
+
+#' Initialize the environment for DESeQ2 LRT analysis
+#' @export
+initialize_environment <- function() {
+  # Load required packages with clear error messages
+  required_packages <- c(
+    "DESeq2",
+    "BiocParallel",
+    "argparse",
+    "pheatmap", 
+    "dplyr",
+    "tidyr",
+    "data.table",
+    "ggplot2",
+    "plotly",
+    "sva",
+    "limma",
+    "hopach",
+    "rlang",
+    "cmapR"
+  )
+  
+  # Define aliases to avoid namespace conflicts
+  if (requireNamespace("dplyr", quietly = TRUE)) {
+    assign("mutate", dplyr::mutate, envir = .GlobalEnv)
+    assign("filter", dplyr::filter, envir = .GlobalEnv)
+    assign("select", dplyr::select, envir = .GlobalEnv)
+  }
+  
+  # Load packages with verbose output for debugging
+  cat("Loading required packages:\n")
+  for (pkg in required_packages) {
+    cat(paste("  - Loading", pkg, "... "))
+    tryCatch({
+      suppressPackageStartupMessages(library(pkg, character.only = TRUE))
+      cat("done\n")
+    }, error = function(e) {
+      cat("FAILED\n")
+      cat(paste("    Error:", conditionMessage(e), "\n"))
+      # Continue with other packages even if one fails
+    })
+  }
+  
+  # Configure parallel processing
+  threads <- get_threads()
+  cat(paste("Setting up parallel processing with", threads, "threads\n"))
+  register(MulticoreParam(threads))
+  
+  cat("Environment initialized successfully\n")
+}
+
 #' Main workflow function for DESeq2 LRT analysis
 #' @export
 run_deseq2_lrt_workflow <- function() {
-    # Print start time for better logging
-    start_time <- Sys.time()
-    message("DESeq2 LRT Step 1 analysis started at: ", format(start_time, "%Y-%m-%d %H:%M:%S"))
-    
-    # Parse command line arguments
-    args <- parse_cli_args()
-    
-    # Print parameters for debugging
-    message("Parameters:")
-    message("- Input files: ", paste(args$input, collapse=", "))
-    message("- Sample names: ", paste(args$name, collapse=", "))
-    message("- Metadata file: ", args$meta)
-    message("- Design formula: ", args$design)
-    message("- Reduced formula: ", args$reduced)
-    message("- Output prefix: ", args$output)
-    
-    # Validate required parameters
-    if (is.null(args$input) || is.null(args$meta) || is.null(args$design) || is.null(args$reduced)) {
-        stop("Missing required parameters: --input, --name, --meta, --design, --reduced")
-    }
-    
-    # Load and process input data
-    log_info("Loading and processing input data", "DESeq2 LRT Step 1")
-    input_data <- load_expression_data(args)
-    metadata <- load_metadata(args)
-    
-    # Perform quality control and filtering
-    log_info("Performing quality control and filtering", "DESeq2 LRT Step 1")
-    filtered_data <- perform_qc_filtering(input_data, args)
-    
-    # Run DESeq2 LRT analysis
-    log_info("Running DESeq2 LRT analysis", "DESeq2 LRT Step 1")
-    deseq_results <- run_deseq2_lrt(filtered_data, metadata, args)
-    
-    # Generate contrasts and perform post-processing
-    log_info("Generating contrasts and post-processing results", "DESeq2 LRT Step 1")
-    contrast_results <- generate_contrasts(deseq_results, args)
-    
-    # Export results
-    log_info("Exporting results", "DESeq2 LRT Step 1")
-    export_results(contrast_results, args)
-    
-    # Verify outputs
-    log_info("Verifying outputs", "DESeq2 LRT Step 1")
-    verify_outputs(args)
-    
-    # Print completion time and duration
-    end_time <- Sys.time()
-    duration <- difftime(end_time, start_time, units = "mins")
-    message("DESeq2 LRT Step 1 analysis completed at: ", format(end_time, "%Y-%m-%d %H:%M:%S"))
-    message("Total execution time: ", round(as.numeric(duration), 2), " minutes")
+  # Print start time for better logging
+  start_time <- Sys.time()
+  cat("DESeq2 LRT Step 1 analysis started at: ", format(start_time, "%Y-%m-%d %H:%M:%S"), "\n")
+  
+  # Parse command line arguments
+  args <- parse_cli_args()
+  
+  # Print parameters for debugging
+  cat("Analysis parameters:\n")
+  cat(paste("- Input files:", paste(basename(args$input), collapse=", "), "\n"))
+  cat(paste("- Sample names:", paste(args$name, collapse=", "), "\n"))
+  cat(paste("- Metadata file:", basename(args$meta), "\n"))
+  cat(paste("- Design formula:", args$design, "\n"))
+  cat(paste("- Reduced formula:", args$reduced, "\n"))
+  cat(paste("- Output prefix:", args$output, "\n"))
+  cat(paste("- RPKM cutoff:", args$rpkm_cutoff, "\n"))
+  cat(paste("- Batch correction:", args$batchcorrection, "\n"))
+  
+  # Validate input files
+  validate_inputs(args)
+  
+  # Load and process input data
+  cat("Loading and processing input data...\n")
+  input_data <- load_expression_data(args)
+  metadata <- load_metadata(args)
+  
+  # Perform quality control and filtering
+  cat("Performing quality control and filtering...\n")
+  filtered_data <- perform_qc_filtering(input_data, args)
+  
+  # Run DESeq2 LRT analysis
+  cat("Running DESeq2 LRT analysis...\n")
+  deseq_results <- run_deseq2_lrt(filtered_data, metadata, args)
+  
+  # Generate contrasts and perform post-processing
+  cat("Generating contrasts and post-processing results...\n")
+  contrast_results <- generate_contrasts(deseq_results, args)
+  
+  # Export results
+  cat("Exporting results...\n")
+  export_results(contrast_results, args)
+  
+  # Verify outputs
+  cat("Verifying outputs...\n")
+  verify_outputs(args)
+  
+  # Print completion time and duration
+  end_time <- Sys.time()
+  duration <- difftime(end_time, start_time, units = "mins")
+  cat("DESeq2 LRT Step 1 analysis completed at: ", format(end_time, "%Y-%m-%d %H:%M:%S"), "\n")
+  cat("Total execution time: ", round(as.numeric(duration), 2), " minutes\n")
+}
+
+#' Validate that input files and parameters are correct
+#' @param args Command line arguments
+validate_inputs <- function(args) {
+  cat("Validating inputs...\n")
+  
+  # Check required arguments
+  required_args <- c("input", "name", "meta", "design", "reduced")
+  missing_args <- required_args[sapply(required_args, function(x) is.null(args[[x]]))]
+  
+  if (length(missing_args) > 0) {
+    stop(paste("Missing required arguments:", paste(missing_args, collapse=", ")))
+  }
+  
+  # Check that input files exist
+  missing_files <- args$input[!file.exists(args$input)]
+  if (length(missing_files) > 0) {
+    stop(paste("Input files do not exist:", paste(missing_files, collapse=", ")))
+  }
+  
+  # Check metadata file exists
+  if (!file.exists(args$meta)) {
+    stop(paste("Metadata file does not exist:", args$meta))
+  }
+  
+  # Check if the number of input files matches the number of sample names
+  if (length(args$input) != length(args$name)) {
+    stop(paste("Number of input files (", length(args$input), 
+               ") does not match number of sample names (", length(args$name), ")", sep=""))
+  }
+  
+  cat("Input validation successful\n")
 }
 
 #' Verify that all required outputs were created
 #' @param args Command line arguments
 verify_outputs <- function(args) {
-    verify_file <- "/usr/local/bin/verify_outputs.R"
-    if (file.exists(verify_file)) {
-        source(verify_file)
-        output_prefix <- args$output %||% "./deseq_lrt_step_1"
-        verify_workflow_outputs("lrt_step1", output_prefix, fail_on_missing = FALSE)
+  output_prefix <- args$output
+
+  # List of expected output files
+  expected_files <- c(
+    paste0(output_prefix, "_contrasts_table.tsv"),
+    paste0(output_prefix, "_contrasts.rds"),
+    paste0(output_prefix, "_gene_exp_table.tsv"),
+    paste0(output_prefix, "_mds_plot.html"),
+    paste0(output_prefix, "_counts_all.gct"),
+    paste0(output_prefix, "_counts_filtered.gct"),
+    paste0(output_prefix, "_lrt_result.md")
+  )
+  
+  # Check each expected file
+  missing_files <- c()
+  for (file in expected_files) {
+    if (file.exists(file)) {
+      cat(paste("  ✓ Output verified:", basename(file), "\n"))
     } else {
-        log_warning("Verification file not found, skipping output verification", "DESeq2 LRT Step 1")
+      cat(paste("  ✗ Missing expected output:", basename(file), "\n"))
+      missing_files <- c(missing_files, file)
     }
+  }
+  
+  # Report missing files
+  if (length(missing_files) > 0) {
+    cat(paste("WARNING:", length(missing_files), "expected output files are missing\n"))
+  } else {
+    cat("All expected output files were created successfully\n")
+  }
 } 
