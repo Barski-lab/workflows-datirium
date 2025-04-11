@@ -35,125 +35,103 @@ check_file_delimiter <- function(file_path) {
 }
 
 # Function to load expression data from multiple files
-load_expression_data <- function(input_files, sample_names, read_col="Read", rpkm_col="Rpkm", intersect_by="GeneId") {
-  # Process each input file
-  expression_data_list <- list()
+load_expression_data <- function(args) {
+  message("Loading expression data from files...")
   
-  for (i in 1:length(input_files)) {
-    input_file <- input_files[i]
-    sample_name <- sample_names[i]
-    
-    # Determine file type
-    delimiter <- check_file_delimiter(input_file)
-    
-    # Load data
-    message(paste("Loading file:", input_file))
-    
-    # Use tryCatch to handle errors in file reading
-    data <- tryCatch({
-      read.table(
-        input_file, 
-        sep = delimiter,
-        header = TRUE, 
-        quote = "",
-        stringsAsFactors = FALSE,
-        check.names = FALSE,
-        comment.char = "#"
-      )
-    }, error = function(e) {
-      stop(paste("Error reading file", input_file, ":", e$message))
-    })
-    
-    # Rename columns to include sample name
-    data_cols <- colnames(data)
-    for (col in data_cols) {
-      if (grepl(read_col, col, ignore.case = TRUE) || grepl(rpkm_col, col, ignore.case = TRUE)) {
-        # Rename to include sample name
-        new_col <- paste(sample_name, col, sep = " ")
-        colnames(data)[colnames(data) == col] <- new_col
-      }
+  # Validate input files exist
+  for (file in args$input) {
+    if (!file.exists(file)) {
+      stop(paste("Input file does not exist:", file))
     }
-    
-    # Check for duplicate column names
-    if (any(duplicated(colnames(data)))) {
-      dup_cols <- colnames(data)[duplicated(colnames(data))]
-      warning(paste("Duplicate column names found in file", input_file, ":", paste(dup_cols, collapse=", ")))
-      
-      # Make column names unique
-      colnames(data) <- make.unique(colnames(data))
-      message("Column names made unique using make.unique()")
-    }
-    
-    expression_data_list[[i]] <- data
   }
   
-  # Merge data by gene ID using a safer approach with explicit base:: namespace
-  tryCatch({
-    # Check for required column in each data frame
-    for (i in seq_along(expression_data_list)) {
-      if (!intersect_by %in% colnames(expression_data_list[[i]])) {
-        stop(paste("Column", intersect_by, "not found in file", input_files[i]))
-      }
+  # Determine file formats and load data
+  expr_data_list <- list()
+  for (i in seq_along(args$input)) {
+    file_path <- args$input[i]
+    file_name <- if (!is.null(args$name) && length(args$name) >= i) args$name[i] else basename(file_path)
+    
+    message(paste("Loading file", i, "of", length(args$input), ":", file_path))
+    
+    # Determine file format
+    if (grepl("\\.csv$", file_path, ignore.case = TRUE)) {
+      delimiter <- ","
+    } else if (grepl("\\.tsv$", file_path, ignore.case = TRUE)) {
+      delimiter <- "\t"
+    } else {
+      # Default to CSV
+      message(paste("Unknown file extension for", file_path, "- assuming CSV format"))
+      delimiter <- ","
     }
     
-    # Merge data frames one by one
-    merged_data <- expression_data_list[[1]]
-    
-    if (length(expression_data_list) > 1) {
-      for (i in 2:length(expression_data_list)) {
-        # Check for duplicate column names before merging
-        common_cols <- base::intersect(
-          base::setdiff(colnames(merged_data), intersect_by),
-          base::setdiff(colnames(expression_data_list[[i]]), intersect_by)
+    # Load file with better error handling
+    tryCatch({
+      data <- read.table(file_path, sep = delimiter, header = TRUE, stringsAsFactors = FALSE)
+      message(paste("  Loaded", nrow(data), "rows and", ncol(data), "columns"))
+      
+      # Validate required columns
+      required_cols <- c("GeneId", "TotalReads", "Rpkm")
+      missing_cols <- required_cols[!required_cols %in% colnames(data)]
+      
+      if (length(missing_cols) > 0) {
+        warning(paste("File", file_path, "is missing required columns:", paste(missing_cols, collapse = ", ")))
+        
+        # Try to fix common column name variations
+        col_mappings <- list(
+          "GeneId" = c("gene_id", "geneid", "gene", "Gene_ID", "Gene"),
+          "TotalReads" = c("total_reads", "reads", "count", "counts", "read_count"),
+          "Rpkm" = c("rpkm", "FPKM", "fpkm")
         )
         
-        if (length(common_cols) > 0) {
-          warning(paste("Common columns found while merging file", input_files[i], ":", paste(common_cols, collapse=", ")))
-          
-          # Make names unique in current data frame before merge
-          rename_cols <- base::setdiff(colnames(expression_data_list[[i]]), intersect_by)
-          new_names <- paste0(rename_cols, "_", i)
-          names(new_names) <- rename_cols
-          
-          # Rename columns manually without dplyr
-          for (old_name in names(new_names)) {
-            pos <- which(colnames(expression_data_list[[i]]) == old_name)
-            if (length(pos) > 0) {
-              colnames(expression_data_list[[i]])[pos] <- new_names[old_name]
-            }
+        for (req_col in required_cols) {
+          if (!req_col %in% colnames(data) && any(col_mappings[[req_col]] %in% colnames(data))) {
+            # Find the first matching alternative column name
+            alt_col <- col_mappings[[req_col]][col_mappings[[req_col]] %in% colnames(data)][1]
+            message(paste("  Using column", alt_col, "as", req_col))
+            colnames(data)[colnames(data) == alt_col] <- req_col
           }
-          
-          message("Made column names unique by adding suffix before merging")
         }
         
-        merged_data <- merge(
-          merged_data, 
-          expression_data_list[[i]], 
-          by = intersect_by, 
-          all = TRUE, 
-          sort = FALSE,
-          suffixes = c("", paste0("_", i))
-        )
+        # Check again after attempted fixes
+        missing_cols <- required_cols[!required_cols %in% colnames(data)]
+        if (length(missing_cols) > 0) {
+          stop(paste("File", file_path, "is still missing required columns after fixes:", paste(missing_cols, collapse = ", ")))
+        }
       }
-    }
-    
-    # Final check for duplicate column names in merged data
-    if (any(duplicated(colnames(merged_data)))) {
-      dup_cols <- colnames(merged_data)[duplicated(colnames(merged_data))]
-      warning(paste("Duplicate column names in final merged data:", paste(dup_cols, collapse=", ")))
       
-      # Make all column names unique
-      colnames(merged_data) <- make.unique(colnames(merged_data))
-      message("Final merged data column names made unique")
-    }
-    
-  }, error = function(e) {
-    stop(paste("Error merging expression data:", e$message))
-  })
+      # Add sample name to column names for clarity
+      read_col <- paste(file_name, "TotalReads", sep = " ")
+      rpkm_col <- paste(file_name, "Rpkm", sep = " ")
+      
+      colnames(data)[colnames(data) == "TotalReads"] <- read_col
+      colnames(data)[colnames(data) == "Rpkm"] <- rpkm_col
+      
+      expr_data_list[[i]] <- data
+      
+    }, error = function(e) {
+      stop(paste("Error loading file", file_path, ":", e$message))
+    })
+  }
   
-  # Replace NA values with 0
-  merged_data[is.na(merged_data)] <- 0
+  # Merge all data frames
+  message("Merging data from all input files...")
+  if (length(expr_data_list) == 0) {
+    stop("No valid expression data loaded")
+  } else if (length(expr_data_list) == 1) {
+    merged_data <- expr_data_list[[1]]
+  } else {
+    # Use reduce with merge to join all data frames by GeneId
+    merged_data <- Reduce(function(x, y) merge(x, y, by = "GeneId", all = TRUE), expr_data_list)
+  }
   
+  # Check for NA values and handle them
+  na_count <- sum(is.na(merged_data))
+  if (na_count > 0) {
+    message(paste("Found", na_count, "NA values in merged data - replacing with zeros"))
+    merged_data[is.na(merged_data)] <- 0
+  }
+  
+  message(paste("Final merged data has", nrow(merged_data), "rows and", ncol(merged_data), "columns"))
   return(merged_data)
 }
 
@@ -471,49 +449,73 @@ filter_by_rpkm <- function(expression_data, sample_metadata, rpkm_cutoff) {
 }
 
 # Function to load and validate metadata file
-load_metadata <- function(metadata_file) {
-  if (!file.exists(metadata_file)) {
-    stop(paste("Metadata file not found:", metadata_file))
+load_metadata <- function(args) {
+  message(paste("Loading metadata from", args$meta))
+  
+  # Validate metadata file exists
+  if (!file.exists(args$meta)) {
+    stop(paste("Metadata file does not exist:", args$meta))
   }
   
-  # Determine file type
-  delimiter <- check_file_delimiter(metadata_file)
-  
-  # Load metadata
-  metadata <- tryCatch({
-    read.table(
-      metadata_file, 
-      sep = delimiter,
-      header = TRUE, 
-      stringsAsFactors = FALSE,
-      check.names = FALSE,
-      comment.char = "#"
-    )
-  }, error = function(e) {
-    stop(paste("Error reading metadata file:", e$message))
-  })
-  
-  # Check if metadata has required columns
-  required_cols <- c("sample", "treatment", "cond")
-  missing_cols <- required_cols[!required_cols %in% colnames(metadata)]
-  
-  if (length(missing_cols) > 0) {
-    logger::warn(paste("Metadata is missing these expected columns:", paste(missing_cols, collapse=", ")))
-  }
-  
-  # Ensure sample column exists and is unique
-  if ("sample" %in% colnames(metadata)) {
-    if (length(unique(metadata$sample)) != nrow(metadata)) {
-      stop("Metadata sample column contains duplicate values")
-    }
+  # Determine file format
+  if (grepl("\\.csv$", args$meta, ignore.case = TRUE)) {
+    delimiter <- ","
+  } else if (grepl("\\.tsv$", args$meta, ignore.case = TRUE)) {
+    delimiter <- "\t"
   } else {
-    stop("Metadata must contain a 'sample' column")
+    # Default to CSV
+    message(paste("Unknown metadata file extension -", args$meta, "- assuming CSV format"))
+    delimiter <- ","
   }
   
-  # Set row names to sample names for easier indexing
-  row.names(metadata) <- metadata$sample
-  
-  return(metadata)
+  # Load metadata with error handling
+  tryCatch({
+    metadata <- read.table(args$meta, sep = delimiter, header = TRUE, row.names = 1)
+    message(paste("Loaded metadata with", nrow(metadata), "samples and", ncol(metadata), "variables"))
+    
+    # Validate metadata structure
+    if (nrow(metadata) == 0) {
+      stop("Metadata file contains no samples")
+    }
+    
+    # Check if metadata has batch column when batch correction is requested
+    if (args$batchcorrection != "none") {
+      if (!"batch" %in% colnames(metadata)) {
+        warning("Batch correction requested but 'batch' column not found in metadata")
+        message("Switching batch correction method to 'none'")
+        args$batchcorrection <- "none"
+      } else {
+        # Ensure batch column is numeric
+        if (!is.numeric(metadata$batch)) {
+          message("Converting batch column to numeric")
+          metadata$batch <- as.numeric(as.factor(metadata$batch))
+        }
+      }
+    }
+    
+    # Check if all input sample names are in metadata
+    if (!is.null(args$name)) {
+      missing_samples <- args$name[!args$name %in% rownames(metadata)]
+      if (length(missing_samples) > 0) {
+        warning(paste("Some sample names are missing in metadata:", paste(missing_samples, collapse = ", ")))
+        
+        # Try to find matches with different case
+        for (sample in missing_samples) {
+          case_insensitive_match <- grep(paste0("^", sample, "$"), rownames(metadata), ignore.case = TRUE)
+          if (length(case_insensitive_match) > 0) {
+            message(paste("Found case-insensitive match for", sample, ":", rownames(metadata)[case_insensitive_match[1]]))
+          }
+        }
+        
+        message("Continuing with available samples...")
+      }
+    }
+    
+    return(metadata)
+    
+  }, error = function(e) {
+    stop(paste("Error loading metadata:", e$message))
+  })
 }
 
 # Function to prepare metadata for DESeq2
@@ -549,4 +551,59 @@ prepare_metadata_for_deseq <- function(metadata, count_colnames) {
   }
   
   return(metadata_subset)
+}
+
+#' Perform quality control and filtering on expression data
+#' @param data Expression data frame
+#' @param args Command line arguments
+#' @return Filtered expression data frame
+#' @export
+perform_qc_filtering <- function(data, args) {
+  message("Performing quality control and filtering...")
+  
+  # Initial count
+  initial_count <- nrow(data)
+  message(paste("Initial gene count:", initial_count))
+  
+  # Apply RPKM filtering if specified
+  if (!is.null(args$rpkm_cutoff)) {
+    message(paste("Applying RPKM cutoff of", args$rpkm_cutoff))
+    
+    # Find RPKM columns
+    rpkm_cols <- grep("Rpkm$", colnames(data), value = TRUE)
+    
+    if (length(rpkm_cols) == 0) {
+      warning("No RPKM columns found for filtering")
+    } else {
+      # Keep genes where at least one sample has RPKM >= cutoff
+      rpkm_filter <- apply(data[, rpkm_cols, drop = FALSE], 1, function(x) any(x >= args$rpkm_cutoff))
+      data <- data[rpkm_filter, ]
+      message(paste("After RPKM filtering:", nrow(data), "genes remain"))
+      message(paste(initial_count - nrow(data), "genes removed by RPKM filtering"))
+    }
+  }
+  
+  # Handle test mode if enabled
+  if (args$test_mode) {
+    message("Test mode enabled - sampling 500 genes")
+    if (nrow(data) > 500) {
+      # Use stratified sampling to keep representative genes
+      set.seed(42) # for reproducibility
+      data <- data[sample(nrow(data), 500), ]
+      message("Sampled 500 genes for test mode")
+    }
+  }
+  
+  # Check for duplicate gene IDs
+  if (any(duplicated(data$GeneId))) {
+    dup_count <- sum(duplicated(data$GeneId))
+    warning(paste("Found", dup_count, "duplicate gene IDs"))
+    
+    # Make gene IDs unique
+    message("Making gene IDs unique")
+    data$GeneId <- make.unique(as.character(data$GeneId))
+  }
+  
+  message(paste("Final filtered data has", nrow(data), "genes"))
+  return(data)
 } 

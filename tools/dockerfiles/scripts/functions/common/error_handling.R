@@ -88,4 +88,56 @@ report_error <- function(msg, details = NULL, recommendations = NULL) {
   
   # Stop execution by raising an error with the given message
   stop(msg)
+}
+
+# Error handling functions for R scripts
+#
+# This module provides standardized error handling functionality
+# for all R scripts in the workflow.
+
+#' Handle errors in a standardized way across all scripts
+#' @param error The error object
+#' @param script_name The name of the script where the error occurred
+#' @export
+handle_error <- function(error, script_name) {
+    # Create formatted error message
+    error_msg <- sprintf("\n===== ERROR in %s =====\n", script_name)
+    error_msg <- paste0(error_msg, "Error message: ", conditionMessage(error), "\n")
+    
+    if (!is.null(error$call)) {
+        error_msg <- paste0(error_msg, "Error location: ", deparse(error$call), "\n")
+    }
+    
+    # Get command line arguments for debugging
+    args <- commandArgs(trailingOnly = TRUE)
+    error_msg <- paste0(error_msg, "Command line arguments: ", paste(args, collapse = " "), "\n")
+    error_msg <- paste0(error_msg, "===============\n")
+    
+    # Write to error log file
+    err_file <- paste0(tolower(gsub(" ", "_", script_name)), "_error.log")
+    write(error_msg, file = err_file)
+    
+    # Print error message to console
+    message(error_msg)
+    
+    # Exit with error status
+    stop(conditionMessage(error))
+}
+
+#' Create a standardized warning message
+#' @param warning_msg The warning message
+#' @param script_name The name of the script generating the warning
+#' @export
+log_warning <- function(warning_msg, script_name) {
+    warning_text <- sprintf("[WARNING] %s: %s", script_name, warning_msg)
+    warning(warning_text, call. = FALSE)
+}
+
+#' Create a standardized info message
+#' @param info_msg The information message
+#' @param script_name The name of the script generating the message
+#' @export
+log_info <- function(info_msg, script_name) {
+    info_text <- sprintf("[INFO] %s: %s", script_name, info_msg)
+    message(info_text)
 } 

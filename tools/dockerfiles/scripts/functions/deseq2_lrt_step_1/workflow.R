@@ -6,6 +6,15 @@
 #'
 #' Loads required libraries, sources dependency files, and configures environment
 initialize_environment <- function() {
+  # Display startup message
+  message("Starting DESeq2 LRT Step 1 Analysis")
+  message("Working directory:", getwd())
+  
+  # Print command line arguments for debugging purposes
+  args <- commandArgs(trailingOnly = TRUE)
+  message("Command line arguments received:")
+  message(paste(args, collapse = " "))
+  
   # First, make sure we have the utilities module
   if (file.exists("/usr/local/bin/functions/common/utilities.R")) {
     message("Loading utilities from Docker path: /usr/local/bin/functions/common/utilities.R")
@@ -49,8 +58,32 @@ initialize_environment <- function() {
   source_with_fallback("functions/deseq2_lrt_step_1/deseq2_analysis.R", "/usr/local/bin/functions/deseq2_lrt_step_1/deseq2_analysis.R")
   source_with_fallback("functions/deseq2_lrt_step_1/contrast_generation.R", "/usr/local/bin/functions/deseq2_lrt_step_1/contrast_generation.R")
   
-  # Load required libraries
-  load_required_libraries()
+  # Load required libraries with clear error messages
+  tryCatch({
+    message("Loading required libraries...")
+    suppressPackageStartupMessages({
+      required_packages <- c(
+        "DESeq2",
+        "BiocParallel",
+        "data.table",
+        "ggplot2",
+        "plotly",
+        "sva",
+        "hopach",
+        "stringr"
+      )
+      
+      for (pkg in required_packages) {
+        if (!requireNamespace(pkg, quietly = TRUE)) {
+          stop(paste("Required package not found:", pkg))
+        }
+        message(paste("Loading package:", pkg))
+        library(pkg, character.only = TRUE)
+      }
+    })
+  }, error = function(e) {
+    stop(paste("Error loading libraries:", e$message))
+  })
 
   # Configure R options
   configure_r_options()
@@ -533,4 +566,77 @@ main_with_memory_management <- function() {
   }, error = function(e) {
     log_message("Could not report memory usage")
   })
+}
+
+# Main workflow module for DESeq2 LRT Step 1
+#
+# This module coordinates the entire DESeq2 LRT analysis workflow
+
+#' Main workflow function for DESeq2 LRT analysis
+#' @export
+run_deseq2_lrt_workflow <- function() {
+    # Print start time for better logging
+    start_time <- Sys.time()
+    message("DESeq2 LRT Step 1 analysis started at: ", format(start_time, "%Y-%m-%d %H:%M:%S"))
+    
+    # Parse command line arguments
+    args <- parse_cli_args()
+    
+    # Print parameters for debugging
+    message("Parameters:")
+    message("- Input files: ", paste(args$input, collapse=", "))
+    message("- Sample names: ", paste(args$name, collapse=", "))
+    message("- Metadata file: ", args$meta)
+    message("- Design formula: ", args$design)
+    message("- Reduced formula: ", args$reduced)
+    message("- Output prefix: ", args$output)
+    
+    # Validate required parameters
+    if (is.null(args$input) || is.null(args$meta) || is.null(args$design) || is.null(args$reduced)) {
+        stop("Missing required parameters: --input, --name, --meta, --design, --reduced")
+    }
+    
+    # Load and process input data
+    log_info("Loading and processing input data", "DESeq2 LRT Step 1")
+    input_data <- load_expression_data(args)
+    metadata <- load_metadata(args)
+    
+    # Perform quality control and filtering
+    log_info("Performing quality control and filtering", "DESeq2 LRT Step 1")
+    filtered_data <- perform_qc_filtering(input_data, args)
+    
+    # Run DESeq2 LRT analysis
+    log_info("Running DESeq2 LRT analysis", "DESeq2 LRT Step 1")
+    deseq_results <- run_deseq2_lrt(filtered_data, metadata, args)
+    
+    # Generate contrasts and perform post-processing
+    log_info("Generating contrasts and post-processing results", "DESeq2 LRT Step 1")
+    contrast_results <- generate_contrasts(deseq_results, args)
+    
+    # Export results
+    log_info("Exporting results", "DESeq2 LRT Step 1")
+    export_results(contrast_results, args)
+    
+    # Verify outputs
+    log_info("Verifying outputs", "DESeq2 LRT Step 1")
+    verify_outputs(args)
+    
+    # Print completion time and duration
+    end_time <- Sys.time()
+    duration <- difftime(end_time, start_time, units = "mins")
+    message("DESeq2 LRT Step 1 analysis completed at: ", format(end_time, "%Y-%m-%d %H:%M:%S"))
+    message("Total execution time: ", round(as.numeric(duration), 2), " minutes")
+}
+
+#' Verify that all required outputs were created
+#' @param args Command line arguments
+verify_outputs <- function(args) {
+    verify_file <- "/usr/local/bin/verify_outputs.R"
+    if (file.exists(verify_file)) {
+        source(verify_file)
+        output_prefix <- args$output %||% "./deseq_lrt_step_1"
+        verify_workflow_outputs("lrt_step1", output_prefix, fail_on_missing = FALSE)
+    } else {
+        log_warning("Verification file not found, skipping output verification", "DESeq2 LRT Step 1")
+    }
 } 
