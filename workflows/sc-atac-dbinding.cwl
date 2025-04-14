@@ -122,6 +122,10 @@ inputs:
     type: File
     "sd:upstreamSource": "genome_indices/annotation"
 
+  chrom_length_file:
+    type: File
+    "sd:upstreamSource": "genome_indices/chrom_length"
+
   blacklist_regions_file:
     type:
       type: enum
@@ -798,7 +802,7 @@ outputs:
   fltr_db_sites_bed:
     type: File
     outputSource: sc_atac_dbinding/fltr_db_sites_bed
-    label: "Differentially accessible regions (not filtered)"
+    label: "Differentially accessible regions (filtered)"
     doc: |
       Filtered by "Maximum adjusted p-value"
       and "Minimum log2 fold change absolute
@@ -1007,12 +1011,12 @@ steps:
       - sc_atac_dbinding/all_db_sites_tsv
       script:
         default: |
-          cat $0 | grep -v "start" | sort -k 11n | cut -f 1-5,15 > iaintersect_result.tsv
-          cat $1 | grep -v "start" > sc_atac_dbinding_result.tsv
+          cat $0 | grep -v "start" | sort -k 11n | cut -f 1-5,15 > tmp_iaintersect_result.tsv
+          cat $1 | grep -v "start" > tmp_sc_atac_dbinding_result.tsv
           HEADER=`head -n 1 $1`;
-          echo -e "refseq_id\tgene_id\ttxStart\ttxEnd\tstrand\tregion\t${HEADER}" > `basename $0`;
-          cat iaintersect_result.tsv | paste - sc_atac_dbinding_result.tsv >> `basename $0`
-          rm iaintersect_result.tsv sc_atac_dbinding_result.tsv
+          echo -e "refseq_id\tgene_id\ttxStart\ttxEnd\tstrand\tregion\t${HEADER}" > `basename $1`;
+          cat tmp_iaintersect_result.tsv | paste - tmp_sc_atac_dbinding_result.tsv >> `basename $1`
+          rm tmp_iaintersect_result.tsv tmp_sc_atac_dbinding_result.tsv
     out:
     - output_file
 
@@ -1023,8 +1027,8 @@ steps:
       script:
         default: |
           HEADER=`head -n 1 $0`;
-          echo -e "label\t${HEADER}" > sc_db_sites_labeled.tsv;
-          cat "$0" | grep -v "start" | awk -F "\t" '{print $7":"$8"-"$9" "$2" "$6"\t"$0}' >> sc_db_sites_labeled.tsv
+          echo -e "label\t${HEADER}" > sc_all_db_sites_labeled.tsv;
+          cat "$0" | grep -v "start" | awk -F "\t" '{print $7":"$8"-"$9" "$2" "$6"\t"$0}' >> sc_all_db_sites_labeled.tsv
     out:
     - output_file
 
