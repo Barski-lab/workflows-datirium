@@ -122,8 +122,8 @@ inputs:
     type: File
     "sd:upstreamSource": "genome_indices/annotation"
 
-  chrom_length_file:
-    type: File
+  chrom_length_file:                                            # not used, but removing it prevents SciDAP from rerunning old samples. Keeping it for now.
+    type: File?
     "sd:upstreamSource": "genome_indices/chrom_length"
 
   blacklist_regions_file:
