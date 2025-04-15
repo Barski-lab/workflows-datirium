@@ -812,7 +812,7 @@ outputs:
         height: 40
 
   fltr_db_sites_bed:
-    type: File
+    type: File?
     outputSource: sc_atac_dbinding/fltr_db_sites_bed
     label: "Differentially accessible regions (filtered)"
     doc: |
