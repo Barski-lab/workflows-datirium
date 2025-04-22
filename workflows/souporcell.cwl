@@ -21,6 +21,8 @@ requirements:
   sc_rnaseq_sample:
   - "https://github.com/datirium/workflows/workflows/cellranger-arc-count.cwl"
   - "cellranger-arc-count.cwl"
+  genome_indices:
+  - "cellranger-mkref.cwl"
 
 
 inputs:
@@ -57,11 +59,12 @@ inputs:
     type: File
     secondaryFiles:
     - .fai
-    label: "scRNA-Seq Cell Ranger ARC Experiment"
+    label: "Cell Ranger Reference Sample"
     doc: |
-      Reference genome FASTA file that includes all chromosomes + fai index file
-    'sd:upstreamSource': "sc_rnaseq_sample/genome_indices/genome_indices/fasta_output"
-    'sd:localLabel': true
+      Any Cell Ranger Reference (RNA, ATAC,
+      RNA+ATAC) sample.
+    "sd:upstreamSource": "genome_indices/unmasked_fasta"
+    "sd:localLabel": true
 
   filtered_feature_bc_matrix_folder:
     type: File

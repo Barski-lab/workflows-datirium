@@ -21,6 +21,9 @@ requirements:
   sc_rnaseq_sample:
   - "cellranger-multi.cwl"
   - "single-cell-preprocess-cellranger.cwl"
+  - "cellranger-aggr.cwl"
+  genome_indices:
+  - "cellranger-mkref.cwl"
 
 
 inputs:
@@ -46,8 +49,12 @@ inputs:
     type: File
     secondaryFiles:
     - .fai
-    label: "Cell Ranger Count RNA or RNA+VDJ Sample"
-    "sd:upstreamSource": "sc_rnaseq_sample/genome_indices/genome_indices/fasta_output"
+    label: "Cell Ranger Reference Sample"
+    doc: |
+      Any Cell Ranger Reference (RNA, ATAC,
+      RNA+ATAC) sample.
+    "sd:upstreamSource": "genome_indices/unmasked_fasta"
+    "sd:localLabel": true
 
   filtered_feature_bc_matrix_folder:
     type: File
