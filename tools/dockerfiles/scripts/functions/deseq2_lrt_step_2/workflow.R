@@ -3,6 +3,36 @@
 # Workflow functions for DESeq2 LRT Step 2
 #
 
+#' Main workflow function with memory management
+#' 
+#' Wraps the run_workflow function with memory tracking
+#' 
+#' @return Results from the analysis workflow
+#' @export
+main_with_memory_management <- function() {
+  # Report initial memory usage
+  report_memory_usage("Initial")
+  
+  # Get command-line arguments
+  args <- get_args()
+  
+  # Run the main workflow
+  results <- tryCatch({
+    run_workflow(args)
+  }, error = function(e) {
+    log_message(paste("Error in workflow execution:", e$message), "ERROR")
+    # Force garbage collection
+    gc(verbose = FALSE)
+    # Re-raise the error
+    stop(e)
+  })
+  
+  # Final memory usage report
+  report_memory_usage("Final")
+  
+  return(results)
+}
+
 #' Main workflow function for DESeq2 LRT Step 2
 #'
 #' @param args Command-line arguments
