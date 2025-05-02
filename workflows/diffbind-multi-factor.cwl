@@ -16,7 +16,7 @@ requirements:
       };
 
 
-'sd:upstream':
+"sd:upstream":
   dna_experiment:
   - "trim-chipseq-se.cwl"
   - "trim-chipseq-pe.cwl"
@@ -47,32 +47,32 @@ inputs:
     doc: |
       Sorted and indexed alignment files
       in BAM format
-    'sd:upstreamSource': "dna_experiment/bambai_pair"
-    'sd:localLabel': true
+    "sd:upstreamSource": "dna_experiment/bambai_pair"
+    "sd:localLabel": true
 
   peak_files:
     type: File[]
     label: "ChIP-Seq/ATAC-Seq experiments"
     doc:
       Peak files in the MACS2 xls format
-    'sd:upstreamSource': "dna_experiment/macs2_called_peaks"
-    'sd:localLabel': true
+    "sd:upstreamSource": "dna_experiment/macs2_called_peaks"
+    "sd:localLabel": true
 
   dataset_names:
     type: string[]
     label: "ChIP-Seq/ATAC-Seq experiments"
     doc: |
       Unique names for samples
-    'sd:upstreamSource': "dna_experiment/alias"
-    'sd:localLabel': true
+    "sd:upstreamSource": "dna_experiment/alias"
+    "sd:localLabel": true
 
   genome_coverage_files:
     type: File[]
     label: "ChIP-Seq/ATAC-Seq experiments"
     doc: |
       Genome coverage files in bigWig format
-    'sd:upstreamSource': "dna_experiment/bigwig"
-    'sd:localLabel': true
+    "sd:upstreamSource": "dna_experiment/bigwig"
+    "sd:localLabel": true
 
   narrow_peak_files:
     type:
@@ -81,8 +81,8 @@ inputs:
     label: "ChIP-Seq/ATAC-Seq experiments"
     doc: |
       Called peaks files in narrowPeak format
-    'sd:upstreamSource': "dna_experiment/macs2_narrow_peaks"
-    'sd:localLabel': true
+    "sd:upstreamSource": "dna_experiment/macs2_narrow_peaks"
+    "sd:localLabel": true
 
   broad_peak_files:
     type:
@@ -91,24 +91,24 @@ inputs:
     label: "ChIP-Seq/ATAC-Seq experiments"
     doc: |
       Called peaks files in broadPeak format
-    'sd:upstreamSource': "dna_experiment/macs2_broad_peaks"
-    'sd:localLabel': true
+    "sd:upstreamSource": "dna_experiment/macs2_broad_peaks"
+    "sd:localLabel": true
 
   annotation_file:
     type: File
     label: "Reference genome"
     doc: |
       Reference genome
-    'sd:upstreamSource': "genome_indices/annotation"
-    'sd:localLabel': true
+    "sd:upstreamSource": "genome_indices/annotation"
+    "sd:localLabel": true
 
   chrom_length_file:
     type: File
     label: "Reference genome"
     doc: |
       Reference genome
-    'sd:upstreamSource': "genome_indices/chrom_length"
-    'sd:localLabel': true
+    "sd:upstreamSource": "genome_indices/chrom_length"
+    "sd:localLabel": true
 
   metadata_file:
     type: File
@@ -116,10 +116,10 @@ inputs:
     doc: |
       Metadata file in TSV/CSV format to describe
       input samples categories. First column should
-      have the name 'sample', all other columns names
+      have the name "sample", all other columns names
       should be selected from the following list:
       Tissue, Factor, Condition, Treatment, Replicate.
-      The values from the 'sample' column should
+      The values from the "sample" column should
       correspond to the names of the selected
       ChIP-Seq/ATAC-Seq experiments. Values defined in
       each metadata column should not be used in any of
@@ -141,7 +141,7 @@ inputs:
       will be applied for all samples jointly.
       For grouping by multiple columns provide
       space separated values, for example,
-      'Treatment Tissue'
+      "Treatment Tissue"
 
   design_formula:
     type: string
@@ -245,7 +245,7 @@ inputs:
       ChIP-Seq datasets. To skip peaks extension and
       replacement, set it to negative value.
       Default: 200 bp (results in 401 bp wide peaks)
-    'sd:layout':
+    "sd:layout":
       advanced: true
 
   promoter_dist:
@@ -256,7 +256,7 @@ inputs:
       Maximum distance from gene TSS (in both
       direction) overlapping which the peak will
       be assigned to the promoter region.
-    'sd:layout':
+    "sd:layout":
       advanced: true
 
   upstream_dist:
@@ -267,7 +267,7 @@ inputs:
       Maximum distance from the promoter (only in
       upstream direction) overlapping which the peak
       will be assigned to the upstream region.
-    'sd:layout':
+    "sd:layout":
       advanced: true
 
   cluster_method:
@@ -284,7 +284,7 @@ inputs:
     doc: |
       Hierarchical clustering method to be run
       on normalized read counts
-    'sd:layout':
+    "sd:layout":
       advanced: true
 
   row_distance:
@@ -302,7 +302,7 @@ inputs:
     label: "Peak clustering. Distance metric for row clustering"
     doc: |
       Distance metric for hierarchical row clustering
-    'sd:layout':
+    "sd:layout":
       advanced: true
 
   column_distance:
@@ -321,7 +321,7 @@ inputs:
     doc: |
       Distance metric for hierarchical
       column clustering
-    'sd:layout':
+    "sd:layout":
       advanced: true
 
   threads:
@@ -339,7 +339,7 @@ inputs:
     label: "Number of cores/cpus to use"
     doc: |
       Number of cores/cpus to use
-    'sd:layout':
+    "sd:layout":
       advanced: true
 
 
@@ -351,11 +351,11 @@ outputs:
     doc: |
       Genome coverage files in bigWig format
     outputSource: pipe/gc_files
-    'sd:visualPlugins':
+    "sd:visualPlugins":
     - igvbrowser:
-        tab: 'Genome Browser'
-        id: 'igvbrowser'
-        type: 'wig'
+        tab: "Genome Browser"
+        id: "igvbrowser"
+        type: "wig"
         name: "Genome coverage"
         height: 120
 
@@ -367,11 +367,11 @@ outputs:
     doc: |
       Called peaks files in narrowPeak format
     outputSource: pipe/np_files
-    'sd:visualPlugins':
+    "sd:visualPlugins":
     - igvbrowser:
-        tab: 'Genome Browser'
-        id: 'igvbrowser'
-        type: 'annotation'
+        tab: "Genome Browser"
+        id: "igvbrowser"
+        type: "annotation"
         name: "Called peaks"
         displayMode: "COLLAPSE"
         height: 40
@@ -384,11 +384,11 @@ outputs:
     doc: |
       Called peaks files in broadPeak format
     outputSource: pipe/bp_files
-    'sd:visualPlugins':
+    "sd:visualPlugins":
     - igvbrowser:
-        tab: 'Genome Browser'
-        id: 'igvbrowser'
-        type: 'annotation'
+        tab: "Genome Browser"
+        id: "igvbrowser"
+        type: "annotation"
         name: "Called peaks"
         displayMode: "COLLAPSE"
         height: 40
@@ -399,12 +399,12 @@ outputs:
     doc: |
       Differentially bound sites in bigBed format
     outputSource: bed_to_bigbed/bigbed_file
-    'sd:visualPlugins':
+    "sd:visualPlugins":
     - igvbrowser:
-        tab: 'Genome Browser'
-        id: 'igvbrowser'
-        type: 'annotation'
-        format: 'bigbed'
+        tab: "Genome Browser"
+        id: "igvbrowser"
+        type: "annotation"
+        format: "bigbed"
         name: "Differentially bound sites"
         height: 40
 
@@ -418,10 +418,10 @@ outputs:
       Peakset overlap rate
       PNG format
     outputSource: diffbind/pk_vrlp_s_plot_png
-    'sd:visualPlugins':
+    "sd:visualPlugins":
       - image:
-          tab: 'Exploratory plots'
-          Caption: 'Peakset overlap rate'
+          tab: "Exploratory plots"
+          Caption: "Peakset overlap rate"
 
   all_pk_scr_corr_plot_png:
     type: File?
@@ -430,10 +430,10 @@ outputs:
       Samples correlation (all peaks)
       PNG format
     outputSource: diffbind/all_pk_scr_corr_plot_png
-    'sd:visualPlugins':
+    "sd:visualPlugins":
       - image:
-          tab: 'Exploratory plots'
-          Caption: 'Samples correlation (all peaks)'
+          tab: "Exploratory plots"
+          Caption: "Samples correlation (all peaks)"
 
   cns_pk_scr_corr_plot_png:
     type: File?
@@ -443,10 +443,10 @@ outputs:
       recentered consensus peaks)
       PNG format
     outputSource: diffbind/cns_pk_scr_corr_plot_png
-    'sd:visualPlugins':
+    "sd:visualPlugins":
       - image:
-          tab: 'Exploratory plots'
-          Caption: 'Samples correlation (opt. rec. cons. peaks)'
+          tab: "Exploratory plots"
+          Caption: "Samples correlation (opt. rec. cons. peaks)"
 
   rw_rds_corr_plot_png:
     type: File?
@@ -455,10 +455,10 @@ outputs:
       Samples correlation (raw reads)
       PNG format
     outputSource: diffbind/rw_rds_corr_plot_png
-    'sd:visualPlugins':
+    "sd:visualPlugins":
       - image:
-          tab: 'Exploratory plots'
-          Caption: 'Samples correlation (raw reads)'
+          tab: "Exploratory plots"
+          Caption: "Samples correlation (raw reads)"
 
   nr_rds_corr_plot_png:
     type: File?
@@ -467,10 +467,10 @@ outputs:
       Samples correlation (normalized reads)
       PNG format
     outputSource: diffbind/nr_rds_corr_plot_png
-    'sd:visualPlugins':
+    "sd:visualPlugins":
       - image:
-          tab: 'Exploratory plots'
-          Caption: 'Samples correlation (normalized reads)'
+          tab: "Exploratory plots"
+          Caption: "Samples correlation (normalized reads)"
 
   pk_prfl_plot_png:
     type: File?
@@ -479,10 +479,10 @@ outputs:
       Peak profiles
       PNG format
     outputSource: diffbind/pk_prfl_plot_png
-    'sd:visualPlugins':
+    "sd:visualPlugins":
       - image:
-          tab: 'Differential plots'
-          Caption: 'Peak profiles'
+          tab: "Differential plots"
+          Caption: "Peak profiles"
 
   diff_vlcn_plot_png:
     type: File?
@@ -491,10 +491,10 @@ outputs:
       Volcano plot for differentially bound sites
       PNG format
     outputSource: diffbind/diff_vlcn_plot_png
-    'sd:visualPlugins':
+    "sd:visualPlugins":
       - image:
-          tab: 'Differential plots'
-          Caption: 'Volcano plot for differentially bound sites'
+          tab: "Differential plots"
+          Caption: "Volcano plot for differentially bound sites"
 
   diff_ma_plot_png:
     type: File?
@@ -503,10 +503,10 @@ outputs:
       MA-plot for differentially bound sites
       PNG format
     outputSource: diffbind/diff_ma_plot_png
-    'sd:visualPlugins':
+    "sd:visualPlugins":
       - image:
-          tab: 'Differential plots'
-          Caption: 'MA-plot for differentially bound sites'
+          tab: "Differential plots"
+          Caption: "MA-plot for differentially bound sites"
 
   nr_rds_pca_1_2_plot_png:
     type: File?
@@ -515,10 +515,10 @@ outputs:
       PCA (1,2) of not filtered normalized counts
       PNG format
     outputSource: diffbind/nr_rds_pca_1_2_plot_png
-    'sd:visualPlugins':
+    "sd:visualPlugins":
       - image:
-          tab: 'Exploratory plots'
-          Caption: 'PCA (1,2) of not filtered normalized counts'
+          tab: "Exploratory plots"
+          Caption: "PCA (1,2) of not filtered normalized counts"
 
   nr_rds_pca_2_3_plot_png:
     type: File?
@@ -527,10 +527,10 @@ outputs:
       PCA (2,3) of not filtered normalized counts
       PNG format
     outputSource: diffbind/nr_rds_pca_2_3_plot_png
-    'sd:visualPlugins':
+    "sd:visualPlugins":
       - image:
-          tab: 'Exploratory plots'
-          Caption: 'PCA (2,3) of not filtered normalized counts'
+          tab: "Exploratory plots"
+          Caption: "PCA (2,3) of not filtered normalized counts"
 
   nr_rds_mds_html:
     type: File?
@@ -539,9 +539,9 @@ outputs:
     doc: |
       MDS plot of normalized counts.
       HTML format
-    'sd:visualPlugins':
+    "sd:visualPlugins":
     - linkList:
-        tab: 'Overview'
+        tab: "Overview"
         target: "_blank"
 
   diff_sts_tsv:
@@ -551,10 +551,10 @@ outputs:
       Differentially bound sites with assigned nearest genes
       TSV format
     outputSource: restore_columns/output_file
-    'sd:visualPlugins':
+    "sd:visualPlugins":
       - syncfusiongrid:
-          tab: 'Differentially bound sites'
-          Title: 'Differentially bound sites'
+          tab: "Differentially bound sites"
+          Title: "Differentially bound sites"
 
   diff_sts_labeled_tsv:
     type: File
@@ -563,42 +563,12 @@ outputs:
       Differentially bound sites with labels
       TSV format
     outputSource: add_label_column/output_file
-
-  volcano_plot_html_file:
-    type: File
-    label: "Volcano Plot"
-    doc: |
-      HTML index file for Volcano Plot
-    outputSource: make_volcano_plot/html_file
-    'sd:visualPlugins':
-    - linkList:
-        tab: 'Overview'
-        target: "_blank"
-
-  volcano_plot_html_data:
-    type: Directory
-    label: "Directory html data for Volcano Plot"
-    doc: |
-      Directory html data for Volcano Plot
-    outputSource: make_volcano_plot/html_data
-
-  ma_plot_html_file:
-    type: File
-    label: "MA-plot"
-    doc: |
-      HTML index file for MA-plot
-    outputSource: make_ma_plot/html_file
-    'sd:visualPlugins':
-    - linkList:
-        tab: 'Overview'
-        target: "_blank"
-
-  ma_plot_html_data:
-    type: Directory
-    label: "Directory html data for Volcano Plot"
-    doc: |
-      Directory html data for MA-plot
-    outputSource: make_ma_plot/html_data
+    "sd:visualPlugins":
+    - queryRedirect:
+        tab: "Overview"
+        label: "Volcano Plot"
+        url: "https://scidap.com/vp/volcano"
+        query_eval_string: "`data_file=${this.getSampleValue('outputs', 'diff_sts_labeled_tsv')}&data_col=label&x_col=log2FoldChange&y_col=padj`"
 
   heatmap_html:
     type: File
@@ -606,9 +576,9 @@ outputs:
     doc: |
       Morpheus heatmap in HTML format
     outputSource: morpheus_heatmap/heatmap_html
-    'sd:visualPlugins':
+    "sd:visualPlugins":
     - linkList:
-        tab: 'Overview'
+        tab: "Overview"
         target: "_blank"
 
   nr_rds_gct:
@@ -624,9 +594,9 @@ outputs:
     doc: |
       Markdown file to explain the sample order for IGV
     outputSource: create_metadata/output_file
-    'sd:visualPlugins':
+    "sd:visualPlugins":
     - markdownView:
-        tab: 'Overview'
+        tab: "Overview"
 
   pdf_plots:
     type: File
@@ -916,42 +886,14 @@ steps:
   add_label_column:
     run: ../tools/custom-bash.cwl
     in:
-      input_file: diffbind/diff_sts_tsv
+      input_file: restore_columns/output_file
       script:
         default: |
           HEADER=`head -n 1 $0`;
           echo -e "label\t${HEADER}" > diff_sts_labeled.tsv;
-          cat "$0" | grep -v "Start" | awk -F "\t" '{print $1":"$2"-"$3"\t"$0}' >> diff_sts_labeled.tsv
+          cat "$0" | grep -v "Start" | awk -F "\t" '{print $7":"$8"-"$9" "$2" "$6"\t"$0}' >> diff_sts_labeled.tsv
     out:
     - output_file
-
-  make_volcano_plot:
-    run: ../tools/volcano-plot.cwl
-    in:
-      diff_expr_file: add_label_column/output_file
-      x_axis_column:
-        default: "log2FoldChange"
-      y_axis_column:
-        default: "padj"
-      label_column:
-        default: "label"
-    out:
-    - html_data
-    - html_file
-
-  make_ma_plot:
-    run: ../tools/ma-plot.cwl
-    in:
-      diff_expr_file: add_label_column/output_file
-      x_axis_column:
-        default: "baseMean"
-      y_axis_column:
-        default: "log2FoldChange"
-      label_column:
-        default: "label"
-    out:
-    - html_data
-    - html_file
 
   extend_gct:
     run:
