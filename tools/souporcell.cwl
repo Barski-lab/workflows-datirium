@@ -3,10 +3,8 @@ class: CommandLineTool
 
 
 requirements:
-- class: EnvVarRequirement
-  envDef:
-    TMPDIR: $(runtime.tmpdir)
 - class: InlineJavascriptRequirement
+
 
 hints:
 - class: DockerRequirement
