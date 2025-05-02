@@ -10,7 +10,7 @@ requirements:
 
 hints:
 - class: DockerRequirement
-  dockerPull: biowardrobe2/souporcell:v0.0.2
+  dockerPull: biowardrobe2/souporcell:v0.0.1
 
 
 inputs:
