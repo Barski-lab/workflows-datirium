@@ -25,11 +25,21 @@ requirements:
   - "sc-wnn-cluster.cwl"
   - "sc-ctype-assign.cwl"
   - "sc-rna-azimuth.cwl"
+  - "https://github.com/datirium/workflows/workflows/sc-multiome-filter.cwl"
+  - "https://github.com/datirium/workflows/workflows/sc-atac-reduce.cwl"
+  - "https://github.com/datirium/workflows/workflows/sc-atac-cluster.cwl"
+  - "https://github.com/datirium/workflows/workflows/sc-wnn-cluster.cwl"
+  - "https://github.com/datirium/workflows/workflows/sc-ctype-assign.cwl"
+  - "https://github.com/datirium/workflows/workflows/sc-rna-azimuth.cwl"
   sc_atac_sample:
   - "cellranger-arc-count.cwl"
   - "cellranger-arc-aggr.cwl"
   - "cellranger-atac-count.cwl"
   - "cellranger-atac-aggr.cwl"
+  - "https://github.com/datirium/workflows/workflows/cellranger-arc-count.cwl"
+  - "https://github.com/datirium/workflows/workflows/cellranger-arc-aggr.cwl"
+  - "https://github.com/datirium/workflows/workflows/cellranger-atac-count.cwl"
+  - "https://github.com/datirium/workflows/workflows/cellranger-atac-aggr.cwl"
   genome_indices:
   - "genome-indices.cwl"
   - "https://github.com/datirium/workflows/workflows/genome-indices.cwl"
@@ -37,7 +47,7 @@ requirements:
 
 inputs:
 
-  alias:
+  alias_:
     type: string
     label: "Experiment short name/alias"
     sd:preview:
