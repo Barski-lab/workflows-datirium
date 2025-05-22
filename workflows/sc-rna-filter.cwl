@@ -21,6 +21,11 @@ requirements:
   - "cellranger-multi.cwl"
   - "sc-format-transform.cwl"
   - "sc-rna-load-rhapsody.cwl"
+  - "https://github.com/datirium/workflows/workflows/cellranger-aggr.cwl"
+  - "https://github.com/datirium/workflows/workflows/single-cell-preprocess-cellranger.cwl"
+  - "https://github.com/datirium/workflows/workflows/cellranger-multi.cwl"
+  - "https://github.com/datirium/workflows/workflows/sc-format-transform.cwl"
+  - "https://github.com/datirium/workflows/workflows/sc-rna-load-rhapsody.cwl
 
 
 inputs:
