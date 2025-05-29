@@ -22,8 +22,12 @@ requirements:
   - "cellranger-multi.cwl"
   - "single-cell-preprocess-cellranger.cwl"
   - "cellranger-aggr.cwl"
+  - "https://github.com/datirium/workflows/workflows/cellranger-multi.cwl"
+  - "https://github.com/datirium/workflows/workflows/single-cell-preprocess-cellranger.cwl"
+  - "https://github.com/datirium/workflows/workflows/cellranger-aggr.cwl"
   genome_indices:
   - "cellranger-mkref.cwl"
+  - "https://github.com/datirium/workflows/workflows/cellranger-mkref.cwl"
 
 
 inputs:
