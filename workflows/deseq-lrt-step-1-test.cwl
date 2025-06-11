@@ -296,7 +296,7 @@ steps:
   deseq:
     run: ../tools/deseq-lrt-step-1.cwl
     in:
-      test_expression_files:
+      expression_files:
         source: [ group_by, test_expression_files, group_isoforms/genes_file, group_isoforms/common_tss_file ]
         valueFrom: |
           ${

@@ -5,7 +5,7 @@ requirements:
   - class: InlineJavascriptRequirement
 
 hints:
-- class: DockerRequirement
+  - class: DockerRequirement
     dockerPull: "biowardrobe2/scidap-deseq:v0.0.32"
 
 inputs:
@@ -83,7 +83,7 @@ inputs:
     default: false
     inputBinding:
       prefix: "--use_lfc_thresh"
-      valueFrom: $(self ? "TRUE" : "FALSE")
+      valueFrom: "$(self ? 'TRUE' : 'FALSE')"
     doc: "Use LFC threshold"
 
   rpkm_cutoff:
@@ -167,7 +167,7 @@ inputs:
     default: false
     inputBinding:
       prefix: "--lrt_only_mode"
-      valueFrom: $(self ? "TRUE" : "FALSE")
+      valueFrom: "$(self ? 'TRUE' : 'FALSE')"
     doc: "LRT only mode"
 
   test_mode:
@@ -175,7 +175,7 @@ inputs:
     default: false
     inputBinding:
       prefix: "--test_mode"
-      valueFrom: $(self ? "TRUE" : "FALSE")
+      valueFrom: "$(self ? 'TRUE' : 'FALSE')"
     doc: "Test mode"
 
 outputs:
