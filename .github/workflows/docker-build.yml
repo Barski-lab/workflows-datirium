@@ -60,11 +60,11 @@ jobs:
               echo "dockerfile_version=$VERSION" >> $GITHUB_OUTPUT
             else
               echo "No version found in Dockerfile, using default"
-              echo "dockerfile_version=v0.0.31" >> $GITHUB_OUTPUT
+              echo "dockerfile_version=v0.0.44" >> $GITHUB_OUTPUT
             fi
           else
             echo "Dockerfile not found at path: ${{ env.DOCKERFILE_PATH }}"
-            echo "dockerfile_version=v0.0.31" >> $GITHUB_OUTPUT
+            echo "dockerfile_version=v0.0.44" >> $GITHUB_OUTPUT
           fi
           
       - name: Set Docker Tag

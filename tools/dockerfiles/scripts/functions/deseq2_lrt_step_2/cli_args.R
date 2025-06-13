@@ -154,8 +154,8 @@ get_args <- function() {
   )
   
   # Parse arguments with better error handling
-  tryCatch({
-    args <- parser$parse_args(commandArgs(trailingOnly = TRUE))
+  args <- tryCatch({
+    parser$parse_args(commandArgs(trailingOnly = TRUE))
   }, error = function(e) {
     message("Warning: Argument parsing error. Attempting to handle arguments manually.")
     
@@ -163,7 +163,7 @@ get_args <- function() {
     all_args <- commandArgs(trailingOnly = TRUE)
     
     # Initialize an empty list for our parsed arguments
-    args <- list()
+    manual_args <- list()
     
     # Make sure to explicitly extract required arguments first
     required_args <- c("dsq_obj_data", "contrast_df", "contrast_indices")
@@ -171,8 +171,8 @@ get_args <- function() {
       req_flag <- paste0("--", req_arg)
       arg_idx <- which(all_args == req_flag)
       if (length(arg_idx) > 0 && arg_idx[1] < length(all_args)) {
-        args[[req_arg]] <- all_args[arg_idx[1] + 1]
-        message(paste("Directly extracted required argument:", req_arg, "=", args[[req_arg]]))
+        manual_args[[req_arg]] <- all_args[arg_idx[1] + 1]
+        message(paste("Directly extracted required argument:", req_arg, "=", manual_args[[req_arg]]))
       }
     }
     
@@ -190,12 +190,12 @@ get_args <- function() {
           arg_value <- all_args[i + 1]
           
           # Set the value
-          args[[arg_name]] <- arg_value
+          manual_args[[arg_name]] <- arg_value
           
           i <- i + 2  # Skip the value
         } else {
           # This is a boolean flag
-          args[[arg_name]] <- TRUE
+          manual_args[[arg_name]] <- TRUE
           i <- i + 1
         }
       } else {
@@ -206,11 +206,12 @@ get_args <- function() {
     
     # Show what we parsed
     message("Manually parsed arguments:")
-    for (arg_name in names(args)) {
-      message(paste0("  ", arg_name, ": ", args[[arg_name]]))
+    for (arg_name in names(manual_args)) {
+      message(paste0("  ", arg_name, ": ", manual_args[[arg_name]]))
     }
     
-    return(args)
+    # Return the manually parsed arguments
+    return(manual_args)
   })
   
   # Validate required arguments

@@ -5,8 +5,8 @@ requirements:
   - class: InlineJavascriptRequirement
 
 hints:
-  - class: DockerRequirement
-    dockerPull: "biowardrobe2/scidap-deseq:v0.0.32"
+- class: DockerRequirement
+  dockerPull: "local/scidap-deseq:v0.0.51"
 
 inputs:
 
@@ -89,6 +89,7 @@ inputs:
     type: boolean
     inputBinding:
       prefix: "--use_lfc_thresh"
+      valueFrom: "$(self ? 'TRUE' : 'FALSE')"
     default: false
     doc: "Use lfcthreshold as the null hypothesis value in the results function call. Default: TRUE"
 
@@ -183,6 +184,7 @@ inputs:
     type: boolean
     inputBinding:
       prefix: "--test_mode"
+      valueFrom: "$(self ? 'TRUE' : 'FALSE')"
     default: false
     doc: "Run for test, only first 100 rows"
 
@@ -214,7 +216,7 @@ outputs:
   stderr_log:
     type: stderr
 
-baseCommand: [ run_deseq_lrt_step_2.R ]
+baseCommand: ["/usr/bin/Rscript", "/usr/local/bin/run_deseq_lrt_step_2.R"]
 stdout: deseq_lrt_step_2_stdout.log
 stderr: deseq_lrt_step_2_stderr.log
 

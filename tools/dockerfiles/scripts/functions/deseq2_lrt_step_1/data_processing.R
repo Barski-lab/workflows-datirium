@@ -47,6 +47,8 @@ load_expression_data <- function(args) {
   
   # Determine file formats and load data
   expr_data_list <- list()
+  annotation_data <- NULL
+  
   for (i in seq_along(args$input)) {
     file_path <- args$input[i]
     file_name <- if (!is.null(args$name) && length(args$name) >= i) args$name[i] else basename(file_path)
@@ -68,6 +70,27 @@ load_expression_data <- function(args) {
     tryCatch({
       data <- read.table(file_path, sep = delimiter, header = TRUE, stringsAsFactors = FALSE)
       message(paste("  Loaded", nrow(data), "rows and", ncol(data), "columns"))
+      
+      # Apply test mode subsampling early to reduce memory usage
+      if (!is.null(args$test_mode) && as.logical(args$test_mode) && nrow(data) > 5000) {
+        subsample_size <- 5000
+        message(paste("  TEST MODE: Subsampling", subsample_size, "genes out of", nrow(data), "for memory efficiency"))
+        
+        # Take genes with highest TotalReads to ensure meaningful analysis
+        if ("TotalReads" %in% colnames(data)) {
+          top_genes_idx <- order(data$TotalReads, decreasing = TRUE)[1:subsample_size]
+          data <- data[top_genes_idx, , drop = FALSE]
+        } else {
+          # Fallback: random sampling if no TotalReads column found
+          set.seed(42)  # For reproducible results
+          sample_idx <- sample(seq_len(nrow(data)), subsample_size)
+          data <- data[sample_idx, , drop = FALSE]
+        }
+        message(paste("  Subsampled to", nrow(data), "rows"))
+        
+        # Force garbage collection
+        gc(verbose = FALSE)
+      }
       
       # Validate required columns
       required_cols <- c("GeneId", "TotalReads", "Rpkm")
@@ -99,21 +122,31 @@ load_expression_data <- function(args) {
         }
       }
       
-      # Add sample name to column names for clarity
-      read_col <- paste(file_name, "TotalReads", sep = " ")
-      rpkm_col <- paste(file_name, "Rpkm", sep = " ")
+      # For the first file, save annotation columns
+      if (i == 1) {
+        annotation_columns <- colnames(data)[!colnames(data) %in% c("TotalReads", "Rpkm")]
+        annotation_data <- data[, annotation_columns, drop = FALSE]
+        message(paste("  Saved", length(annotation_columns), "annotation columns from first file"))
+      }
       
-      colnames(data)[colnames(data) == "TotalReads"] <- read_col
-      colnames(data)[colnames(data) == "Rpkm"] <- rpkm_col
+      # Create a clean data frame with just GeneId and the count/rpkm data for this sample
+      sample_data <- data.frame(
+        GeneId = data$GeneId,
+        stringsAsFactors = FALSE
+      )
       
-      expr_data_list[[i]] <- data
+      # Add properly named columns for this sample
+      sample_data[[paste(file_name, "TotalReads", sep = "_")]] <- data$TotalReads
+      sample_data[[paste(file_name, "Rpkm", sep = "_")]] <- data$Rpkm
+      
+      expr_data_list[[i]] <- sample_data
       
     }, error = function(e) {
       stop(paste("Error loading file", file_path, ":", e$message))
     })
   }
   
-  # Merge all data frames
+  # Merge all data frames by GeneId
   message("Merging data from all input files...")
   if (length(expr_data_list) == 0) {
     stop("No valid expression data loaded")
@@ -124,12 +157,19 @@ load_expression_data <- function(args) {
     merged_data <- Reduce(function(x, y) merge(x, y, by = "GeneId", all = TRUE), expr_data_list)
   }
   
+  # Merge with annotation data
+  if (!is.null(annotation_data)) {
+    merged_data <- merge(annotation_data, merged_data, by = "GeneId", all = TRUE)
+  }
+  
   # Check for NA values and handle them
   na_count <- sum(is.na(merged_data))
   if (na_count > 0) {
     message(paste("Found", na_count, "NA values in merged data - replacing with zeros"))
     merged_data[is.na(merged_data)] <- 0
   }
+  
+  # Test mode subsampling already applied during file loading for memory efficiency
   
   message(paste("Final merged data has", nrow(merged_data), "rows and", ncol(merged_data), "columns"))
   return(merged_data)

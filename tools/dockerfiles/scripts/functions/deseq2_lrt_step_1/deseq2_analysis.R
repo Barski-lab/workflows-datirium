@@ -6,6 +6,15 @@
 run_deseq2 <- function(count_data, metadata, design_formula, reduced_formula, args) {
   logger::info("Running DESeq2 analysis with LRT")
   
+  # Debug output to diagnose dimension mismatch
+  message("=== DEBUG: DESeq2 Input Dimensions ===")
+  message(paste("Count data dimensions:", nrow(count_data), "rows x", ncol(count_data), "columns"))
+  message(paste("Count data column names:", paste(colnames(count_data), collapse=", ")))
+  message(paste("Metadata dimensions:", nrow(metadata), "rows x", ncol(metadata), "columns"))
+  message(paste("Metadata row names:", paste(rownames(metadata), collapse=", ")))
+  message(paste("Design formula:", deparse(design_formula)))
+  message("=====================================")
+  
   # Create DESeqDataSet object
   dds <- try(DESeqDataSetFromMatrix(
     countData = count_data,
@@ -76,12 +85,23 @@ export_results <- function(deseq_results, expression_data, metadata, args, batch
   log_message("Exporting DESeq2 LRT Step 1 results", "STEP")
   
   # Ensure output directory exists
-  output_dir <- dirname(args$output_prefix)
+  output_prefix <- if (!is.null(args$output_prefix)) {
+    args$output_prefix
+  } else if (!is.null(args$output)) {
+    args$output
+  } else {
+    "./deseq_lrt_step_1"  # Default fallback
+  }
+  
+  output_dir <- dirname(output_prefix)
   if (!is.null(output_dir) && output_dir != "" && output_dir != ".") {
     if (!dir.exists(output_dir)) {
       dir.create(output_dir, recursive = TRUE)
     }
   }
+  
+  # Update args to use the determined output_prefix
+  args$output_prefix <- output_prefix
   
   # Check if output_prefix is missing, use output as fallback
   if (is.null(args$output_prefix)) {
@@ -153,6 +173,9 @@ export_results <- function(deseq_results, expression_data, metadata, args, batch
   # Export contrasts table if available
   if (!is.null(contrasts)) {
     export_deseq_results(contrasts, args$output_prefix, output_name="contrasts_table")
+  } else if (!is.null(lrt_res)) {
+    # For LRT analysis, export LRT results as contrasts table
+    export_deseq_results(lrt_res, args$output_prefix, output_name="contrasts_table")
   }
   
   # Export LRT results if available
@@ -284,6 +307,15 @@ run_deseq2_lrt <- function(count_data, sample_metadata, design_formula, reduced_
                            batchcorrection = "none", threads = 1) {
   require(DESeq2)
   
+  # Debug output to diagnose dimension mismatch
+  message("=== DEBUG: DESeq2 LRT Input Dimensions ===")
+  message(paste("Count data dimensions:", nrow(count_data), "rows x", ncol(count_data), "columns"))
+  message(paste("Count data column names:", paste(colnames(count_data), collapse=", ")))
+  message(paste("Sample metadata dimensions:", nrow(sample_metadata), "rows x", ncol(sample_metadata), "columns"))
+  message(paste("Sample metadata row names:", paste(rownames(sample_metadata), collapse=", ")))
+  message(paste("Design formula:", deparse(design_formula)))
+  message("==========================================")
+  
   # Create DESeqDataSet
   message("Creating DESeqDataSet...")
   dds <- DESeqDataSetFromMatrix(
@@ -324,11 +356,9 @@ run_deseq2_lrt <- function(count_data, sample_metadata, design_formula, reduced_
     )
   }
   
-  # Set up parallel processing
-  if (threads > 1) {
-    message(paste("Using", threads, "threads for parallel processing"))
-    BiocParallel::register(BiocParallel::MulticoreParam(threads))
-  }
+  # Disable parallel processing to avoid environment subassignment errors
+  message("Disabling parallel processing to avoid environment issues")
+  BiocParallel::register(BiocParallel::SerialParam())
   
   # Run DESeq2 with LRT
   message("Running DESeq2 LRT analysis...")
@@ -336,7 +366,7 @@ run_deseq2_lrt <- function(count_data, sample_metadata, design_formula, reduced_
     dds,
     test = "LRT",
     reduced = reduced_formula,
-    parallel = (threads > 1)
+    parallel = FALSE
   )
   
   return(dds)

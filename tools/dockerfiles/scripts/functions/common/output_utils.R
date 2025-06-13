@@ -392,3 +392,4 @@ verify_outputs <- function(output_prefix, workflow_type, fail_on_missing = FALSE
   
   message("All expected output files were created successfully")
   return(TRUE) 
+}

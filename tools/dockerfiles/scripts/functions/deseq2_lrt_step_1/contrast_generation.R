@@ -1,360 +1,294 @@
 #!/usr/bin/env Rscript
 
-# --- Contrast generation functions ---
+# Load required packages
+library(DESeq2)
+library(dplyr)
+library(purrr)
 
-# Generate contrasts for main effects
-generate_main_effect_contrasts <- function(dds, result_names) {
-  log_message("Processing main effect contrasts...", "INFO")
+# Memory efficient function to generate main effect contrasts
+generate_main_effect_contrasts <- function(dds, factors, factor_levels, args) {
+  start_time <- proc.time()
+  contrasts <- list()
   
-  # Initialize dataframe
-  main_effect_contrasts <- data.frame(
-    factor = character(),
-    contrast_name = character(),
-    numerator = character(),
-    denominator = character(),
-    type = character(),
-    stringsAsFactors = FALSE
-  )
+  cat("Generating main effect contrasts (memory efficient version)...\n")
   
-  # Get all factor columns from colData
-  col_data <- as.data.frame(colData(dds))
-  factor_cols <- sapply(col_data, is.factor)
-  factor_names <- names(factor_cols)[factor_cols]
-  
-  # Skip 'batch' column if it exists and is a factor
-  if ("batch" %in% factor_names) {
-    factor_names <- factor_names[factor_names != "batch"]
-    debug_log("Excluding 'batch' from contrast generation")
-  }
-  
-  debug_log(glue::glue("Processing factor columns: {paste(factor_names, collapse=', ')}"))
-  
-  # Process each factor
-  for (factor_name in factor_names) {
-    # Get levels for this factor
-    factor_levels <- levels(col_data[[factor_name]])
-    
-    if (length(factor_levels) < 2) {
-      debug_log(glue::glue("Skipping factor '{factor_name}' - fewer than 2 levels"))
-      next
-    }
-    
-    debug_log(glue::glue("Processing factor '{factor_name}' with levels: {paste(factor_levels, collapse=', ')}"))
-    
-    # Process factor according to number of levels
-    if (length(factor_levels) == 2) {
-      # Binary factor - simple case
-      log_message(glue::glue("Processing binary factor: {factor_name}"), "INFO")
-      
-      # Check if the contrast exists in result_names
-      contrast_name <- paste0(factor_name, factor_levels[2])
-      
-      if (contrast_name %in% result_names) {
-        main_effect_contrasts <- rbind(
-          main_effect_contrasts,
-          data.frame(
-            factor = factor_name,
-            contrast_name = contrast_name,
-            numerator = factor_levels[2],
-            denominator = factor_levels[1],
-            type = "main_effect",
-            stringsAsFactors = FALSE
-          )
-        )
-        debug_log(glue::glue("Added binary contrast: {contrast_name}"))
-      } else {
-        # Try alternate naming pattern
-        alt_contrast_name <- find_contrast_name(result_names, factor_name, factor_levels[2])
-        
-        if (!is.null(alt_contrast_name)) {
-          main_effect_contrasts <- rbind(
-            main_effect_contrasts,
-            data.frame(
-              factor = factor_name,
-              contrast_name = alt_contrast_name,
-              numerator = factor_levels[2],
-              denominator = factor_levels[1],
-              type = "main_effect",
-              stringsAsFactors = FALSE
-            )
-          )
-          debug_log(glue::glue("Added binary contrast with alternate name: {alt_contrast_name}"))
-        } else {
-          log_message(glue::glue("Warning: Could not find contrast for binary factor '{factor_name}'"), "WARNING")
-        }
-      }
-    } else {
-      # Multi-level factor
-      log_message(glue::glue("Processing multi-level factor: {factor_name} with {length(factor_levels)} levels"), "INFO")
-      
-      # Reference level is the first one
-      ref_level <- factor_levels[1]
-      
-      # For each non-reference level
-      for (i in 2:length(factor_levels)) {
-        level <- factor_levels[i]
-        contrast_name <- paste0(factor_name, level)
-        
-        if (contrast_name %in% result_names) {
-          main_effect_contrasts <- rbind(
-            main_effect_contrasts,
-            data.frame(
-              factor = factor_name,
-              contrast_name = contrast_name,
-              numerator = level,
-              denominator = ref_level,
-              type = "main_effect",
-              stringsAsFactors = FALSE
-            )
-          )
-          debug_log(glue::glue("Added multi-level contrast: {contrast_name}"))
-        } else {
-          # Try alternate naming pattern
-          alt_contrast_name <- find_contrast_name(result_names, factor_name, level)
-          
-          if (!is.null(alt_contrast_name)) {
-            main_effect_contrasts <- rbind(
-              main_effect_contrasts,
-              data.frame(
-                factor = factor_name,
-                contrast_name = alt_contrast_name,
-                numerator = level,
-                denominator = ref_level,
-                type = "main_effect",
-                stringsAsFactors = FALSE
-              )
-            )
-            debug_log(glue::glue("Added multi-level contrast with alternate name: {alt_contrast_name}"))
-          } else {
-            log_message(glue::glue("Warning: Could not find contrast for level '{level}' of factor '{factor_name}'"), "WARNING")
-          }
-        }
-      }
-    }
-  }
-  
-  log_message(glue::glue("Completed main effect contrast generation with {nrow(main_effect_contrasts)} contrasts"), "INFO")
-  return(main_effect_contrasts)
-}
-
-# Generate contrasts for interaction effects
-generate_interaction_effect_contrasts <- function(dds, result_names) {
-  log_message("Processing interaction effect contrasts...", "INFO")
-  
-  # Initialize dataframe
-  interaction_effect_contrasts <- data.frame(
-    factor = character(),
-    contrast_name = character(),
-    numerator = character(),
-    denominator = character(),
-    type = character(),
-    stringsAsFactors = FALSE
-  )
-  
-  # Identify interaction terms in result_names
-  interaction_terms <- result_names[grepl(":", result_names, fixed = TRUE)]
-  
-  if (length(interaction_terms) == 0) {
-    debug_log("No interaction terms found in DESeq2 results")
-    return(interaction_effect_contrasts)
-  }
-  
-  debug_log(glue::glue("Found {length(interaction_terms)} interaction terms: {paste(interaction_terms, collapse=', ')}"))
-  
-  # Get factor information from colData
-  col_data <- as.data.frame(colData(dds))
-  factor_cols <- sapply(col_data, is.factor)
-  factor_names <- names(factor_cols)[factor_cols]
-  
-  # Process each interaction term
-  for (interaction_term in interaction_terms) {
-    # Split the interaction term by colon
-    interacting_factors <- unlist(strsplit(interaction_term, ":", fixed = TRUE))
-    
-    if (length(interacting_factors) < 2) {
-      log_message(glue::glue("Invalid interaction term: {interaction_term}"), "WARNING")
-      next
-    }
-    
-    # Parse each factor and its level
-    factor_levels <- list()
-    reference_levels <- list()
-    
-    for (i in 1:length(interacting_factors)) {
-      term <- interacting_factors[i]
-      
-      # Try different parsing approaches for factor_level
-      if (grepl("_", term)) {
-        # Format like "factor_level"
-        parts <- unlist(strsplit(term, "_"))
-        potential_factor <- parts[1]
-        
-        if (potential_factor %in% factor_names) {
-          factor_levels[[i]] <- list(
-            factor = potential_factor,
-            level = paste(parts[-1], collapse = "_")
-          )
-          
-          # Get reference level (first level)
-          ref_levels <- levels(col_data[[potential_factor]])
-          if (length(ref_levels) > 0) {
-            reference_levels[[i]] <- ref_levels[1]
-          } else {
-            reference_levels[[i]] <- NA
-          }
-        }
-      } else {
-        # Try to match against known factors
-        for (factor_name in factor_names) {
-          if (startsWith(term, factor_name)) {
-            level <- substring(term, nchar(factor_name) + 1)
-            if (level != "") {
-              factor_levels[[i]] <- list(
-                factor = factor_name,
-                level = level
-              )
-              
-              # Get reference level
-              ref_levels <- levels(col_data[[factor_name]])
-              if (length(ref_levels) > 0) {
-                reference_levels[[i]] <- ref_levels[1]
-              } else {
-                reference_levels[[i]] <- NA
-              }
-              break
-            }
-          }
-        }
-      }
-      
-      # If we couldn't determine the factor/level, log a warning
-      if (is.null(factor_levels[[i]])) {
-        log_message(glue::glue("Could not parse interaction term component: {term}"), "WARNING")
-        factor_levels[[i]] <- list(factor = "unknown", level = term)
-        reference_levels[[i]] <- NA
-      }
-    }
-    
-    # Build numerator and denominator strings
-    num_factors <- sapply(factor_levels, function(x) x$factor)
-    num_levels <- sapply(factor_levels, function(x) x$level)
-    
-    # Format as factor1level1:factor2level2
-    numerator <- paste(
-      paste0(num_factors, num_levels),
-      collapse = ":"
-    )
-    
-    # Format reference as factor1ref1:factor2ref2
-    denominator <- paste(
-      paste0(num_factors, reference_levels),
-      collapse = ":"
-    )
-    
-    # Add to results dataframe
-    interaction_effect_contrasts <- rbind(
-      interaction_effect_contrasts,
-      data.frame(
-        factor = paste(num_factors, collapse = ":"),
-        contrast_name = interaction_term,
-        numerator = numerator,
-        denominator = denominator,
-        type = "interaction_effect",
-        stringsAsFactors = FALSE
-      )
-    )
-    
-    debug_log(glue::glue("Added interaction contrast: {interaction_term}"))
-  }
-  
-  log_message(glue::glue("Completed interaction effect contrast generation with {nrow(interaction_effect_contrasts)} contrasts"), "INFO")
-  return(interaction_effect_contrasts)
-}
-
-# Find best matching contrast name based on pattern
-find_contrast_name <- function(result_names, factor_name, level) {
-  # Try a few different naming patterns
-  patterns <- c(
-    paste0("^", factor_name, level, "$"),               # Exact match (factorLevel)
-    paste0("^", factor_name, "_", level, "$"),          # With underscore (factor_level)
-    paste0("^", tolower(factor_name), level, "$"),      # Lowercase factor (factorLevel)
-    paste0("^", factor_name, ".", level, "$"),          # With dot (factor.level)
-    paste0("^", level, "$")                             # Just the level
-  )
-  
-  # Check each pattern
-  for (pattern in patterns) {
-    matched <- grep(pattern, result_names, value = TRUE)
-    if (length(matched) == 1) {
-      return(matched)
-    }
-  }
-  
-  # Check for partial matches as a fallback
-  matches <- grep(level, result_names, value = TRUE)
-  if (length(matches) == 1) {
-    return(matches)
-  }
-  
-  # Nothing found
-  return(NULL)
-}
-
-# Generate a contrast matrix for multi-factor analysis
-generate_contrast_matrix <- function(dds, main_contrasts, interaction_contrasts = NULL) {
-  # Get coefficient names from the model matrix
+  # Get the model matrix and coefficient names
+  model_matrix <- model.matrix(design(dds), data = colData(dds))
   coef_names <- resultsNames(dds)
   
-  # Check if we have any contrasts available
-  if (nrow(main_contrasts) == 0 && (is.null(interaction_contrasts) || nrow(interaction_contrasts) == 0)) {
-    warning("No valid contrasts found for matrix generation")
-    return(NULL)
-  }
+  cat("Available coefficients:", paste(coef_names, collapse=", "), "\n")
   
-  # Create a matrix of contrasts
-  total_contrasts <- nrow(main_contrasts) + ifelse(is.null(interaction_contrasts), 0, nrow(interaction_contrasts))
-  contrast_matrix <- matrix(0, nrow = length(coef_names), ncol = total_contrasts)
-  rownames(contrast_matrix) <- coef_names
-  
-  # Add column names
-  colnames_list <- character(total_contrasts)
-  
-  # Fill in main effect contrasts
-  for (i in 1:nrow(main_contrasts)) {
-    # Get contrast information
-    contrast_name <- main_contrasts$contrast_name[i]
+  # For each factor, generate contrasts by comparing levels
+  for (factor in factors) {
+    cat(paste("Processing factor:", factor, "\n"))
+    levels <- factor_levels[[factor]]
     
-    # Set the corresponding coefficient to 1
-    if (contrast_name %in% coef_names) {
-      contrast_matrix[contrast_name, i] <- 1
-      colnames_list[i] <- paste0(main_contrasts$factor[i], "_", 
-                                main_contrasts$numerator[i], "_vs_", 
-                                main_contrasts$denominator[i])
-    } else {
-      warning(paste("Contrast name not found in coefficients:", contrast_name))
+    if (length(levels) < 2) {
+      cat(paste("Skipping factor", factor, "- less than 2 levels\n"))
+      next
     }
-  }
-  
-  # Add interaction contrasts if provided
-  if (!is.null(interaction_contrasts) && nrow(interaction_contrasts) > 0) {
-    for (i in 1:nrow(interaction_contrasts)) {
-      # Get contrast information
-      contrast_name <- interaction_contrasts$contrast_name[i]
-      contrast_idx <- nrow(main_contrasts) + i
+    
+    # For binary factors, create simple contrasts
+    if (length(levels) == 2) {
+      # Find the coefficient name for this factor (exclude interaction terms)
+      factor_coef <- grep(paste0("^", factor), coef_names, value = TRUE)
+      # Exclude interaction terms (those with dots)
+      factor_coef <- factor_coef[!grepl("\\.", factor_coef)]
       
-      # Set the corresponding coefficient to 1
-      if (contrast_name %in% coef_names) {
-        contrast_matrix[contrast_name, contrast_idx] <- 1
-        colnames_list[contrast_idx] <- paste0("interaction_", 
-                                           base::gsub(":", "_x_", contrast_name))
-      } else {
-        warning(paste("Interaction contrast name not found in coefficients:", contrast_name))
+      if (length(factor_coef) > 0) {
+        for (coef in factor_coef) {
+          # Extract results for this coefficient
+          contrast_res <- results(dds, name = coef, alpha = args$fdr)
+          significant_genes <- sum(contrast_res$padj < args$fdr & 
+                                 abs(contrast_res$log2FoldChange) > args$lfcthreshold, na.rm = TRUE)
+          
+          contrasts <- append(contrasts, list(list(
+            effect_type = "main",
+            specificity_group = factor,
+            numerator = levels[2],
+            denominator = levels[1], 
+            contrast = coef,
+            contrast_res = contrast_res,
+            significant_genes = significant_genes
+          )))
+          
+          # Force garbage collection
+          gc(verbose = FALSE)
+        }
+      }
+    } else {
+      # Multi-level factor - create pairwise contrasts
+      ref_level <- levels[1]
+      for (i in 2:length(levels)) {
+        level <- levels[i]
+        
+        # Try to find coefficient for this comparison (exclude interaction terms)
+        coef_pattern <- paste0(factor, level)
+        factor_coef <- grep(coef_pattern, coef_names, value = TRUE)
+        # Exclude interaction terms (those with dots)
+        factor_coef <- factor_coef[!grepl("\\.", factor_coef)]
+        
+        if (length(factor_coef) > 0) {
+          for (coef in factor_coef) {
+            contrast_res <- results(dds, name = coef, alpha = args$fdr)
+            significant_genes <- sum(contrast_res$padj < args$fdr & 
+                                   abs(contrast_res$log2FoldChange) > args$lfcthreshold, na.rm = TRUE)
+            
+            contrasts <- append(contrasts, list(list(
+              effect_type = "main",
+              specificity_group = factor,
+              numerator = level,
+              denominator = ref_level,
+              contrast = paste(factor, level, "vs", ref_level, sep = "_"),
+              contrast_res = contrast_res,
+              significant_genes = significant_genes
+            )))
+            
+            # Force garbage collection
+            gc(verbose = FALSE)
+          }
+        }
       }
     }
   }
   
-  # Add column names to the matrix
-  colnames(contrast_matrix) <- colnames_list
+  end_time <- proc.time() - start_time
+  cat("Main effect contrasts generation completed in", round(end_time["elapsed"], 2), "seconds\n")
   
-  return(contrast_matrix)
+  return(contrasts)
+}
+
+# Memory efficient function to generate interaction effect contrasts
+generate_interaction_effect_contrasts <- function(dds, args) {
+  start_time <- proc.time()
+  contrasts <- list()
+  
+  cat("Generating interaction effect contrasts (memory efficient version)...\n")
+  
+  # Get interaction terms from coefficient names
+  coef_names <- resultsNames(dds)
+  # Look for interaction terms - DESeq2 uses dots (.) for interactions, not colons (:)
+  interaction_terms <- grep("\\.", coef_names, value = TRUE)
+  # Filter out Intercept which also contains no dots
+  interaction_terms <- interaction_terms[interaction_terms != "Intercept"]
+  
+  cat("Found interaction terms:", paste(interaction_terms, collapse=", "), "\n")
+  
+  if (length(interaction_terms) == 0) {
+    cat("No interaction terms found\n")
+    return(contrasts)
+  }
+  
+  # Process each interaction term
+  for (interaction in interaction_terms) {
+    cat(paste("Processing interaction:", interaction, "\n"))
+    
+    # Extract results for this interaction
+    contrast_res <- results(dds, name = interaction, alpha = args$fdr)
+    significant_genes <- sum(contrast_res$padj < args$fdr & 
+                           abs(contrast_res$log2FoldChange) > args$lfcthreshold, na.rm = TRUE)
+    
+    # Parse interaction term to get factors and levels
+    # For DESeq2 interaction terms like "treatmentKO.condRest"
+    parts <- strsplit(interaction, "\\.")[[1]]
+    if (length(parts) >= 2) {
+      # Extract factor and level information from DESeq2 coefficient names
+      # Format is typically: factor1Level1.factor2Level2
+      factor1_part <- parts[1]
+      factor2_part <- parts[2]
+      
+      # For DESeq2 coefficients, extract factor and level names
+      # treatmentKO -> factor1="treatment", level1="KO"
+      # condRest -> factor2="cond", level2="Rest"
+      
+      # Extract factor1 and level1
+      if (grepl("treatment", factor1_part, ignore.case = TRUE)) {
+        factor1 <- "treatment"
+        level1 <- gsub("treatment", "", factor1_part, ignore.case = TRUE)
+      } else if (grepl("cond", factor1_part, ignore.case = TRUE)) {
+        factor1 <- "cond"
+        level1 <- gsub("cond", "", factor1_part, ignore.case = TRUE)
+      } else {
+        factor1 <- "factor1"
+        level1 <- factor1_part
+      }
+      
+      # Extract factor2 and level2
+      if (grepl("treatment", factor2_part, ignore.case = TRUE)) {
+        factor2 <- "treatment"
+        level2 <- gsub("treatment", "", factor2_part, ignore.case = TRUE)
+      } else if (grepl("cond", factor2_part, ignore.case = TRUE)) {
+        factor2 <- "cond"
+        level2 <- gsub("cond", "", factor2_part, ignore.case = TRUE)
+      } else {
+        factor2 <- "factor2"
+        level2 <- factor2_part
+      }
+      
+      specificity_group <- paste(factor2, level2, sep = "_")
+      numerator <- paste0(factor1, level1)
+      denominator <- "baseline"
+      
+      contrasts <- append(contrasts, list(list(
+        effect_type = "interaction",
+        specificity_group = specificity_group,
+        numerator = numerator,
+        denominator = denominator,
+        contrast = interaction,
+        contrast_res = contrast_res,
+        significant_genes = significant_genes
+      )))
+    }
+    
+    # Force garbage collection
+    gc(verbose = FALSE)
+  }
+  
+  end_time <- proc.time() - start_time
+  cat("Interaction effect contrasts generation completed in", round(end_time["elapsed"], 2), "seconds\n")
+  
+  return(contrasts)
+}
+
+# Main function to generate the dataframe with all possible contrasts (memory efficient)
+generate_contrasts <- function(dds, args, expression_data_df) {
+  start_time <- proc.time()
+  
+  cat("Starting memory-efficient contrasts generation...\n")
+  
+  # Check available memory
+  if (requireNamespace("pryr", quietly = TRUE)) {
+    cat("Available memory:", round(pryr::mem_used() / 1024^3, 2), "GB\n")
+  }
+  
+  # Extract the design formula and model matrix
+  design_formula <- design(dds)
+  cat("Design formula:", deparse(design_formula), "\n")
+  
+  # Get the levels of each factor in the design
+  factors <- all.vars(design_formula)
+  factors <- factors[!grepl("batch", factors)]
+  cat("Analyzing factors:", paste(factors, collapse=", "), "\n")
+  
+  factor_levels <- lapply(factors, function(f) levels(colData(dds)[[f]]))
+  names(factor_levels) <- factors
+  cat("Factor levels:\n")
+  for (f in names(factor_levels)) {
+    cat(paste("  ", f, ":", paste(factor_levels[[f]], collapse=", "), "\n"))
+  }
+  
+  # Set lfcthreshold from args (make sure it's available globally for helper functions)
+  lfcthreshold <- args$lfcthreshold
+  assign("lfcthreshold", lfcthreshold, envir = .GlobalEnv)
+  
+  # Generate contrasts more efficiently
+  main_contrasts <- generate_main_effect_contrasts(dds, factors, factor_levels, args)
+  cat("Generated", length(main_contrasts), "main effect contrasts\n")
+  
+  interaction_contrasts <- generate_interaction_effect_contrasts(dds, args)
+  cat("Generated", length(interaction_contrasts), "interaction effect contrasts\n")
+  
+  all_contrasts <- c(main_contrasts, interaction_contrasts)
+  cat("Total contrasts generated:", length(all_contrasts), "\n")
+  
+  # Create minimal results object for storage (memory efficient)
+  results_for_storage <- list(
+    dds = dds,
+    expression_data_df = expression_data_df,
+    n_contrasts = length(all_contrasts),
+    design_formula = design_formula
+  )
+  
+  # Save contrasts list to RDS (but don't store the full results in memory)
+  contrasts_file <- paste0(args$output, "_contrasts.rds")
+  cat("Saving contrasts to:", contrasts_file, "\n")
+  saveRDS(results_for_storage, file = contrasts_file)
+  
+  # Create the summary dataframe (memory efficient)
+  cat("Creating contrasts summary table...\n")
+  contrast_df <- data.frame(
+    effect = character(length(all_contrasts)),
+    specificity_group = character(length(all_contrasts)),
+    contrast = character(length(all_contrasts)),
+    numerator = character(length(all_contrasts)),
+    denominator = character(length(all_contrasts)),
+    significant_genes = integer(length(all_contrasts)),
+    stringsAsFactors = FALSE
+  )
+  
+  # Fill the dataframe efficiently
+  for (i in seq_along(all_contrasts)) {
+    contrast <- all_contrasts[[i]]
+    contrast_df[i, ] <- list(
+      effect = contrast$effect_type,
+      specificity_group = contrast$specificity_group,
+      contrast = contrast$contrast,
+      numerator = contrast$numerator,
+      denominator = contrast$denominator,
+      significant_genes = contrast$significant_genes
+    )
+    
+    # Clear the contrast results from memory
+    all_contrasts[[i]]$contrast_res <- NULL
+  }
+  
+  # Remove duplicate contrasts and sort
+  contrast_df <- contrast_df %>%
+    distinct(contrast, .keep_all = TRUE) %>%
+    arrange(desc(significant_genes)) %>%
+    mutate(contrast_number = row_number()) %>%
+    select(contrast_number, everything())
+  
+  # Final cleanup
+  rm(all_contrasts, main_contrasts, interaction_contrasts)
+  gc(verbose = FALSE)
+  
+  end_time <- proc.time() - start_time
+  cat("Total contrasts generation completed in", round(end_time["elapsed"], 2), "seconds\n")
+  
+  if (requireNamespace("pryr", quietly = TRUE)) {
+    cat("Memory used after generation:", round(pryr::mem_used() / 1024^3, 2), "GB\n")
+  }
+  
+  return(contrast_df)
 } 

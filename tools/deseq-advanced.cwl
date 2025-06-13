@@ -8,7 +8,7 @@ requirements:
 
 hints:
 - class: DockerRequirement
-  dockerPull: "biowardrobe2/scidap-deseq:v0.0.32"
+  dockerPull: "local/scidap-deseq:v0.0.51"
 
 
 inputs:
@@ -235,6 +235,16 @@ inputs:
       prefix: '-p'
     doc: |
       Run script using multiple threads
+
+  test_mode:
+    type: boolean?
+    inputBinding:
+      prefix: "--test_mode"
+    default: false
+    doc: |
+      Enable test mode for faster processing with reduced data. When enabled,
+      analysis will use only the top 1000 most highly expressed genes.
+      Default: false
 
 
 outputs:

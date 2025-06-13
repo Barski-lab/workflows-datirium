@@ -47,6 +47,38 @@ filter_rpkm <- function(expression_df, n) {
   return(filtered_df)
 }
 
+#' Apply test mode filtering to reduce data size for faster processing
+#'
+#' @param expression_df Data frame containing expression data
+#' @param max_genes Maximum number of genes to keep in test mode
+#' @return Filtered data frame with reduced size
+apply_test_mode <- function(expression_df, max_genes = 1000) {
+  log_message(paste("Applying test mode - reducing data to", max_genes, "genes for faster processing"))
+  
+  original_rows <- nrow(expression_df)
+  
+  if (original_rows <= max_genes) {
+    log_message(paste("Data already has", original_rows, "genes, no reduction needed"))
+    return(expression_df)
+  }
+  
+  # Sort by average expression across all samples and take top genes
+  read_cols <- grep("TotalReads|_treated|_untreated", colnames(expression_df), value = TRUE)
+  if (length(read_cols) > 0) {
+    expression_df$avg_expression <- rowMeans(expression_df[read_cols], na.rm = TRUE)
+    expression_df <- expression_df[order(expression_df$avg_expression, decreasing = TRUE), ]
+    expression_df <- expression_df[1:min(max_genes, nrow(expression_df)), ]
+    expression_df$avg_expression <- NULL
+  } else {
+    # Fallback: just take the first N genes
+    expression_df <- expression_df[1:min(max_genes, nrow(expression_df)), ]
+  }
+  
+  log_message(paste("Test mode: Reduced from", original_rows, "to", nrow(expression_df), "genes"))
+  
+  return(expression_df)
+}
+
 #' Load expression data from isoform files and merge them
 #'
 #' @param input_files Vector of file paths
@@ -152,7 +184,7 @@ load_isoform_set <- function(input_files, sample_aliases, read_column, rpkm_colu
           "', batch '", batch, "'"
         )
       )
-      column_data_frame <- data.frame(condition_name, batch, row.names = c(new_read_colname))
+      column_data_frame <- data.frame(conditions = condition_name, batch = batch, row.names = c(new_read_colname))
     } else {
       log_message(
         paste0(
@@ -161,7 +193,7 @@ load_isoform_set <- function(input_files, sample_aliases, read_column, rpkm_colu
           "' as '", new_read_colname, "'"
         )
       )
-      column_data_frame <- data.frame(condition_name, row.names = c(new_read_colname))
+      column_data_frame <- data.frame(conditions = condition_name, row.names = c(new_read_colname))
     }
     
     # Initialize or update collected data

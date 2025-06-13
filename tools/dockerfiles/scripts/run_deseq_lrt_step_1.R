@@ -5,6 +5,7 @@
 
 # Source required function files
 source("/usr/local/bin/functions/common/error_handling.R")
+source("/usr/local/bin/functions/common/output_utils.R")
 source("/usr/local/bin/functions/deseq2_lrt_step_1/workflow.R")
 
 # Set up error handling

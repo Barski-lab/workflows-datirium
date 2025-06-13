@@ -131,6 +131,12 @@ run_workflow <- function(args) {
     log_message(paste("Expression data after RPKM filtering:", nrow(collected_isoforms), "rows"))
   }
   
+  # Apply test mode filtering if enabled
+  if (!is.null(args$test_mode) && args$test_mode) {
+    collected_isoforms <- apply_test_mode(collected_isoforms, max_genes = 1000)
+    log_message(paste("Expression data after test mode filtering:", nrow(collected_isoforms), "rows"))
+  }
+  
   # Prepare count data for DESeq2
   count_data <- collected_isoforms[read_count_cols]
   log_message("Count data prepared for DESeq2 analysis")

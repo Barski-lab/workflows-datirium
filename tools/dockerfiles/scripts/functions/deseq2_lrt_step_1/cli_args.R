@@ -165,201 +165,122 @@ get_args <- function() {
   tryCatch({
     args <- parser$parse_args()
   }, error = function(e) {
-    # Check for unrecognized arguments error
-    if (grepl("unrecognized arguments:", e$message) || grepl("expected one argument", e$message)) {
-      message("Warning: Argument parsing error. Attempting to handle arguments manually.")
+    message("Warning: Argument parsing error. Attempting to handle arguments manually.")
+    
+    # Get all command line arguments
+    all_args <- commandArgs(trailingOnly = TRUE)
+    
+    # Simple manual parser that handles CWL-style arguments correctly
+    args <- list(
+      input = character(0),
+      name = character(0),
+      meta = NULL,
+      design = NULL,
+      reduced = NULL,
+      batchcorrection = "none",
+      scaling_type = "zscore",
+      fdr = 0.1,
+      lfcthreshold = 0.59,
+      use_lfc_thresh = FALSE,
+      rpkm_cutoff = NULL,
+      cluster = "none",
+      rowdist = "cosangle",
+      columndist = "euclid",
+      k = 3,
+      kmax = 5,
+      output = "./deseq_lrt_step_1",
+      threads = 1,
+      lrt_only_mode = FALSE,
+      test_mode = FALSE
+    )
+    
+    # Find --input arguments
+    input_idx <- which(all_args == "--input")
+    if (length(input_idx) > 0) {
+      start_idx <- input_idx[1] + 1
+      end_idx <- length(all_args)
       
-      # Get all command line arguments
-      all_args <- commandArgs(trailingOnly = TRUE)
-      
-      # Initialize an empty list for our parsed arguments
-      args <- list()
-      
-      # Initialize arrays for multi-value arguments
-      array_args <- c("input", "name")
-      for (arg in array_args) {
-        args[[arg]] <- character(0)
+      # Find next flag after --input
+      next_flag_idx <- which(startsWith(all_args[start_idx:length(all_args)], "--"))
+      if (length(next_flag_idx) > 0) {
+        end_idx <- start_idx + next_flag_idx[1] - 2
       }
       
-      # Make sure to explicitly extract required arguments first
-      required_args <- c("meta", "design", "reduced")
-      for (req_arg in required_args) {
-        req_flag <- paste0("--", req_arg)
-        arg_idx <- which(all_args == req_flag)
-        if (length(arg_idx) > 0 && arg_idx[1] < length(all_args)) {
-          args[[req_arg]] <- all_args[arg_idx[1] + 1]
-          message(paste("Directly extracted required argument:", req_arg, "=", args[[req_arg]]))
-        }
+      if (start_idx <= end_idx) {
+        args$input <- all_args[start_idx:end_idx]
+      }
+    }
+    
+    # Find --name arguments  
+    name_idx <- which(all_args == "--name")
+    if (length(name_idx) > 0) {
+      start_idx <- name_idx[1] + 1
+      end_idx <- length(all_args)
+      
+      # Find next flag after --name
+      next_flag_idx <- which(startsWith(all_args[start_idx:length(all_args)], "--"))
+      if (length(next_flag_idx) > 0) {
+        end_idx <- start_idx + next_flag_idx[1] - 2
       }
       
-      # First pass: process all flags with values
-      i <- 1
-      while (i <= length(all_args)) {
-        current_arg <- all_args[i]
-        
-        # Check if this is a flag argument (starts with --)
-        if (grepl("^--", current_arg)) {
-          arg_name <- sub("^--", "", current_arg)
-          
-          # Check if the next item exists and is not a flag
-          if (i < length(all_args) && !grepl("^--", all_args[i + 1])) {
-            arg_value <- all_args[i + 1]
-            
-            # Handle array arguments - we need to append values
-            if (arg_name %in% array_args) {
-              args[[arg_name]] <- c(args[[arg_name]], arg_value)
-            } else {
-              # For scalar arguments, just set the value
-              args[[arg_name]] <- arg_value
-            }
-            
-            i <- i + 2  # Skip the value
-          } else {
-            # This is a boolean flag
-            args[[arg_name]] <- TRUE
-            i <- i + 1
-          }
+      if (start_idx <= end_idx) {
+        args$name <- all_args[start_idx:end_idx]
+      }
+    }
+    
+    # Parse other single-value arguments
+    single_args <- c("meta", "design", "reduced", "batchcorrection", "scaling_type", 
+                     "cluster", "rowdist", "columndist", "output")
+    for (arg_name in single_args) {
+      flag <- paste0("--", arg_name)
+      arg_idx <- which(all_args == flag)
+      if (length(arg_idx) > 0 && arg_idx[1] < length(all_args)) {
+        args[[arg_name]] <- all_args[arg_idx[1] + 1]
+      }
+    }
+    
+    # Parse numeric arguments
+    numeric_args <- c("fdr", "lfcthreshold", "k", "kmax", "threads")
+    for (arg_name in numeric_args) {
+      flag <- paste0("--", arg_name)
+      arg_idx <- which(all_args == flag)
+      if (length(arg_idx) > 0 && arg_idx[1] < length(all_args)) {
+        value <- all_args[arg_idx[1] + 1]
+        if (arg_name %in% c("k", "kmax", "threads")) {
+          args[[arg_name]] <- as.integer(value)
         } else {
-          # This is a positional argument, classify it later
-          i <- i + 1
+          args[[arg_name]] <- as.numeric(value)
         }
       }
-      
-      # At this point we have extracted all named parameters
-      
-      # Second pass: Find any positional arguments
-      positional_args <- all_args[!grepl("^--", all_args) & !grepl("^-[a-zA-Z]", all_args)]
-      
-      # Remove positional args that are values of flags
-      flag_indices <- which(grepl("^--", all_args) | grepl("^-[a-zA-Z]", all_args))
-      value_indices <- flag_indices + 1
-      value_indices <- value_indices[value_indices <= length(all_args)]
-      flag_values <- all_args[value_indices]
-      positional_args <- setdiff(positional_args, flag_values)
-      
-      # If no positional args, return what we have
-      if (length(positional_args) == 0) {
-        message("No positional arguments found")
-        return(args)
+    }
+    
+    # Parse boolean arguments (TRUE/FALSE strings from CWL)
+    bool_args <- c("use_lfc_thresh", "lrt_only_mode", "test_mode")
+    for (arg_name in bool_args) {
+      flag <- paste0("--", arg_name)
+      arg_idx <- which(all_args == flag)
+      if (length(arg_idx) > 0 && arg_idx[1] < length(all_args)) {
+        value <- all_args[arg_idx[1] + 1]
+        args[[arg_name]] <- toupper(value) == "TRUE"
       }
-      
-      # Add to array arguments if we have any positional args
-      if (length(positional_args) > 0) {
-        message(paste("Found", length(positional_args), "potential positional arguments"))
-        
-        # Detect file paths and sample names
-        file_pattern <- "\\.(tsv|csv)$"
-        file_args <- positional_args[grepl(file_pattern, positional_args)]
-        name_args <- positional_args[!grepl(file_pattern, positional_args)]
-        
-        if (length(file_args) > 0) {
-          args$input <- c(args$input, file_args)
-          message(paste("Added", length(file_args), "file paths to --input"))
-        }
-        
-        # Only add names that match the sample naming pattern
-        if (length(name_args) > 0) {
-          # Instead of filtering based on a specific pattern, accept all potential sample names
-          # since they come from CWL and should be trusted
-          args$name <- c(args$name, name_args)
-          message(paste("Adding", length(name_args), "sample names from positional args"))
-        }
+    }
+    
+    # Show what we parsed
+    message("Manually parsed arguments:")
+    for (arg_name in names(args)) {
+      if (is.character(args[[arg_name]]) && length(args[[arg_name]]) > 1) {
+        message(paste0("  ", arg_name, ": [", paste(head(args[[arg_name]], 3), collapse=", "), 
+                      if(length(args[[arg_name]]) > 3) "..." else "", "] (", length(args[[arg_name]]), " items)"))
+      } else {
+        message(paste0("  ", arg_name, ": ", args[[arg_name]]))
       }
-      
-      # Additional check for name-input mismatch
-      if (is.character(args$name) && length(args$name) == 1 && length(args$input) > 1) {
-        # Special handling: if we have multiple input files but only one name value,
-        # check if the name value could actually be a comma-separated list of names
-        potential_names <- unlist(strsplit(args$name, ","))
-        if (length(potential_names) > 1) {
-          message("Detected comma-separated list of names, expanding to array")
-          args$name <- potential_names
-        } else {
-          # If there's just one name and many inputs, but the single name isn't a comma-separated list,
-          # check if there are any other arguments that could be sample names
-          message("WARNING: Only one sample name found for multiple input files")
-          message("Looking for additional sample names in remaining arguments...")
-          
-          # Try to detect sample names from the remaining arguments
-          # This is more permissive than before
-          remaining_args <- setdiff(all_args, c(flag_indices, flag_values, args$input))
-          if (length(remaining_args) > 0) {
-            potential_names <- remaining_args[!grepl("^--", remaining_args)]
-            if (length(potential_names) > 0) {
-              message(paste("Found", length(potential_names), "potential additional sample names"))
-              args$name <- c(args$name, potential_names)
-            }
-          }
-        }
-      }
-      
-      # Final verification: ensure we have the same number of names as inputs
-      if (length(args$input) > 0 && length(args$name) > 0) {
-        if (length(args$name) == 1 && length(args$input) > 1) {
-          # If we still have a mismatch, try to generate names from the input file paths
-          message("WARNING: Input/name count mismatch. Generating sample names from input files.")
-          args$name <- basename(args$input)
-          args$name <- gsub("\\.(tsv|csv)$", "", args$name)
-        } else if (length(args$name) < length(args$input)) {
-          message("WARNING: Fewer sample names than input files. Some names may be missing.")
-        }
-      }
-      
-      # Parse numeric values
-      for (arg_name in c("fdr", "lfcthreshold", "rpkm_cutoff", "k", "kmax", "threads")) {
-        if (!is.null(args[[arg_name]]) && is.character(args[[arg_name]])) {
-          if (grepl("^[0-9.]+$", args[[arg_name]])) {
-            args[[arg_name]] <- as.numeric(args[[arg_name]])
-          }
-        }
-      }
-      
-      
-      # Show what we parsed
-      message("Manually parsed arguments:")
-      for (arg_name in names(args)) {
-        if (length(args[[arg_name]]) > 1) {
-          message(paste0("  ", arg_name, ": [", paste(head(args[[arg_name]], 3), collapse=", "), 
-                        if(length(args[[arg_name]]) > 3) "..." else "", "] (", length(args[[arg_name]]), " items)"))
-        } else {
-          message(paste0("  ", arg_name, ": ", args[[arg_name]]))
-        }
-      }
-      
-      return(args)
-    } else {
-      # For other errors, just stop with the error message
-      stop(e$message)
     }
   })
-  
-  # Coerce args to a list if necessary (after tryCatch)
-  if (!is.list(args)) {
-    args <- as.list(args)
-  }
   
   # Validate arguments
   args <- assert_args(args)
   
-  # Coerce args to a list if necessary (after assert_args)
-  if (!is.list(args)) {
-    args <- as.list(args)
-  }
-  
-  # Trim whitespace from name values
-  if (!is.null(args$name) && length(args$name) > 0) {
-    args$name <- trimws(args$name)
-    message("Trimmed whitespace from sample names")
-  }
-  
-  # Convert boolean string values to actual booleans if they came as strings
-  for (arg_name in c("use_lfc_thresh", "lrt_only_mode", "test_mode")) {
-    if (!is.null(args[[arg_name]])) {
-      args[[arg_name]] <- convert_to_boolean(args[[arg_name]], FALSE)
-    }
-  }
-  
-  
+  # Return the parsed and validated arguments
   return(args)
 }
 

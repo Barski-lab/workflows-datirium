@@ -79,11 +79,21 @@ assert_args <- function(args) {
   }
 
   # Convert boolean string values if they came as strings
-  for (arg_name in c("use_lfc_thresh")) {
+  for (arg_name in c("use_lfc_thresh", "test_mode")) {
     if (!is.null(args[[arg_name]])) {
       args[[arg_name]] <- convert_to_boolean(args[[arg_name]], FALSE)
     }
   }
+
+  # Map argument names for compatibility with workflow
+  args$treated <- args$treated_files
+  args$untreated <- args$untreated_files
+  args$talias <- args$treated_sample_names  
+  args$ualias <- args$untreated_sample_names
+  args$tname <- args$treated_name
+  args$uname <- args$untreated_name
+  args$output <- args$output_prefix
+  args$batchfile <- args$batch_file
 
   return(args)
 }
@@ -268,6 +278,14 @@ get_args <- function() {
     help = "Maximum number of clusters at each level for Hopach clustering: min - 2, max - 9. Default: 5.",
     type = "integer",
     default = 5
+  )
+  
+  # Testing parameters
+  parser$add_argument(
+    "--test_mode",
+    help = "Enable test mode for faster processing with reduced data. Default: FALSE",
+    action = "store_true",
+    default = FALSE
   )
   
   # Output parameters

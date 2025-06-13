@@ -3,6 +3,20 @@
 # Contrast analysis functions for DESeq2 LRT Step 2
 #
 
+#' Extract factors and levels from interaction terms
+#'
+#' @param term Interaction term like "treatmentKO.condRest"
+#' @return List with factor1, level1, factor2, level2
+#' @export
+extract_factors_and_levels <- function(term) {
+  parts <- strsplit(term, "\\.")[[1]]
+  factor1 <- sub("[0-9A-Z_]+$", "", parts[1])
+  factor2 <- sub("[0-9A-Z_]+$", "", parts[2])
+  level1 <- sub("^.*?([0-9A-Z_]+$)", "\\1", parts[1])
+  level2 <- sub("^.*?([0-9A-Z_]+$)", "\\1", parts[2])
+  list(factor1 = factor1, level1 = level1, factor2 = factor2, level2 = level2)
+}
+
 #' Process a specific contrast and obtain DESeq2 results
 #'
 #' @param step1_data Data object from Step 1 containing DESeq dataset and metadata
@@ -23,19 +37,19 @@ get_contrast_res <- function(step1_data, contrast_row, args) {
 
   lfcThreshold <- if (args$use_lfc_thresh) args$lfcthreshold else 0
   
-  log_message(paste("Processing contrast:", contrast_row$contrast_name))
-  log_message(paste("Effect type:", contrast_row$effect_type))
+  log_message(paste("Processing contrast:", contrast_row$contrast))
+  log_message(paste("Effect type:", contrast_row$effect))
   log_message(paste("Setting altHypothesis to", altHypothesis))
   
   # Handle different contrast types
-  if (contrast_row$effect_type == "main") {
+  if (contrast_row$effect == "main") {
     # --- MAIN EFFECT CONTRAST ---
     return(process_main_effect_contrast(dds_base, contrast_row, args, lfcThreshold, altHypothesis))
-  } else if (contrast_row$effect_type == "interaction") {
+  } else if (contrast_row$effect == "interaction") {
     # --- INTERACTION CONTRAST ---
     return(process_interaction_contrast(dds_base, contrast_row, args, lfcThreshold, altHypothesis))
   } else {
-    stop("Unknown effect_type in contrast_row: ", contrast_row$effect_type)
+    stop("Unknown effect in contrast_row: ", contrast_row$effect)
   }
 }
 
@@ -112,7 +126,7 @@ process_main_effect_contrast <- function(dds_base, contrast_row, args, lfcThresh
                            "=", contrast_row$denominator))
       } else {
         # Last resort - use the contrast name as the factor
-        factor_ref_list <- setNames(list(contrast_row$denominator), contrast_row$contrast_name)
+        factor_ref_list <- setNames(list(contrast_row$denominator), contrast_row$contrast)
         log_warning(paste("Could not determine factor from contrast - using contrast name as factor"))
       }
     }
@@ -297,15 +311,37 @@ add_metadata_to_results <- function(expression_data_df, deseq_result, contrast_n
   }
   
   # Create a data frame with results
-  res_df <- as.data.frame(deseq_result) %>%
-    dplyr::select(dplyr::all_of(result_columns)) %>%
-    dplyr::rename(
-      !!paste0(contrast_name, "_LFC") := "log2FoldChange",
-      !!paste0(contrast_name, "_pvalue") := "pvalue",
-      !!paste0(contrast_name, "_FDR") := "padj"
-    )
+  res_df <- as.data.frame(deseq_result)
+  
+  # Debug: log the structure of the results
+  log_message(paste("DESeq2 results dimensions:", nrow(res_df), "x", ncol(res_df)))
+  log_message(paste("Available columns:", paste(colnames(res_df), collapse=", ")))
+  log_message(paste("Target columns:", paste(result_columns, collapse=", ")))
+  
+  # Safely select only available columns
+  selected_columns <- base::intersect(result_columns, colnames(res_df))
+  if (length(selected_columns) == 0) {
+    log_warning("No target columns found in DESeq2 results - using all columns")
+    selected_columns <- colnames(res_df)
+  }
+  
+  res_df <- res_df[, selected_columns, drop = FALSE]
+  
+  # Rename columns for contrast-specific naming
+  if ("log2FoldChange" %in% colnames(res_df)) {
+    colnames(res_df)[colnames(res_df) == "log2FoldChange"] <- paste0(contrast_name, "_LFC")
+  }
+  if ("pvalue" %in% colnames(res_df)) {
+    colnames(res_df)[colnames(res_df) == "pvalue"] <- paste0(contrast_name, "_pvalue")
+  }
+  if ("padj" %in% colnames(res_df)) {
+    colnames(res_df)[colnames(res_df) == "padj"] <- paste0(contrast_name, "_FDR")
+  }
 
   log_message("DESeq2 results prepared for merging")
+  log_message(paste("Final res_df dimensions:", nrow(res_df), "x", ncol(res_df)))
+  log_message(paste("Final res_df columns:", paste(colnames(res_df), collapse=", ")))
+  log_message(paste("Expression data dimensions:", nrow(expression_data_df), "x", ncol(expression_data_df)))
 
   # Get column types to ensure consistent merging
   exp_df_classes <- sapply(expression_data_df, class)
@@ -326,21 +362,25 @@ add_metadata_to_results <- function(expression_data_df, deseq_result, contrast_n
     log_warning("Duplicate row names found in results data - results may be incorrect")
   }
   
-  # Get read counts columns (assuming they contain "counts" in the name)
-  read_count_cols <- grep("counts|reads", colnames(expression_data_df), value = TRUE, ignore.case = TRUE)
-  if (length(read_count_cols) == 0) {
-    log_warning("No read count columns identified - using all columns in merge")
-    read_count_cols <- character(0)
-  } else {
-    log_message(paste("Identified read count columns:", paste(read_count_cols, collapse=", ")))
+  # Simply merge by adding results columns to the existing data frame
+  # Ensure both data frames have the same row names for proper alignment
+  log_message(paste("Expression data row names (first 3):", paste(head(rownames(expression_data_df), 3), collapse=", ")))
+  log_message(paste("Results row names (first 3):", paste(head(rownames(res_df), 3), collapse=", ")))
+  
+  if (!all(rownames(expression_data_df) == rownames(res_df))) {
+    log_warning("Row names don't match between expression data and results - attempting to align")
+    # Keep only common rows
+    common_rows <- base::intersect(rownames(expression_data_df), rownames(res_df))
+    if (length(common_rows) == 0) {
+      stop("No common row names between expression data and DESeq2 results")
+    }
+    expression_data_df <- expression_data_df[common_rows, , drop = FALSE]
+    res_df <- res_df[common_rows, , drop = FALSE]
+    log_message(paste("Aligned data to", length(common_rows), "common rows"))
   }
 
-  # Merge with the main expression data, keeping all rows from the original data
-  expression_data_merged <- data.frame(
-    cbind(expression_data_df[, !colnames(expression_data_df) %in% read_count_cols], res_df),
-    check.names = FALSE,
-    check.rows = FALSE
-  )
+  # Simple column binding
+  expression_data_merged <- cbind(expression_data_df, res_df)
   
   log_message(paste("Successfully merged DESeq2 results for contrast", contrast_name))
   return(expression_data_merged)
@@ -369,7 +409,6 @@ create_mds_plot <- function(normCounts, col_metadata, output_file = "mds_plot.ht
     output_file,
     metadata = col_metadata,
     color_by = color_by,
-    shape_by = shape_by,
     title = title
   ))
 } 

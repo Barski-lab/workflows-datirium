@@ -249,7 +249,7 @@ steps:
       dsq_obj_data: dsq_obj_data
       contrasts_table: contrasts_table
       contrast_indices: contrast_indices
-      fdr: fdr
+      fdr_cutoff: fdr
       lfcthreshold: lfcthreshold
       regulation: regulation
       use_lfc_thresh: use_lfc_thresh

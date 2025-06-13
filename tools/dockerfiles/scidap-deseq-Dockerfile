@@ -2,13 +2,13 @@
 # Dockerfile - DESeq/DESeq2 Analysis Container
 #
 # Software:         BioWardrobe DESeq/DESeq2 script
-# Software Version: v0.0.33
+# Software Version: v0.0.45
 # Description:      Dockerized version of DESeq/DESeq2 script from BioWardrobe
 # Website:          https://github.com/Barski-lab/workflows
 #
 # VERSIONING GUIDELINES:
 # 1. ALWAYS update "Software Version" above when making changes
-# 2. For script-only updates: increment third number (v0.0.32 → v0.0.33)
+# 2. For script-only updates: increment third number (v0.0.32 → v0.0.34)
 # 3. For new packages: increment third number and document additions
 # 4. For major R version changes: increment second number (v0.0.x → v0.1.0)
 #
@@ -37,14 +37,30 @@
 # 
 # Build Commands:
 # ------------------
-# Full build: docker build --no-cache --platform linux/amd64 --rm -t biowardrobe2/scidap-deseq:v0.0.33 -f scidap-deseq-Dockerfile .
-# Pull:       docker pull biowardrobe2/scidap-deseq:v0.0.33
-# Run:        docker run --rm -ti biowardrobe2/scidap-deseq:v0.0.33 /bin/bash
+# Full build: docker build --no-cache --platform linux/amd64 --rm -t biowardrobe2/scidap-deseq:v0.0.34 -f scidap-deseq-Dockerfile .
+# Pull:       docker pull biowardrobe2/scidap-deseq:v0.0.34
+# Run:        docker run --rm -ti biowardrobe2/scidap-deseq:v0.0.34 /bin/bash
 #################################################################
 
 #################################################################
 # VERSION HISTORY
 #################################################################
+#
+# v0.0.45
+# - Fixed contrasts generation to use the correct algorithm from out_of_date_contrasts_generation.R
+# - Updated contrast_generation.R with proper main effect and interaction contrast generation
+# - Fixed workflow to properly generate and export contrasts table with correct format
+# - Updated function calls and structure to match expected contrast table format
+#
+# v0.0.44
+# - Fixed critical function sourcing issues in DESeq2 LRT Step 1 workflow
+# - Added direct sourcing of output_utils.R in main script to resolve get_output_filename errors
+# - Fixed syntax error in output_utils.R (missing closing brace)
+# - Verified successful DESeq2 LRT analysis with proper output file generation
+#
+# v0.0.34
+# - Fixed argument parsing issue in cli_args.R for proper CWL compatibility
+# - Improved manual argument parsing logic for --input and --name arrays
 #
 # v0.0.32
 # - Reorganized Dockerfile structure for better maintenance
@@ -79,30 +95,21 @@
 # BASE IMAGE SELECTION
 #############################################
 # Incremental build from previous version
-FROM biowardrobe2/scidap-deseq:v0.0.31
+FROM local/scidap-deseq:v0.0.48
 LABEL maintainer="pavlvalera3301@gmail.com"
 ENV DEBIAN_FRONTEND=noninteractive
 
 #############################################
-# PACKAGE INSTALLATIONS (NEW PACKAGES ONLY)
-#############################################
-# Install only new R packages for this version
-RUN R -e 'install.packages("logger", repos="https://cloud.r-project.org/", dependencies=TRUE)'
-RUN R -e 'install.packages("params", repos="https://cloud.r-project.org/", dependencies=TRUE)'
-
-#############################################
 # SCRIPT UPDATES
 #############################################
-# Copy updated script files
-COPY scripts/run_deseq_lrt_step_1.R /usr/local/bin/run_deseq_lrt_step_1.R
-COPY scripts/run_deseq_lrt_step_2.R /usr/local/bin/run_deseq_lrt_step_2.R
-COPY scripts/get_gene_n_tss.R /usr/local/bin/get_gene_n_tss.R
-COPY scripts/run_deseq.R /usr/local/bin/run_deseq.R
-COPY scripts/install_from_source.R /tmp/install_from_source.R
+# Copy updated script files with the fixed argument parsing
+COPY tools/dockerfiles/scripts/run_deseq_lrt_step_1.R /usr/local/bin/run_deseq_lrt_step_1.R
+COPY tools/dockerfiles/scripts/run_deseq_lrt_step_2.R /usr/local/bin/run_deseq_lrt_step_2.R
+COPY tools/dockerfiles/scripts/get_gene_n_tss.R /usr/local/bin/get_gene_n_tss.R
+COPY tools/dockerfiles/scripts/run_deseq.R /usr/local/bin/run_deseq.R
 
-
-# Copy function directories
-COPY scripts/functions/ /usr/local/bin/functions/
+# Copy function directories with updated cli_args.R
+COPY tools/dockerfiles/scripts/functions/ /usr/local/bin/functions/
 
 #############################################
 # FINALIZE IMAGE

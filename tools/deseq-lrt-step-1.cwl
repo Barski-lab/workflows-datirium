@@ -5,8 +5,8 @@ requirements:
   - class: InlineJavascriptRequirement
 
 hints:
-  - class: DockerRequirement
-    dockerPull: "biowardrobe2/scidap-deseq:v0.0.32"
+- class: DockerRequirement
+  dockerPull: "local/scidap-deseq:v0.0.51"
 
 inputs:
   expression_files:

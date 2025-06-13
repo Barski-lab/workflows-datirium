@@ -7,7 +7,7 @@ on:
         description: 'Docker tag to deploy'
         required: true
         type: string
-        default: 'v0.0.31'
+        default: 'v0.0.44'
       target_host:
         description: 'Target HPC host'
         required: true
@@ -69,7 +69,7 @@ jobs:
               core.exportVariable('DOCKER_TAG', dockerTag);
             } else {
               console.log('No docker-tag artifact found, using default tag');
-              core.exportVariable('DOCKER_TAG', 'v0.0.31');
+              core.exportVariable('DOCKER_TAG', 'v0.0.44');
             }
             core.exportVariable('TARGET_HOST', 'bmicluster-compute');
       

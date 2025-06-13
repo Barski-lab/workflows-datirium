@@ -1,0 +1,4 @@
+name	factor	numerator	denominator	description
+contrast1	condition	treated	untreated	Treatment effect
+contrast2	timepoint	24h	0h	24 hour vs baseline
+contrast3	genotype	mutant	wildtype	Mutant vs wild-type effect 

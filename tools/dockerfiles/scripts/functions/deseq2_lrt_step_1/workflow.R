@@ -46,6 +46,7 @@ initialize_environment <- function() {
   # Now we have access to source_with_fallback and other utilities
   # Source common functions
   source_with_fallback("functions/common/constants.R", "/usr/local/bin/functions/common/constants.R")
+  source_with_fallback("functions/common/output_utils.R", "/usr/local/bin/functions/common/output_utils.R")
   source_with_fallback("functions/common/visualization.R", "/usr/local/bin/functions/common/visualization.R")
   source_with_fallback("functions/common/clustering.R", "/usr/local/bin/functions/common/clustering.R")
   source_with_fallback("functions/common/export_functions.R", "/usr/local/bin/functions/common/export_functions.R")
@@ -174,7 +175,7 @@ load_and_validate_expression_data <- function(args, metadata_df) {
   # Load expression data
   message(sprintf("Loading expression data for %d files with %d sample names", 
                   length(args$input), length(clean_names)))
-  expression_data_df <- load_expression_data(args$input, clean_names, READ_COL, RPKM_COL, INTERSECT_BY)
+  expression_data_df <- load_expression_data(args)
   message(glue::glue("Loaded expression data for {nrow(expression_data_df)} genes from {length(args$input)} files"))
   
   # Apply RPKM filtering if specified
@@ -202,17 +203,25 @@ load_and_validate_expression_data <- function(args, metadata_df) {
   
   # Process count data
   read_counts_columns <- grep(
-    paste(READ_COL, sep = ""),
+    "TotalReads$",
     colnames(expression_data_df),
     value = TRUE,
     ignore.case = TRUE
   )
   
-  message(glue::glue("Found {length(read_counts_columns)} read count columns"))
+  message(glue::glue("Found {length(read_counts_columns)} read count columns: {paste(read_counts_columns, collapse=', ')}"))
+  message(glue::glue("All columns in expression data: {paste(colnames(expression_data_df), collapse=', ')}"))
   
   # Check if GeneId column exists
   if (!INTERSECT_BY %in% colnames(expression_data_df)) {
     stop(paste("Required column", INTERSECT_BY, "not found in expression data"))
+  }
+  
+  # Ensure we have the expected number of count columns
+  if (length(read_counts_columns) == 0) {
+    stop("No TotalReads columns found in expression data")
+  } else if (length(read_counts_columns) != length(args$name)) {
+    message(glue::glue("WARNING: Found {length(read_counts_columns)} count columns but expected {length(args$name)} based on sample names"))
   }
   
   # Check for duplicate GeneId values
@@ -230,6 +239,7 @@ load_and_validate_expression_data <- function(args, metadata_df) {
   tryCatch({
     # First extract only needed columns
     read_counts_subset <- expression_data_df[, c(INTERSECT_BY, read_counts_columns)]
+    message(glue::glue("Extracted subset with {ncol(read_counts_subset)} columns: {paste(colnames(read_counts_subset), collapse=', ')}"))
     
     # Check for duplicate column names
     if (any(duplicated(colnames(read_counts_subset)))) {
@@ -237,18 +247,15 @@ load_and_validate_expression_data <- function(args, metadata_df) {
       stop(paste("Duplicate column names in read count data:", paste(dup_cols, collapse=", ")))
     }
     
-    # Make column names clean for downstream processing
+    # Clean column names to extract sample names
     temp_colnames <- colnames(read_counts_subset)
     temp_colnames[-1] <- lapply(temp_colnames[-1], function(s) {
-      # Extract the sample name (before the space)
-      parts <- unlist(strsplit(s, " ", fixed = TRUE))
-      if (length(parts) > 1) {
-        return(parts[1])
-      } else {
-        return(s)
-      }
+      # Extract the sample name (everything before "_TotalReads")
+      s <- gsub("_TotalReads$", "", s)
+      return(s)
     })
     colnames(read_counts_subset) <- temp_colnames
+    message(glue::glue("Cleaned column names: {paste(colnames(read_counts_subset), collapse=', ')}"))
     
     # Now convert GeneId to row names
     # Clone the data frame
@@ -289,12 +296,17 @@ load_and_validate_expression_data <- function(args, metadata_df) {
   
   # Apply cleaned column names
   colnames(read_counts_data_df) <- cleaned_colnames
+  message(glue::glue("Final count data columns: {paste(colnames(read_counts_data_df), collapse=', ')}"))
+  message(glue::glue("Metadata sample names: {paste(rownames(metadata_df), collapse=', ')}"))
+  message(glue::glue("Count data dimensions: {nrow(read_counts_data_df)} rows x {ncol(read_counts_data_df)} columns"))
+  message(glue::glue("Metadata dimensions: {nrow(metadata_df)} rows x {ncol(metadata_df)} columns"))
   
   # Verify sample name consistency between metadata and counts
   validate_sample_consistency(metadata_df, read_counts_data_df)
   
   # Reorder count data columns to match metadata
   read_counts_data_df <- read_counts_data_df[, rownames(metadata_df)]
+  message(glue::glue("Reordered count data columns: {paste(colnames(read_counts_data_df), collapse=', ')}"))
   
   # Return all results
   return(list(
@@ -676,7 +688,7 @@ initialize_environment <- function() {
   # Configure parallel processing
   threads <- get_threads()
   cat(paste("Setting up parallel processing with", threads, "threads\n"))
-  register(MulticoreParam(threads))
+  # Note: Parallel processing will be set up later in DESeq2 analysis function
   
   cat("Environment initialized successfully\n")
 }
@@ -716,15 +728,76 @@ run_deseq2_lrt_workflow <- function() {
   
   # Run DESeq2 LRT analysis
   cat("Running DESeq2 LRT analysis...\n")
-  deseq_results <- run_deseq2_lrt(filtered_data, metadata, args)
+  
+  # Extract count matrix from filtered data (remove annotation columns)
+  count_columns <- grep("_TotalReads$", colnames(filtered_data), value = TRUE)
+  count_matrix <- filtered_data[, count_columns, drop = FALSE]
+  
+  # Clean column names to match metadata sample names
+  colnames(count_matrix) <- gsub("_TotalReads$", "", colnames(count_matrix))
+  
+  # Convert to matrix and set gene names as row names
+  gene_names <- filtered_data$GeneId
+  count_matrix <- as.matrix(count_matrix)
+  rownames(count_matrix) <- gene_names
+  
+  # Ensure count matrix columns match metadata row names
+  count_matrix <- count_matrix[, rownames(metadata)]
+  
+  cat(paste("Count matrix dimensions:", nrow(count_matrix), "rows x", ncol(count_matrix), "columns\n"))
+  cat(paste("Count matrix columns:", paste(colnames(count_matrix), collapse=", "), "\n"))
+  
+  deseq_results <- run_deseq2_lrt(count_matrix, metadata, 
+                                  design_formula = as.formula(args$design),
+                                  reduced_formula = as.formula(args$reduced),
+                                  batchcorrection = args$batchcorrection,
+                                  threads = get_threads())
   
   # Generate contrasts and perform post-processing
   cat("Generating contrasts and post-processing results...\n")
-  contrast_results <- generate_contrasts(deseq_results, args)
+  
+  # Create a Wald test DESeq object for contrast generation
+  cat("Creating Wald test DESeq object for contrast generation...\n")
+  dds_wald <- DESeqDataSetFromMatrix(
+    countData = count_matrix,
+    colData = metadata,
+    design = as.formula(args$design)
+  )
+  dds_wald <- DESeq(dds_wald, test = "Wald")
+  
+  # Generate contrasts using the Wald test object
+  contrast_results <- generate_contrasts(dds_wald, args, filtered_data)
   
   # Export results
   cat("Exporting results...\n")
-  export_results(contrast_results, args)
+  
+  # Export the contrasts table directly
+  contrasts_filename <- paste0(args$output, "_contrasts_table.tsv")
+  write.table(
+    contrast_results,
+    file      = contrasts_filename,
+    sep       = "\t",
+    row.names = FALSE,
+    col.names = TRUE,
+    quote     = FALSE
+  )
+  cat(paste("Exported contrasts table to:", contrasts_filename, "\n"))
+  
+  # Get LRT results from the original LRT analysis
+  lrt_results <- results(deseq_results, alpha = args$fdr)
+  
+  # Create a structure compatible with export_results
+  export_structure <- list(
+    dds = deseq_results,
+    lrt_res = lrt_results,
+    contrasts = contrast_results,
+    normCounts = counts(deseq_results, normalized = TRUE),
+    design_formula = as.formula(args$design),
+    reduced_formula = as.formula(args$reduced)
+  )
+  
+  # Export other results using the standard function
+  export_results(export_structure, filtered_data, metadata, args)
   
   # Verify outputs
   cat("Verifying outputs...\n")

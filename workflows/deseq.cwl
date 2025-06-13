@@ -344,6 +344,17 @@ inputs:
     'sd:layout':
       advanced: true
 
+  test_mode:
+    type: boolean?
+    default: false
+    label: "Enable test mode for faster processing"
+    doc: |
+      Enable test mode for faster processing with reduced data. When enabled,
+      analysis will use only the top 1000 most highly expressed genes.
+      Default: false
+    'sd:layout':
+      advanced: true
+
 
 outputs:
 
@@ -601,6 +612,7 @@ steps:
       use_lfc_thresh: use_lfc_thresh
       regulation: regulation
       batchcorrection: batchcorrection
+      test_mode: test_mode
     out:
       - diff_expr_file
       - deseq_summary_md

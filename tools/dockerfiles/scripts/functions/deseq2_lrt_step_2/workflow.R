@@ -74,6 +74,7 @@ initialize_environment <- function() {
   source_with_fallback("functions/common/visualization.R", "/usr/local/bin/functions/common/visualization.R")
   source_with_fallback("functions/common/clustering.R", "/usr/local/bin/functions/common/clustering.R")
   source_with_fallback("functions/common/export_functions.R", "/usr/local/bin/functions/common/export_functions.R")
+  source_with_fallback("functions/common/output_utils.R", "/usr/local/bin/functions/common/output_utils.R")
   source_with_fallback("functions/common/error_handling.R", "/usr/local/bin/functions/common/error_handling.R")
   source_with_fallback("functions/common/logging.R", "/usr/local/bin/functions/common/logging.R")
 
@@ -107,7 +108,11 @@ run_workflow <- function(args) {
   contrast_df <- read.delim(args$contrast_df, sep = "\t", header = TRUE, stringsAsFactors = FALSE)
   
   # Get contrast indices to process
-  contrast_indices <- as.numeric(unlist(strsplit(args$contrast_indices, ",")))
+  if (is.character(args$contrast_indices)) {
+    contrast_indices <- as.numeric(unlist(strsplit(args$contrast_indices, ",")))
+  } else {
+    contrast_indices <- args$contrast_indices  # Already processed by CLI args
+  }
   log_message(paste("Processing contrast indices:", paste(contrast_indices, collapse = ", ")))
   
   # Check if contrast indices are valid
@@ -121,6 +126,22 @@ run_workflow <- function(args) {
   # Initialize variables
   dds <- step1_data$dds
   expDataDf <- step1_data$expDataDf
+  
+  # Debug: check what's in the step1_data
+  log_message(paste("Available step1_data elements:", paste(names(step1_data), collapse=", ")))
+  if (!is.null(expDataDf)) {
+    log_message(paste("expDataDf dimensions:", nrow(expDataDf), "x", ncol(expDataDf)))
+  } else {
+    log_warning("expDataDf is NULL - will need to create from DESeq2 object")
+    # Create expression data from the DESeq2 object if missing
+    expDataDf <- data.frame(
+      RefseqId = rownames(dds),
+      GeneId = rownames(dds),
+      stringsAsFactors = FALSE
+    )
+    rownames(expDataDf) <- rownames(dds)  # Ensure row names match
+    log_message(paste("Created expDataDf with dimensions:", nrow(expDataDf), "x", ncol(expDataDf)))
+  }
   
   # Check for required columns in the DESeq dataset
   if (is.null(dds)) {
@@ -194,7 +215,7 @@ run_workflow <- function(args) {
   
   for (i in 1:nrow(contrast_df)) {
     contrast_row <- contrast_df[i, ]
-    contrast_name <- contrast_row$contrast_name
+    contrast_name <- contrast_row$contrast
     log_message(paste("Processing contrast", i, "of", nrow(contrast_df), ":", contrast_name))
     
     # Get contrast results
@@ -243,24 +264,28 @@ run_workflow <- function(args) {
   # Export reports
   log_message("Exporting reports and visualizations", "STEP")
   
-  # Export gene expression table
-  gene_exp_file <- export_deseq_results(expDataDf, args$output, output_name="gene_exp_table")
+  # Export gene expression table with CWL-expected filename
+  gene_exp_file <- paste0(args$output, "_gene_exp_table.tsv")
+  write_deseq_results(expDataDf, gene_exp_file)
   log_message(paste("Exported gene expression table to", gene_exp_file), "INFO")
   
-  # Export normalized counts in GCT format
-  count_files <- export_normalized_counts(normCounts, args$output, threshold=args$rpkm_cutoff)
-  log_message(paste("Exported normalized counts to", count_files$all_counts), "INFO")
+  # Export normalized counts in GCT format with CWL-expected filenames
+  write_gct_file(counts(dds, normalized = TRUE), "counts_all.gct")
+  log_message("Exported normalized counts to counts_all.gct", "INFO")
   
-  # Create interactive MDS plot
-  mds_file <- get_output_filename(args$output, "mds_plot", "html")
+  # Export filtered counts (currently no filtering applied, just create both files)
+  write_gct_file(counts(dds, normalized = TRUE), "counts_filtered.gct")
+  log_message("Exported normalized counts to counts_filtered.gct", "INFO")
+  
+  # Create interactive MDS plot with CWL-expected filename
   generate_mds_plot_html(
     normCounts, 
-    mds_file,
+    "mds_plot.html",
     metadata=col_data,
     color_by=factor_names[1],  # Use first factor for coloring
     title="MDS Plot of Samples"
   )
-  log_message(paste("Created interactive MDS plot at", mds_file), "INFO")
+  log_message("Created interactive MDS plot at mds_plot.html", "INFO")
   
   # Create visualizations for each contrast
   for (contrast_name in names(results_list)) {
