@@ -9,17 +9,17 @@ hints:
   dockerPull: "biowardrobe2/scidap-atac:v0.0.51"
 
 inputs:
-  expression_files:
+  test_peak_files:
     type: File[]
     inputBinding:
       prefix: "--input"
-    doc: "Expression files"
+    doc: "Peak files"
 
-  expression_file_names:
+  peak_file_names:
     type: string[]
     inputBinding:
       prefix: "--name"
-    doc: "Sample names"
+    doc: "Peak file names"
 
   metadata_file:
     type: File

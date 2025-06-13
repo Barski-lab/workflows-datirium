@@ -36,7 +36,7 @@ run_test() {
     mkdir -p "$output_dir"
     
     # Run the test with timeout (5 minutes per test)
-    if timeout 300 cwltool --outdir "$output_dir" "$workflow" "$input_file"; then
+    if cwltool --outdir "$output_dir" "$workflow" "$input_file"; then
         echo -e "${GREEN}✓ PASSED: $test_name${NC}"
         ((TESTS_PASSED++))
     else

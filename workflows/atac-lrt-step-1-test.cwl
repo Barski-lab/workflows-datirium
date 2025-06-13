@@ -296,7 +296,7 @@ steps:
   deseq:
     run: ../tools/atac-lrt-step-1.cwl
     in:
-      expression_files:
+      test_peak_files:
         source: [ group_by, test_peak_files, group_isoforms/genes_file, group_isoforms/common_tss_file ]
         valueFrom: |
           ${
