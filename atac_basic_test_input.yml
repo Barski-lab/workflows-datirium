@@ -1,0 +1,5 @@
+untreated_files: [{"class": "File", "path": "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_1/inputs/sample1_peaks.csv"}, {"class": "File", "path": "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_1/inputs/sample2_peaks.csv"}]
+treated_files: [{"class": "File", "path": "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_1/inputs/sample3_peaks.csv"}, {"class": "File", "path": "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_1/inputs/sample4_peaks.csv"}]
+untreated_name: "Rest"
+treated_name: "Act"
+test_mode: true

@@ -1,4 +1,4 @@
-FROM local/scidap-deseq:v0.0.51
+FROM biowardrobe2/scidap-atac:v0.0.51
 LABEL maintainer="pavlvalera3301@gmail.com"
 ENV DEBIAN_FRONTEND=noninteractive
 RUN Rscript -e "if (!require(\"BiocManager\", quietly = TRUE)) install.packages(\"BiocManager\"); BiocManager::install(c(\"DiffBind\", \"ChIPseeker\", \"GenomicFeatures\", \"rtracklayer\", \"Rsamtools\"), update = FALSE, ask = FALSE); install.packages(c(\"VennDiagram\", \"UpSetR\", \"corrplot\"));"

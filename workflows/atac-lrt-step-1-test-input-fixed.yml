@@ -1,0 +1,61 @@
+expression_files:
+  - class: File
+    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_1/inputs/sample1_peaks.csv"
+  - class: File
+    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_1/inputs/sample2_peaks.csv"
+  - class: File
+    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_1/inputs/sample3_peaks.csv"
+  - class: File
+    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_1/inputs/sample4_peaks.csv"
+
+expression_file_names:
+  - "sample1"
+  - "sample2"
+  - "sample3"
+  - "sample4"
+
+# BAM files corresponding to peak files
+bamfiles:
+  - "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_1/inputs/sample1.bam"
+  - "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_1/inputs/sample2.bam"
+  - "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_1/inputs/sample3.bam"
+  - "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_1/inputs/sample4.bam"
+
+metadata_file:
+  class: File
+  path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_1/inputs/atac_metadata.csv"
+
+# Design and reduced formulas for LRT testing interaction between condition and tissue
+design_formula: "~Condition*Tissue + Replicate"
+reduced_formula: "~Condition + Tissue + Replicate"
+
+# ATAC-seq specific DiffBind parameters
+minoverlap: 2
+peakformat: "csv"
+peakcaller: "macs"
+scorecol: 6
+
+# Advanced processing flags matching example script
+with_interaction: true
+use_limma_correction: true
+score_type: "DBA_SCORE_RPKM"
+
+# Test parameters for rapid iteration
+test_mode: true
+lrt_only_mode: true
+use_lfc_thresh: true
+threads: 4
+
+# Analysis parameters
+lfcthreshold: 0.59
+group_by: "peaks"
+fdr: 0.001
+cluster_method: "row"
+k_hopach: 3
+kmax_hopach: 5
+
+# Batch correction - using sophisticated limma approach
+batchcorrection: "combatseq"
+
+# Output prefix
+alias: "local_test_atac_lrt_step1_sophisticated" 

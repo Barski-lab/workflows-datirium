@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Automated regression test runner for DESeq workflows.
+# Automated regression test runner for DESeq and ATAC workflows.
 # See TESTS_README.md for details.
 
 set -euo pipefail
@@ -37,5 +37,26 @@ echo "=== Running DESeq LRT Step-2 workflow tests ==="
 for yaml in "$ROOT_DIR/my_local_test_data/deseq_lrt_step_2_tests/inputs"/*.yml; do
   run_test "$ROOT_DIR/workflows/deseq-lrt-step-2-test.cwl" "$yaml"
 done
+
+echo "=== Running ATAC LRT Step-1 workflow tests ==="
+if compgen -G "$ROOT_DIR/my_local_test_data/atac_lrt_step_1/inputs"/*.yml > /dev/null; then
+  for yaml in "$ROOT_DIR/my_local_test_data/atac_lrt_step_1/inputs"/*.yml; do
+    run_test "$ROOT_DIR/workflows/atac-lrt-step-1-test.cwl" "$yaml"
+  done
+fi
+
+echo "=== Running ATAC LRT Step-2 workflow tests ==="
+if compgen -G "$ROOT_DIR/my_local_test_data/atac_lrt_step_2/inputs"/*.yml > /dev/null; then
+  for yaml in "$ROOT_DIR/my_local_test_data/atac_lrt_step_2/inputs"/*.yml; do
+    run_test "$ROOT_DIR/workflows/atac-lrt-step-2-test.cwl" "$yaml"
+  done
+fi
+
+echo "=== Running ATAC Advanced workflow tests ==="
+if compgen -G "$ROOT_DIR/my_local_test_data/atac_standard/inputs"/*.yml > /dev/null; then
+  for yaml in "$ROOT_DIR/my_local_test_data/atac_standard/inputs"/*.yml; do
+    run_test "$ROOT_DIR/workflows/atac-advanced.cwl" "$yaml"
+  done
+fi
 
 echo "=== All tests finished ===" 
