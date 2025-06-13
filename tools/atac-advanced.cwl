@@ -8,7 +8,7 @@ requirements:
 
 hints:
 - class: DockerRequirement
-  dockerPull: "biowardrobe2/scidap-deseq:v0.0.51"
+  dockerPull: "biowardrobe2/scidap-atac:v0.0.51"
 
 
 inputs:
@@ -320,7 +320,7 @@ outputs:
     type: stderr
 
 
-baseCommand: [run_deseq.R]
+baseCommand: [run_atac.R]
 stdout: deseq_stdout.log
 stderr: deseq_stderr.log
 
@@ -390,7 +390,7 @@ doc: |
 
 
 s:about: |
-  usage: /Users/kot4or/workspaces/cwl_ws/workflows/tools/dockerfiles/scripts/run_deseq.R
+  usage: /Users/kot4or/workspaces/cwl_ws/workflows/tools/dockerfiles/scripts/run_atac.R
         [-h] -u UNTREATED [UNTREATED ...] -t TREATED [TREATED ...]
         [-ua [UALIAS ...]] [-ta [TALIAS ...]] [-un UNAME] [-tn TNAME]
         [-bf BATCHFILE] [-cu CUTOFF] [--fdr FDR]

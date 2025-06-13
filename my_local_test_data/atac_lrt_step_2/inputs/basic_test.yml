@@ -1,0 +1,28 @@
+alias: "atac_lrt_step2_basic_test"
+
+# Input from ATAC LRT Step 1 results
+diffbind_object:
+  class: File
+  path: "my_local_test_data/atac_lrt_step_1/outputs/basic_test/diffbind_results.rds"
+
+# Contrasts for specific comparisons
+contrasts_table:
+  class: File
+  path: "my_local_test_data/core_data/contrasts_table_example.csv"
+
+# Analysis parameters
+fdr: 0.05
+lfcthreshold: 0.5
+use_lfc_thresh: true
+threads: 4
+test_mode: true
+
+# Visualization parameters
+cluster_method: "row"
+k_hopach: 3
+kmax_hopach: 5
+
+# Output preferences
+generate_heatmap: true
+generate_volcano: true
+generate_ma_plot: true 

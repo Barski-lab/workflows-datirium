@@ -1,0 +1,39 @@
+alias: "atac_standard_basic_test"
+
+# Peak files (4 samples: 2 conditions × 2 replicates)
+peak_files:
+  - class: File
+    path: "my_local_test_data/atac_lrt_step_1/inputs/sample1_peaks.csv"
+  - class: File
+    path: "my_local_test_data/atac_lrt_step_1/inputs/sample2_peaks.csv"
+  - class: File
+    path: "my_local_test_data/atac_lrt_step_1/inputs/sample3_peaks.csv"
+  - class: File
+    path: "my_local_test_data/atac_lrt_step_1/inputs/sample4_peaks.csv"
+
+# BAM files for DiffBind analysis
+bam_files:
+  - class: File
+    path: "my_local_test_data/atac_lrt_step_1/inputs/sample1.bam"
+  - class: File
+    path: "my_local_test_data/atac_lrt_step_1/inputs/sample2.bam"
+  - class: File
+    path: "my_local_test_data/atac_lrt_step_1/inputs/sample3.bam"
+  - class: File
+    path: "my_local_test_data/atac_lrt_step_1/inputs/sample4.bam"
+
+# Sample metadata
+metadata_file:
+  class: File
+  path: "my_local_test_data/atac_lrt_step_1/inputs/atac_metadata.csv"
+
+# Analysis parameters
+group_by: "peaks"
+design_formula: "~ Condition"
+batchcorrection: "none"
+fdr: 0.05
+lfcthreshold: 0.5
+use_lfc_thresh: true
+cluster_method: "row"
+threads: 4
+test_mode: true 

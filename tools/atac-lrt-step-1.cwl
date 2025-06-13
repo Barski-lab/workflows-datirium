@@ -6,7 +6,7 @@ requirements:
 
 hints:
 - class: DockerRequirement
-  dockerPull: "biowardrobe2/scidap-deseq:v0.0.51"
+  dockerPull: "biowardrobe2/scidap-atac:v0.0.51"
 
 inputs:
   expression_files:
@@ -230,7 +230,7 @@ outputs:
   stderr_log:
     type: stderr
 
-baseCommand: ["/usr/bin/Rscript", "/usr/local/bin/run_deseq_lrt_step_1.R"]
+baseCommand: ["/usr/bin/Rscript", "/usr/local/bin/run_atac_lrt_step_1.R"]
 
 stdout: deseq_lrt_step_1_stdout.log
 stderr: deseq_lrt_step_1_stderr.log

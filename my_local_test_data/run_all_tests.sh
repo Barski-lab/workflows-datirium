@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Comprehensive test script for all DESeq workflows
+# Comprehensive test script for all DESeq and ATAC workflows
 # Updated for clean directory structure
 
 set -e  # Exit on any error
 
 echo "=========================================="
-echo "Starting comprehensive DESeq workflow tests"
+echo "Starting comprehensive DESeq & ATAC workflow tests"
 echo "=========================================="
 
 # Colors for output
@@ -51,6 +51,9 @@ echo -e "\n${YELLOW}Validating CWL syntax...${NC}"
 cwltool --validate workflows/deseq-lrt-step-1-test.cwl
 cwltool --validate workflows/deseq-lrt-step-2-test.cwl
 cwltool --validate workflows/deseq.cwl
+cwltool --validate workflows/atac-lrt-step-1-test.cwl
+cwltool --validate workflows/atac-lrt-step-2-test.cwl
+cwltool --validate workflows/atac-advanced.cwl
 echo -e "${GREEN}✓ All CWL files are valid${NC}"
 
 # Test 1: DESeq LRT Step 1 - Basic Test
@@ -88,6 +91,34 @@ run_test "DESeq Standard - Tool Test" \
          "workflows/deseq.cwl" \
          "my_local_test_data/deseq_standard/inputs/tool_test.yml" \
          "my_local_test_data/deseq_standard/outputs/tool_test"
+
+# ===========================================
+# ATAC-SEQ WORKFLOW TESTS
+# ===========================================
+
+# Test 7: ATAC LRT Step 1 - Basic Test
+run_test "ATAC LRT Step 1 - Basic Test" \
+         "workflows/atac-lrt-step-1-test.cwl" \
+         "my_local_test_data/atac_lrt_step_1/inputs/basic_test.yml" \
+         "my_local_test_data/atac_lrt_step_1/outputs/basic_test"
+
+# Test 8: ATAC LRT Step 2 - Basic Test
+run_test "ATAC LRT Step 2 - Basic Test" \
+         "workflows/atac-lrt-step-2-test.cwl" \
+         "my_local_test_data/atac_lrt_step_2/inputs/basic_test.yml" \
+         "my_local_test_data/atac_lrt_step_2/outputs/basic_test"
+
+# Test 9: ATAC Standard - Basic Test
+run_test "ATAC Standard - Basic Test" \
+         "workflows/atac-advanced.cwl" \
+         "my_local_test_data/atac_standard/inputs/basic_test.yml" \
+         "my_local_test_data/atac_standard/outputs/basic_test"
+
+# Test 10: ATAC Advanced - Basic Test (using root directory input)
+run_test "ATAC Advanced - Root Test" \
+         "workflows/atac-advanced.cwl" \
+         "atac_basic_test_input.yml" \
+         "my_local_test_data/atac_standard/outputs/root_test"
 
 # Summary
 echo -e "\n=========================================="
