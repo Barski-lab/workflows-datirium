@@ -151,58 +151,46 @@ outputs:
 
   diff_expr_files:
     type: File[]
-    label: "Differentially expressed features grouped by isoforms, genes or common TSS"
-    #    format: "http://edamontology.org/format_3475"
-    doc: "DESeq2 generated files of differentially expressed features for each contrast in TSV format"
     outputSource: deseq/diff_expr_files
-  #    'sd:visualPlugins':
-  #      - syncfusiongrid:
-  #          tab: 'Differential Expression Analysis'
-  #          Title: 'Combined DESeq results for all contrasts'
-
-  read_counts_file_all:
-    type: File
-    label: "Normalized read counts in GCT format without padj filtering"
-    #    format: "http://edamontology.org/format_3709"
-    doc: "DESeq generated files of all normalized read counts in GCT format. Compatible with GSEA"
-    outputSource: deseq/counts_all_gct
-
-  read_counts_file_filtered:
-    type: File
-    label: "Normalized read counts in GCT format filtered by padj"
-    #    format: "http://edamontology.org/format_3709"
-    doc: "DESeq generated files of padj-filtered normalized read counts in GCT format. Compatible with Morpheus heatmap"
-    outputSource: deseq/counts_filtered_gct
+    label: "Differential expression files"
+    doc: |
+      Differential expression analysis results for each contrast
 
   mds_plots_html:
-    type: File
+    type: File?
     outputSource: deseq/mds_plots_html
-    label: "MDS plots of normalized counts"
+    label: "MDS Plots"
     doc: |
-      MDS plots of normalized counts for each contrast
-      HTML format
-  #    'sd:visualPlugins':
-  #      - linkList:
-  #          tab: 'Overview'
-  #          target: "_blank"
+      HTML files for MDS Plots for each contrast
 
-  volcano_plots_html:
-    type: File[]
-    outputSource: make_volcano_plot/html_file
-    label: "Volcano Plots"
+  counts_all_gct:
+    type: File
+    outputSource: deseq/counts_all_gct
+    label: "GENE COUNTS GCT"
     doc: |
-      HTML files for Volcano Plots for each contrast
-  #    'sd:visualPlugins':
-  #      - linkList:
-  #          tab: 'Overview'
-  #          target: "_blank"
+      Normalized counts in GCT format for all contrasts
 
-  volcano_plots_html_data:
-    type: Directory[]
-    outputSource: make_volcano_plot/html_data
-    label: "Volcano Plots"
+  counts_filtered_gct:
+    type: File
+    outputSource: deseq/counts_filtered_gct
+    label: "Filtered GENE COUNTS GCT"
     doc: |
-      HTML data for Volcano Plots for each contrast
+      Filtered normalized counts in GCT format for all contrasts
+
+  # COMMENTED OUT: volcano plot outputs due to missing volcano-plot.cwl tool
+  # volcano_plots_html:
+  #   type: File[]
+  #   outputSource: make_volcano_plot/html_file
+  #   label: "Volcano Plots"
+  #   doc: |
+  #     HTML files for Volcano Plots for each contrast
+
+  # volcano_plots_html_data:
+  #   type: Directory[]
+  #   outputSource: make_volcano_plot/html_data
+  #   label: "Volcano Plots"
+  #   doc: |
+  #     HTML data for Volcano Plots for each contrast
 
   heatmap_html:
     type: File
@@ -210,10 +198,6 @@ outputs:
     label: "Combined Heatmap of normalized counts"
     doc: |
       Morpheus heatmap in HTML format combining all contrasts
-  #    'sd:visualPlugins':
-  #      - linkList:
-  #          tab: 'Overview'
-  #          target: "_blank"
 
   deseq_stdout_log:
     type: File
@@ -274,34 +258,35 @@ steps:
   #    out:
   #      - merged_gct_file
 
-  make_volcano_plot:
-    run: ../tools/volcano-plot.cwl
-    scatterMethod: dotproduct
-    scatter:
-      - diff_expr_file
-    in:
-      diff_expr_file: deseq/diff_expr_files
-      output_filename:
-        valueFrom: $(inputs.diff_expr_file.basename.replace(/\.tsv$/, '.html'))
-      x_axis_column:
-        default: "log2FoldChange"
-      y_axis_column:
-        default: "padj"
-      label_column:
-        source: group_by
-        valueFrom: |
-          ${
-            if (self == "isoforms") {
-              return "RefseqId";
-            } else if (self == "genes") {
-              return "GeneId";
-            } else {
-              return "GeneId";
-            }
-          }
-    out:
-      - html_file
-      - html_data
+  # COMMENTED OUT: volcano plot step due to missing volcano-plot.cwl tool
+  # make_volcano_plot:
+  #   run: ../tools/volcano-plot.cwl
+  #   scatterMethod: dotproduct
+  #   scatter:
+  #     - diff_expr_file
+  #   in:
+  #     diff_expr_file: deseq/diff_expr_files
+  #     output_filename:
+  #       valueFrom: $(inputs.diff_expr_file.basename.replace(/\.tsv$/, '.html'))
+  #     x_axis_column:
+  #       default: "log2FoldChange"
+  #     y_axis_column:
+  #       default: "padj"
+  #     label_column:
+  #       source: group_by
+  #       valueFrom: |
+  #         ${
+  #           if (self == "isoforms") {
+  #             return "RefseqId";
+  #           } else if (self == "genes") {
+  #             return "GeneId";
+  #           } else {
+  #             return "GeneId";
+  #           }
+  #         }
+  #   out:
+  #     - html_file
+  #     - html_data
 
   morpheus_heatmap:
     run: ../tools/morpheus-heatmap.cwl

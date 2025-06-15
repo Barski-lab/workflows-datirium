@@ -11,9 +11,9 @@ initialize_environment <- function() {
   message("Working directory:", getwd())
   
   # Print command line arguments for debugging purposes
-  args <- commandArgs(trailingOnly = TRUE)
+  raw_args <- commandArgs(trailingOnly = TRUE)
   message("Command line arguments received:")
-  message(paste(args, collapse = " "))
+  message(paste(raw_args, collapse = " "))
   
   # First, make sure we have the utilities module
   if (file.exists("/usr/local/bin/functions/common/utilities.R")) {

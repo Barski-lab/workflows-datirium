@@ -55,5 +55,13 @@ DEFAULT_DIGITS <- 4                  # Default number of digits for rounding
 DEFAULT_THREADS <- 1                 # Default number of threads to use
 DEFAULT_SEED <- 123                  # Default random seed for reproducibility
 
+# DiffBind constants (required for ATAC-seq analysis)
+# These must match the values defined in DiffBind package
+DBA_CONDITION <- 4         # DiffBind condition constant
+DBA_DESEQ2 <- "DESeq2"     # DiffBind DESeq2 method constant (string, not numeric!)
+DBA_SCORE_READS <- 3       # DiffBind score type: raw reads (CORRECTED)
+DBA_SCORE_RPKM <- 1        # DiffBind score type: RPKM (value is 1, not 2)
+DBA_SCORE_TMM_MINUS_FULL <- 6  # DiffBind score type: TMM normalized
+
 # Export this to environment when sourced
 .common_constants_loaded <- TRUE 
