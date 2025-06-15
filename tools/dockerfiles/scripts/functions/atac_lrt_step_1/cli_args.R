@@ -2,6 +2,23 @@
 
 # --- Command line argument parsing functions for ATAC-seq LRT Step 1 ---
 
+# Try to source helper functions (optional, with fallback)
+tryCatch({
+  source_path <- file.path(dirname(getwd()), "common", "cli_helpers.R")
+  if (file.exists(source_path)) {
+    source(source_path)
+  } else {
+    # Try Docker path
+    docker_path <- "/usr/local/bin/functions/common/cli_helpers.R"
+    if (file.exists(docker_path)) {
+      source(docker_path)
+    }
+  }
+}, error = function(e) {
+  # Helpers not available, continue with manual parsing
+  message("CLI helpers not available, using manual parsing")
+})
+
 # Function to parse command line arguments
 get_args <- function() {
   # Get raw command line args for backup
@@ -14,7 +31,7 @@ get_args <- function() {
   
   # Input data arguments - adapted for ATAC-seq
   parser$add_argument(
-    "--input",
+    "--input_files",
     type = "character",
     required = TRUE,
     nargs = "+",
@@ -235,114 +252,159 @@ get_args <- function() {
   }, error = function(e) {
     message("Warning: Argument parsing error. Attempting to handle arguments manually.")
     
-    # Get all command line arguments
     all_args <- commandArgs(trailingOnly = TRUE)
     
-    # Simple manual parser that handles CWL-style arguments correctly
-    args <- list(
-      input_files = character(0),
-      name = character(0),
-      bamfiles = character(0),
-      meta = NULL,
-      design = NULL,
-      reduced = NULL,
-      minoverlap = 2,
-      peakformat = "csv",
-      peakcaller = "macs",
-      scorecol = 6,
-      batchcorrection = "none",
-      scaling_type = "zscore",
-      fdr = 0.1,
-      lfcthreshold = 0.59,
-      use_lfc_thresh = FALSE,
-      rpkm_cutoff = NULL,
-      cluster = "none",
-      rowdist = "cosangle",
-      columndist = "euclid",
-      k = 3,
-      kmax = 5,
-      output = "./atac_lrt_step_1",
-      threads = 1,
-      lrt_only_mode = FALSE,
-      test_mode = FALSE,
-      with_interaction = FALSE,
-      cluster_method = "row",
-      use_limma_correction = FALSE,
-      score_type = "DBA_SCORE_RPKM"
-    )
-    
-    # Find --input arguments
-    input_idx <- which(all_args == "--input")
-    if (length(input_idx) > 0) {
-      start_idx <- input_idx[1] + 1
-      end_idx <- start_idx
-      while (end_idx <= length(all_args) && !startsWith(all_args[end_idx], "--")) {
-        end_idx <- end_idx + 1
+    # Use helper functions if available, otherwise fallback to manual parsing
+    if (exists("cli_helpers") && is.environment(cli_helpers)) {
+      message("Using CLI helper functions for manual parsing")
+      
+      # Parse using helpers
+      args <- list()
+      
+      # Multi-value arguments specific to ATAC
+      args$input_files <- cli_helpers$parse_multi_value_args(all_args, "input_files")
+      args$name <- cli_helpers$parse_multi_value_args(all_args, "name")
+      args$bamfiles <- cli_helpers$parse_multi_value_args(all_args, "bamfiles")
+      
+      # Required single-value arguments
+      args$meta <- cli_helpers$parse_single_value_arg(all_args, "meta")
+      args$design <- cli_helpers$parse_single_value_arg(all_args, "design")
+      args$reduced <- cli_helpers$parse_single_value_arg(all_args, "reduced")
+      
+      # Optional single-value arguments with defaults
+      optional_args <- list(
+        peakformat = "csv",
+        peakcaller = "macs",
+        batchcorrection = "none",
+        scaling_type = "zscore",
+        cluster = "none",
+        rowdist = "cosangle",
+        columndist = "euclid",
+        cluster_method = "row",
+        score_type = "DBA_SCORE_RPKM",
+        output = "./atac_lrt_step_1"
+      )
+      
+      for (arg in names(optional_args)) {
+        args[[arg]] <- cli_helpers$parse_single_value_arg(all_args, arg, optional_args[[arg]])
       }
-      args$input_files <- all_args[start_idx:(end_idx - 1)]
-    }
-    
-    # Find --name arguments
-    name_idx <- which(all_args == "--name")
-    if (length(name_idx) > 0) {
-      start_idx <- name_idx[1] + 1
-      end_idx <- start_idx
-      while (end_idx <= length(all_args) && !startsWith(all_args[end_idx], "--")) {
-        end_idx <- end_idx + 1
+      
+      # Numeric arguments
+      numeric_args <- list(
+        minoverlap = "integer", scorecol = "integer", fdr = "double", 
+        lfcthreshold = "double", rpkm_cutoff = "integer", k = "integer", 
+        kmax = "integer", threads = "integer"
+      )
+      numeric_defaults <- list(
+        minoverlap = 2, scorecol = 6, fdr = 0.1, lfcthreshold = 0.59,
+        rpkm_cutoff = NULL, k = 3, kmax = 5, threads = 1
+      )
+      numeric_values <- cli_helpers$parse_numeric_args(all_args, numeric_args, numeric_defaults)
+      args <- c(args, numeric_values)
+      
+      # Boolean flags
+      boolean_flags <- c("use_lfc_thresh", "lrt_only_mode", "test_mode", "with_interaction", "use_limma_correction")
+      boolean_values <- cli_helpers$parse_boolean_flags(all_args, boolean_flags)
+      args <- c(args, boolean_values)
+      
+    } else {
+      # Fallback to original defaults
+      message("CLI helpers not available, using minimal manual parsing")
+      args <- list(
+        input_files = character(0),
+        name = character(0),
+        bamfiles = character(0),
+        meta = NULL,
+        design = NULL,
+        reduced = NULL,
+        minoverlap = 2,
+        peakformat = "csv",
+        peakcaller = "macs",
+        scorecol = 6,
+        batchcorrection = "none",
+        scaling_type = "zscore",
+        fdr = 0.1,
+        lfcthreshold = 0.59,
+        use_lfc_thresh = FALSE,
+        rpkm_cutoff = NULL,
+        cluster = "none",
+        rowdist = "cosangle",
+        columndist = "euclid",
+        k = 3,
+        kmax = 5,
+        output = "./atac_lrt_step_1",
+        threads = 1,
+        lrt_only_mode = FALSE,
+        test_mode = FALSE,
+        with_interaction = FALSE,
+        cluster_method = "row",
+        use_limma_correction = FALSE,
+        score_type = "DBA_SCORE_RPKM"
+      )
+      
+      # Simple fallback parsing for required args only
+      for (req_arg in c("meta", "design", "reduced")) {
+        req_flag <- paste0("--", req_arg)
+        arg_idx <- which(all_args == req_flag)
+        if (length(arg_idx) > 0 && arg_idx[1] < length(all_args)) {
+          args[[req_arg]] <- all_args[arg_idx[1] + 1]
+        }
       }
-      args$name <- all_args[start_idx:(end_idx - 1)]
-    }
-    
-    # Find --bamfiles arguments
-    bam_idx <- which(all_args == "--bamfiles")
-    if (length(bam_idx) > 0) {
-      start_idx <- bam_idx[1] + 1
-      end_idx <- start_idx
-      while (end_idx <= length(all_args) && !startsWith(all_args[end_idx], "--")) {
-        end_idx <- end_idx + 1
+      
+      # Parse input_files manually (CRITICAL FIX)
+      input_idx <- which(all_args == "--input_files")
+      if (length(input_idx) > 0) {
+        start_idx <- input_idx[1] + 1
+        end_idx <- start_idx
+        while (end_idx <= length(all_args) && !startsWith(all_args[end_idx], "--")) {
+          end_idx <- end_idx + 1
+        }
+        args$input_files <- all_args[start_idx:(end_idx - 1)]
       }
-      args$bamfiles <- all_args[start_idx:(end_idx - 1)]
-    }
-    
-    # Handle single-value arguments
-    single_args <- c("meta", "design", "reduced", "peakformat", "peakcaller", 
-                     "batchcorrection", "scaling_type", "cluster", "rowdist", 
-                     "columndist", "output")
-    
-    for (arg_name in single_args) {
-      arg_flag <- paste0("--", arg_name)
-      arg_idx <- which(all_args == arg_flag)
-      if (length(arg_idx) > 0 && arg_idx[1] < length(all_args)) {
-        args[[arg_name]] <- all_args[arg_idx[1] + 1]
+      
+      # Find --name arguments
+      name_idx <- which(all_args == "--name")
+      if (length(name_idx) > 0) {
+        start_idx <- name_idx[1] + 1
+        end_idx <- start_idx
+        while (end_idx <= length(all_args) && !startsWith(all_args[end_idx], "--")) {
+          end_idx <- end_idx + 1
+        }
+        args$name <- all_args[start_idx:(end_idx - 1)]
       }
-    }
-    
-    # Handle numeric arguments
-    numeric_args <- c("minoverlap", "scorecol", "fdr", "lfcthreshold", "rpkm_cutoff", 
-                      "k", "kmax", "threads")
-    
-    for (arg_name in numeric_args) {
-      arg_flag <- paste0("--", arg_name)
-      arg_idx <- which(all_args == arg_flag)
-      if (length(arg_idx) > 0 && arg_idx[1] < length(all_args)) {
-        val <- all_args[arg_idx[1] + 1]
-        if (arg_name %in% c("fdr", "lfcthreshold")) {
-          args[[arg_name]] <- as.numeric(val)
-        } else {
-          args[[arg_name]] <- as.integer(val)
+      
+      # Find --bamfiles arguments
+      bam_idx <- which(all_args == "--bamfiles")
+      if (length(bam_idx) > 0) {
+        start_idx <- bam_idx[1] + 1
+        end_idx <- start_idx
+        while (end_idx <= length(all_args) && !startsWith(all_args[end_idx], "--")) {
+          end_idx <- end_idx + 1
+        }
+        args$bamfiles <- all_args[start_idx:(end_idx - 1)]
+      }
+      
+      # Handle boolean flags (both --flag and --flag TRUE/FALSE formats)
+      boolean_flags <- c("use_lfc_thresh", "lrt_only_mode", "test_mode", "with_interaction", 
+                        "use_limma_correction")
+      for (flag in boolean_flags) {
+        flag_name <- paste0("--", flag)
+        flag_idx <- which(all_args == flag_name)
+        if (length(flag_idx) > 0) {
+          # Check if there's a value after the flag
+          if (flag_idx[1] < length(all_args) && !startsWith(all_args[flag_idx[1] + 1], "--")) {
+            # Has a value (TRUE/FALSE)
+            val <- all_args[flag_idx[1] + 1]
+            args[[flag]] <- toupper(val) == "TRUE"
+          } else {
+            # Just the flag present (store_true action)
+            args[[flag]] <- TRUE
+          }
         }
       }
     }
     
-    # Handle boolean flags
-    boolean_flags <- c("use_lfc_thresh", "lrt_only_mode", "test_mode", "with_interaction", 
-                      "use_limma_correction")
-    for (flag in boolean_flags) {
-      flag_name <- paste0("--", flag)
-      if (flag_name %in% all_args) {
-        args[[flag]] <- TRUE
-      }
-    }
+    message("Manually parsed arguments using helpers")
     
     # Convert args to match expected format
     args <- as.list(args)

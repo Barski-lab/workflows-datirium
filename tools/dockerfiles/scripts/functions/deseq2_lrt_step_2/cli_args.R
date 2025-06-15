@@ -3,6 +3,33 @@
 # Command-line argument handling for DESeq2 LRT Step 2
 #
 
+# Try to source helper functions with robust path resolution
+if (exists("source_cli_helpers")) {
+  source_cli_helpers()
+} else {
+  # Fallback to basic sourcing
+  tryCatch({
+    possible_paths <- c(
+      file.path(dirname(getwd()), "common", "cli_helpers.R"),
+      "../common/cli_helpers.R",
+      "/usr/local/bin/functions/common/cli_helpers.R"
+    )
+    sourced <- FALSE
+    for (path in possible_paths) {
+      if (file.exists(path)) {
+        source(path)
+        sourced <- TRUE
+        break
+      }
+    }
+    if (!sourced) {
+      message("CLI helpers not available, using manual parsing")
+    }
+  }, error = function(e) {
+    message("CLI helpers not available, using manual parsing")
+  })
+}
+
 #' Define and parse command line arguments
 #'
 #' @return Parsed arguments list
@@ -159,58 +186,82 @@ get_args <- function() {
   }, error = function(e) {
     message("Warning: Argument parsing error. Attempting to handle arguments manually.")
     
-    # Get all command line arguments
     all_args <- commandArgs(trailingOnly = TRUE)
     
-    # Initialize an empty list for our parsed arguments
-    manual_args <- list()
-    
-    # Make sure to explicitly extract required arguments first
-    required_args <- c("dsq_obj_data", "contrast_df", "contrast_indices")
-    for (req_arg in required_args) {
-      req_flag <- paste0("--", req_arg)
-      arg_idx <- which(all_args == req_flag)
-      if (length(arg_idx) > 0 && arg_idx[1] < length(all_args)) {
-        manual_args[[req_arg]] <- all_args[arg_idx[1] + 1]
-        message(paste("Directly extracted required argument:", req_arg, "=", manual_args[[req_arg]]))
-      }
-    }
-    
-    # First pass: process all flags with values
-    i <- 1
-    while (i <= length(all_args)) {
-      current_arg <- all_args[i]
+    # Use helper functions if available, otherwise fallback to manual parsing
+    if (exists("cli_helpers") && is.environment(cli_helpers)) {
+      message("Using CLI helper functions for manual parsing")
       
-      # Check if this is a flag argument (starts with --)
-      if (grepl("^--", current_arg)) {
-        arg_name <- sub("^--", "", current_arg)
-        
-        # Check if the next item exists and is not a flag
-        if (i < length(all_args) && !grepl("^--", all_args[i + 1])) {
-          arg_value <- all_args[i + 1]
-          
-          # Set the value
-          manual_args[[arg_name]] <- arg_value
-          
-          i <- i + 2  # Skip the value
+      # Parse using helpers
+      manual_args <- list()
+      
+      # Required single-value arguments
+      required_args <- c("dsq_obj_data", "contrast_df", "contrast_indices")
+      for (arg in required_args) {
+        manual_args[[arg]] <- cli_helpers$parse_single_value_arg(all_args, arg)
+      }
+      
+      # Optional single-value arguments with defaults
+      optional_args <- list(
+        batchcorrection = "none",
+        regulation = "both",
+        cluster = "none",
+        scaling_type = "zscore",
+        rowdist = "cosangle",
+        columndist = "euclid",
+        output = "deseq-lrt-step-2"
+      )
+      
+      for (arg in names(optional_args)) {
+        manual_args[[arg]] <- cli_helpers$parse_single_value_arg(all_args, arg, optional_args[[arg]])
+      }
+      
+      # Numeric arguments
+      numeric_args <- list(fdr = "double", lfcthreshold = "double", k = "integer", kmax = "integer", threads = "integer")
+      numeric_defaults <- list(fdr = 0.1, lfcthreshold = 0.59, k = 3, kmax = 5, threads = 1)
+      numeric_values <- cli_helpers$parse_numeric_args(all_args, numeric_args, numeric_defaults)
+      manual_args <- c(manual_args, numeric_values)
+      
+      # Boolean flags
+      boolean_flags <- c("use_lfc_thresh", "test_mode")
+      boolean_values <- cli_helpers$parse_boolean_flags(all_args, boolean_flags)
+      manual_args <- c(manual_args, boolean_values)
+      
+    } else {
+      # Fallback to original manual parsing logic
+      message("CLI helpers not available, using original manual parsing")
+      manual_args <- list()
+      
+      # Original manual parsing code as fallback...
+      required_args <- c("dsq_obj_data", "contrast_df", "contrast_indices")
+      for (req_arg in required_args) {
+        req_flag <- paste0("--", req_arg)
+        arg_idx <- which(all_args == req_flag)
+        if (length(arg_idx) > 0 && arg_idx[1] < length(all_args)) {
+          manual_args[[req_arg]] <- all_args[arg_idx[1] + 1]
+        }
+      }
+      
+      # Simple flag processing for other arguments
+      i <- 1
+      while (i <= length(all_args)) {
+        current_arg <- all_args[i]
+        if (grepl("^--", current_arg)) {
+          arg_name <- sub("^--", "", current_arg)
+          if (i < length(all_args) && !grepl("^--", all_args[i + 1])) {
+            manual_args[[arg_name]] <- all_args[i + 1]
+            i <- i + 2
+          } else {
+            manual_args[[arg_name]] <- TRUE
+            i <- i + 1
+          }
         } else {
-          # This is a boolean flag
-          manual_args[[arg_name]] <- TRUE
           i <- i + 1
         }
-      } else {
-        # This is a positional argument, move on
-        i <- i + 1
       }
     }
     
-    # Show what we parsed
-    message("Manually parsed arguments:")
-    for (arg_name in names(manual_args)) {
-      message(paste0("  ", arg_name, ": ", manual_args[[arg_name]]))
-    }
-    
-    # Return the manually parsed arguments
+    message("Manually parsed arguments using helpers")
     return(manual_args)
   })
   

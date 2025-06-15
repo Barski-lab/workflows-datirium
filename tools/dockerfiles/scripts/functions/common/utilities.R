@@ -164,16 +164,7 @@ safe_mkdir <- function(path) {
   return(path)
 }
 
-#' Log messages with timestamps and categories
-#' 
-#' @param message Message to log
-#' @param category Log category/level (INFO, WARNING, ERROR)
-#' @return None, prints formatted message
-log_message <- function(message, category = "INFO") {
-  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-  formatted_message <- sprintf("[%s] [%s] %s", timestamp, category, message)
-  message(formatted_message)
-}
+# Removed duplicate log_message - use logging.R version instead
 
 #' Report an error with details and recommendations
 #' 
@@ -515,41 +506,7 @@ configure_r_options <- function() {
   message("R options configured for DESeq2 analysis")
 }
 
-#' Log debug level message
-#' 
-#' @param ... Arguments passed to logger::log_debug or message
-#' @export
-log_debug <- function(...) {
-  if (requireNamespace("logger", quietly = TRUE)) {
-    logger::log_debug(...)
-  } else {
-    message("[DEBUG] ", ...)
-  }
-}
-
-#' Log info level message
-#' 
-#' @param ... Arguments passed to logger::log_info or message
-#' @export
-log_info <- function(...) {
-  if (requireNamespace("logger", quietly = TRUE)) {
-    logger::log_info(...)
-  } else {
-    message("[INFO] ", ...)
-  }
-}
-
-#' Log error level message
-#' 
-#' @param ... Arguments passed to logger::log_error or message
-#' @export
-log_error <- function(...) {
-  if (requireNamespace("logger", quietly = TRUE)) {
-    logger::log_error(...)
-  } else {
-    message("[ERROR] ", ...)
-  }
-}
+# Removed duplicate logging functions - use logging.R versions instead
 
 #' Clean sample names 
 #' 

@@ -7,6 +7,23 @@
 #
 # Version: 0.1.0
 
+# Try to source helper functions (optional, with fallback)
+tryCatch({
+  source_path <- file.path(dirname(getwd()), "common", "cli_helpers.R")
+  if (file.exists(source_path)) {
+    source(source_path)
+  } else {
+    # Try Docker path
+    docker_path <- "/usr/local/bin/functions/common/cli_helpers.R"
+    if (file.exists(docker_path)) {
+      source(docker_path)
+    }
+  }
+}, error = function(e) {
+  # Helpers not available, continue with manual parsing
+  message("CLI helpers not available, using manual parsing")
+})
+
 #' Assert and validate command line arguments
 #'
 #' @param args The parsed arguments from ArgumentParser
@@ -314,169 +331,96 @@ get_args <- function() {
   }, error = function(e) {
     message("Warning: Argument parsing error. Attempting to handle arguments manually.")
     
-    # Get all command line arguments
     all_args <- commandArgs(trailingOnly = TRUE)
     
-    # Initialize an empty list for our parsed arguments
-    args <- list()
-    
-    # Initialize arrays for multi-value arguments
-    array_args <- c("untreated_files", "treated_files", "untreated_sample_names", "treated_sample_names")
-    for (arg in array_args) {
-      args[[arg]] <- character(0)
-    }
-    
-    # Make sure to explicitly extract required arguments first
-    required_args <- c("untreated_files", "treated_files")
-    for (req_arg in required_args) {
-      req_flag <- paste0("--", req_arg)
-      short_flag <- if(req_arg == "untreated_files") "-u" else if(req_arg == "treated_files") "-t" else NULL
+    # Use helper functions if available, otherwise fallback to manual parsing
+    if (exists("cli_helpers") && is.environment(cli_helpers)) {
+      message("Using CLI helper functions for manual parsing")
       
-      # Try long form first
-      arg_indices <- which(all_args == req_flag)
-      if (length(arg_indices) > 0) {
-        for (idx in arg_indices) {
-          if (idx < length(all_args) && !grepl("^-", all_args[idx + 1])) {
-            args[[req_arg]] <- c(args[[req_arg]], all_args[idx + 1])
-            # Check if more values follow
-            i <- idx + 2
-            while(i <= length(all_args) && !grepl("^-", all_args[i])) {
-              args[[req_arg]] <- c(args[[req_arg]], all_args[i])
-              i <- i + 1
-            }
-          }
+      # Parse using helpers
+      args <- list()
+      
+      # Multi-value arguments  
+      args$untreated_files <- cli_helpers$parse_multi_value_args(all_args, "untreated_files")
+      args$treated_files <- cli_helpers$parse_multi_value_args(all_args, "treated_files")
+      args$untreated_sample_names <- cli_helpers$parse_multi_value_args(all_args, "untreated_sample_names")
+      args$treated_sample_names <- cli_helpers$parse_multi_value_args(all_args, "treated_sample_names")
+      
+      # Try short flags too
+      if (length(args$untreated_files) == 0) {
+        args$untreated_files <- cli_helpers$parse_multi_value_args(all_args, "u")
+      }
+      if (length(args$treated_files) == 0) {
+        args$treated_files <- cli_helpers$parse_multi_value_args(all_args, "t")
+      }
+      
+      # Optional single-value arguments with defaults
+      optional_args <- list(
+        untreated_name = "untreated",
+        treated_name = "treated",
+        batchcorrection = "none",
+        regulation = "both", 
+        cluster_method = "none",
+        scaling_type = "zscore",
+        row_distance = "cosangle",
+        column_distance = "euclid",
+        output_prefix = "./deseq"
+      )
+      
+      for (arg in names(optional_args)) {
+        args[[arg]] <- cli_helpers$parse_single_value_arg(all_args, arg, optional_args[[arg]])
+      }
+      
+      # Try short flags for some args
+      if (is.null(args$batch_file)) {
+        args$batch_file <- cli_helpers$parse_single_value_arg(all_args, "bf")
+      }
+      if (args$output_prefix == "./deseq") {
+        args$output_prefix <- cli_helpers$parse_single_value_arg(all_args, "o", "./deseq") 
+      }
+      
+      # Numeric arguments
+      numeric_args <- list(fdr = "double", lfcthreshold = "double", k_hopach = "integer", kmax_hopach = "integer", threads = "integer", digits = "integer", rpkm_cutoff = "integer")
+      numeric_defaults <- list(fdr = 0.1, lfcthreshold = 0.59, k_hopach = 3, kmax_hopach = 5, threads = 1, digits = 3, rpkm_cutoff = NULL)
+      numeric_values <- cli_helpers$parse_numeric_args(all_args, numeric_args, numeric_defaults)
+      args <- c(args, numeric_values)
+      
+      # Try short flag for threads
+      if (args$threads == 1) {
+        threads_val <- cli_helpers$parse_single_value_arg(all_args, "p", "1")
+        args$threads <- as.integer(threads_val)
+      }
+      
+      # Boolean flags
+      boolean_flags <- c("use_lfc_thresh", "test_mode")
+      boolean_values <- cli_helpers$parse_boolean_flags(all_args, boolean_flags)
+      args <- c(args, boolean_values)
+      
+    } else {
+      # Fallback to minimal manual parsing for required args only
+      message("CLI helpers not available, using minimal manual parsing")
+      args <- list(
+        untreated_files = character(0),
+        treated_files = character(0)
+      )
+      
+      # Simple extraction for required arguments
+      for (flag in c("-u", "--untreated_files")) {
+        idx <- which(all_args == flag)
+        if (length(idx) > 0 && idx[1] < length(all_args)) {
+          args$untreated_files <- c(args$untreated_files, all_args[idx[1] + 1])
         }
       }
       
-      # Try short form if available
-      if (!is.null(short_flag)) {
-        arg_indices <- which(all_args == short_flag)
-        if (length(arg_indices) > 0) {
-          for (idx in arg_indices) {
-            if (idx < length(all_args) && !grepl("^-", all_args[idx + 1])) {
-              args[[req_arg]] <- c(args[[req_arg]], all_args[idx + 1])
-              # Check if more values follow
-              i <- idx + 2
-              while(i <= length(all_args) && !grepl("^-", all_args[i])) {
-                args[[req_arg]] <- c(args[[req_arg]], all_args[i])
-                i <- i + 1
-              }
-            }
-          }
+      for (flag in c("-t", "--treated_files")) {
+        idx <- which(all_args == flag)
+        if (length(idx) > 0 && idx[1] < length(all_args)) {
+          args$treated_files <- c(args$treated_files, all_args[idx[1] + 1])
         }
-      }
-      
-      if (length(args[[req_arg]]) > 0) {
-        message(paste("Directly extracted required argument:", req_arg, "=", paste(args[[req_arg]], collapse=", ")))
-      }
-    }
-    
-    # Process sample names similarly
-    optional_array_args <- c(
-      "untreated_sample_names" = "--untreated_sample_names", 
-      "treated_sample_names" = "--treated_sample_names"
-    )
-    optional_short_args <- c(
-      "untreated_sample_names" = "-ua", 
-      "treated_sample_names" = "-ta"
-    )
-    
-    for (arg_name in names(optional_array_args)) {
-      long_flag <- optional_array_args[arg_name]
-      short_flag <- optional_short_args[arg_name]
-      
-      # Try long form
-      arg_indices <- which(all_args == long_flag)
-      if (length(arg_indices) > 0) {
-        for (idx in arg_indices) {
-          if (idx < length(all_args) && !grepl("^-", all_args[idx + 1])) {
-            args[[arg_name]] <- c(args[[arg_name]], all_args[idx + 1])
-            # Check if more values follow
-            i <- idx + 2
-            while(i <= length(all_args) && !grepl("^-", all_args[i])) {
-              args[[arg_name]] <- c(args[[arg_name]], all_args[i])
-              i <- i + 1
-            }
-          }
-        }
-      }
-      
-      # Try short form
-      arg_indices <- which(all_args == short_flag)
-      if (length(arg_indices) > 0) {
-        for (idx in arg_indices) {
-          if (idx < length(all_args) && !grepl("^-", all_args[idx + 1])) {
-            args[[arg_name]] <- c(args[[arg_name]], all_args[idx + 1])
-            # Check if more values follow
-            i <- idx + 2
-            while(i <= length(all_args) && !grepl("^-", all_args[i])) {
-              args[[arg_name]] <- c(args[[arg_name]], all_args[i])
-              i <- i + 1
-            }
-          }
-        }
-      }
-      
-      if (length(args[[arg_name]]) > 0) {
-        message(paste("Extracted optional array argument:", arg_name, "=", paste(args[[arg_name]], collapse=", ")))
       }
     }
     
-    # Process remaining scalar arguments
-    i <- 1
-    while (i <= length(all_args)) {
-      current_arg <- all_args[i]
-      
-      # Skip arguments we've already processed
-      if (current_arg %in% c("-u", "--untreated_files", "-t", "--treated_files", "-ua", "--untreated_sample_names", "-ta", "--treated_sample_names")) {
-        # Skip this flag and its values
-        i <- i + 1
-        while(i <= length(all_args) && !grepl("^-", all_args[i])) {
-          i <- i + 1
-        }
-        next
-      }
-      
-      # Check if this is a flag argument (starts with -)
-      if (grepl("^--", current_arg) || grepl("^-[a-zA-Z]", current_arg)) {
-        arg_name <- sub("^--", "", current_arg)
-        if (grepl("^-[a-zA-Z]", current_arg)) {
-          short_name <- sub("^-", "", current_arg)
-          # Map short names to long names
-          if (short_name == "tn") arg_name <- "treated_name"
-          else if (short_name == "un") arg_name <- "untreated_name"
-          else if (short_name == "bf") arg_name <- "batch_file"
-          else arg_name <- short_name
-        }
-        
-        # Check if the next item exists and is not a flag
-        if (i < length(all_args) && !grepl("^-", all_args[i + 1])) {
-          arg_value <- all_args[i + 1]
-          args[[arg_name]] <- arg_value
-          i <- i + 2  # Skip the value
-        } else {
-          # This is a boolean flag
-          args[[arg_name]] <- TRUE
-          i <- i + 1
-        }
-      } else {
-        # This is a positional argument, move on
-        i <- i + 1
-      }
-    }
-    
-    # Show what we parsed
-    message("Manually parsed arguments:")
-    for (arg_name in names(args)) {
-      if (length(args[[arg_name]]) > 1) {
-        message(paste0("  ", arg_name, ": [", paste(head(args[[arg_name]], 3), collapse=", "), 
-                       if(length(args[[arg_name]]) > 3) "..." else "", "] (", length(args[[arg_name]]), " items)"))
-      } else {
-        message(paste0("  ", arg_name, ": ", args[[arg_name]]))
-      }
-    }
-    
-    return(args)
+    message("Manually parsed arguments using helpers")
   })
   
   # Validate arguments and set defaults
