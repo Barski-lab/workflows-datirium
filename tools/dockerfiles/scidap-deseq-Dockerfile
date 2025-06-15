@@ -21,7 +21,7 @@
 
 # Provided components
 # ------------------
-# run_deseq.R
+# run_deseq_pairwise.R
 # run_deseq_lrt_step_1.R
 # run_deseq_lrt_step_2.R
 # get_gene_n_tss.R
@@ -85,11 +85,11 @@
 # - Removed RPKM filtering (not needed for DESeq2 as explained by developer while independence filtering provided)
 #
 # v0.0.27
-# - Update run_deseq.R to export baseMean column
+# - Update run_deseq_pairwise.R to export baseMean column
 #   needed for MA-plot
 #
 # v0.0.26
-# - Updated run_deseq.R with MDS plot and updated GCT export
+# - Updated run_deseq_pairwise.R with MDS plot and updated GCT export
 # - Remove run_deseq_manual.R script
 # - Need to install GlimmaV2 from GitHub as on official repo it's old
 #
@@ -112,7 +112,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 COPY tools/dockerfiles/scripts/run_deseq_lrt_step_1.R /usr/local/bin/run_deseq_lrt_step_1.R
 COPY tools/dockerfiles/scripts/run_deseq_lrt_step_2.R /usr/local/bin/run_deseq_lrt_step_2.R
 COPY tools/dockerfiles/scripts/get_gene_n_tss.R /usr/local/bin/get_gene_n_tss.R
-COPY tools/dockerfiles/scripts/run_deseq.R /usr/local/bin/run_deseq.R
+COPY tools/dockerfiles/scripts/run_deseq_pairwise.R /usr/local/bin/run_deseq_pairwise.R
 
 # Copy function directories with updated cli_args.R
 COPY tools/dockerfiles/scripts/functions/ /usr/local/bin/functions/
@@ -121,7 +121,7 @@ COPY tools/dockerfiles/scripts/functions/ /usr/local/bin/functions/
 # FINALIZE IMAGE
 #############################################
 # Setting permissions
-RUN chmod +x /usr/local/bin/run_deseq.R && \
+RUN chmod +x /usr/local/bin/run_deseq_pairwise.R && \
     chmod +x /usr/local/bin/run_deseq_lrt_step_1.R && \
     chmod +x /usr/local/bin/run_deseq_lrt_step_2.R && \
     chmod +x /usr/local/bin/get_gene_n_tss.R && \

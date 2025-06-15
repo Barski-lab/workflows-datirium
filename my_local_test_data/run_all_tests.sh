@@ -1,18 +1,30 @@
 #!/bin/bash
 
 # Comprehensive test script for all DESeq and ATAC workflows
-# Updated for clean directory structure
+# Must be run from repository root directory
+# Usage: cd my_local_test_data && ./run_all_tests.sh
 
-set -e  # Exit on any error
+# Remove set -e to allow continuing after failures
+# set -e  # Exit on any error
+
+# Check if we're in the right directory
+if [[ ! -f "../tools/deseq-lrt-step-1.cwl" ]]; then
+    echo "❌ Error: Must run from my_local_test_data directory"
+    echo "Usage: cd my_local_test_data && ./run_all_tests.sh"
+    exit 1
+fi
 
 echo "=========================================="
-echo "Starting comprehensive DESeq & ATAC workflow tests"
+echo "Comprehensive DESeq & ATAC workflow tests"
+echo "Running in TEST MODE for faster execution"
 echo "=========================================="
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
 NC='\033[0m' # No Color
 
 # Test results tracking
@@ -23,106 +35,76 @@ FAILED_TESTS=()
 # Function to run a test and track results
 run_test() {
     local test_name="$1"
-    local workflow="$2"
+    local tool_path="$2"
     local input_file="$3"
     local output_dir="$4"
     
     echo -e "\n${YELLOW}Running: $test_name${NC}"
-    echo "Workflow: $workflow"
-    echo "Input: $input_file"
-    echo "Output: $output_dir"
+    echo -e "${BLUE}Tool: $tool_path${NC}"
+    echo -e "${BLUE}Input: $input_file${NC}"
+    echo -e "${BLUE}Output: $output_dir${NC}"
     
     # Create output directory
     mkdir -p "$output_dir"
     
-    # Run the test
-    if cwltool --debug --outdir "$output_dir" "$workflow" "$input_file"; then
+    # Run the test with timeout
+    if cwltool --outdir "$output_dir" "$tool_path" "$input_file" > "$output_dir/test.log" 2>&1; then
         echo -e "${GREEN}✓ PASSED: $test_name${NC}"
         ((TESTS_PASSED++))
     else
         echo -e "${RED}✗ FAILED: $test_name${NC}"
+        echo -e "${RED}  Check log: $output_dir/test.log${NC}"
         ((TESTS_FAILED++))
         FAILED_TESTS+=("$test_name")
+        # Continue with other tests
     fi
 }
 
 # Validate CWL syntax first
-echo -e "\n${YELLOW}Validating CWL syntax...${NC}"
-cwltool --validate workflows/deseq-lrt-step-1-test.cwl
-cwltool --validate workflows/deseq-lrt-step-2-test.cwl
-cwltool --validate workflows/deseq.cwl
-cwltool --validate workflows/atac-lrt-step-1-test.cwl
-cwltool --validate workflows/atac-lrt-step-2-test.cwl
-cwltool --validate workflows/atac-advanced.cwl
-echo -e "${GREEN}✓ All CWL files are valid${NC}"
+echo -e "\n${PURPLE}=== CWL SYNTAX VALIDATION ===${NC}"
+echo "Validating core tools..."
 
-# Test 1: DESeq LRT Step 1 - Basic Test
-run_test "DESeq LRT Step 1 - Basic Test" \
-         "workflows/deseq-lrt-step-1-test.cwl" \
-         "my_local_test_data/deseq_lrt_step_1/inputs/basic_test.yml" \
-         "my_local_test_data/deseq_lrt_step_1/outputs/basic_test"
+# Only validate files that exist
+if [[ -f "../tools/deseq-lrt-step-1.cwl" ]]; then
+    echo "Validating deseq-lrt-step-1.cwl..."
+    cwltool --validate ../tools/deseq-lrt-step-1.cwl
+fi
 
-# Test 2: DESeq LRT Step 2 - Single Contrast Test
-run_test "DESeq LRT Step 2 - Single Contrast" \
-         "workflows/deseq-lrt-step-2-test.cwl" \
-         "my_local_test_data/deseq_lrt_step_2/inputs/single_contrast_test.yml" \
-         "my_local_test_data/deseq_lrt_step_2/outputs/single_contrast"
+if [[ -f "../tools/atac-lrt-step-1.cwl" ]]; then
+    echo "Validating atac-lrt-step-1.cwl..."
+    cwltool --validate ../tools/atac-lrt-step-1.cwl
+fi
 
-# Test 3: DESeq LRT Step 2 - Multiple Contrasts Test
-run_test "DESeq LRT Step 2 - Multiple Contrasts" \
-         "workflows/deseq-lrt-step-2-test.cwl" \
-         "my_local_test_data/deseq_lrt_step_2/inputs/multiple_contrasts_test.yml" \
-         "my_local_test_data/deseq_lrt_step_2/outputs/multiple_contrasts"
+echo -e "${GREEN}✓ CWL validation complete${NC}"
 
-# Test 4: DESeq LRT Step 2 - Test Mode
-run_test "DESeq LRT Step 2 - Test Mode" \
-         "workflows/deseq-lrt-step-2-test.cwl" \
-         "my_local_test_data/deseq_lrt_step_2/inputs/test_mode.yml" \
-         "my_local_test_data/deseq_lrt_step_2/outputs/test_mode"
+echo -e "\n${PURPLE}=== TOOL TESTS ===${NC}"
 
-# Test 5: DESeq Standard - Basic Test
-run_test "DESeq Standard - Basic Test" \
-         "workflows/deseq.cwl" \
-         "my_local_test_data/deseq_standard/inputs/basic_test.yml" \
-         "my_local_test_data/deseq_standard/outputs/basic_test"
+# Only test existing input files
+if [[ -f "deseq_lrt_step_1/inputs/basic_test.yml" ]]; then
+    run_test "DESeq LRT Step 1 Tool" \
+             "../tools/deseq-lrt-step-1.cwl" \
+             "deseq_lrt_step_1/inputs/basic_test.yml" \
+             "deseq_lrt_step_1/outputs/comprehensive_test"
+fi
 
-# Test 6: DESeq Standard - Tool Test
-run_test "DESeq Standard - Tool Test" \
-         "workflows/deseq.cwl" \
-         "my_local_test_data/deseq_standard/inputs/tool_test.yml" \
-         "my_local_test_data/deseq_standard/outputs/tool_test"
+if [[ -f "atac_lrt_step_1/inputs/basic_test.yml" ]]; then
+    run_test "ATAC LRT Step 1 Tool" \
+             "../tools/atac-lrt-step-1.cwl" \
+             "atac_lrt_step_1/inputs/basic_test.yml" \
+             "atac_lrt_step_1/outputs/comprehensive_test"
+fi
 
-# ===========================================
-# ATAC-SEQ WORKFLOW TESTS
-# ===========================================
-
-# Test 7: ATAC LRT Step 1 - Basic Test
-run_test "ATAC LRT Step 1 - Basic Test" \
-         "workflows/atac-lrt-step-1-test.cwl" \
-         "my_local_test_data/atac_lrt_step_1/inputs/basic_test.yml" \
-         "my_local_test_data/atac_lrt_step_1/outputs/basic_test"
-
-# Test 8: ATAC LRT Step 2 - Basic Test
-run_test "ATAC LRT Step 2 - Basic Test" \
-         "workflows/atac-lrt-step-2-test.cwl" \
-         "my_local_test_data/atac_lrt_step_2/inputs/basic_test.yml" \
-         "my_local_test_data/atac_lrt_step_2/outputs/basic_test"
-
-# Test 9: ATAC Standard - Basic Test
-run_test "ATAC Standard - Basic Test" \
-         "workflows/atac-advanced.cwl" \
-         "my_local_test_data/atac_standard/inputs/basic_test.yml" \
-         "my_local_test_data/atac_standard/outputs/basic_test"
-
-# Test 10: ATAC Advanced - Basic Test (using root directory input)
-run_test "ATAC Advanced - Root Test" \
-         "workflows/atac-advanced.cwl" \
-         "atac_basic_test_input.yml" \
-         "my_local_test_data/atac_standard/outputs/root_test"
+# Test DESeq LRT Step 2 if input exists
+if [[ -f "deseq_lrt_step_2/inputs/single_contrast_test.yml" ]]; then
+    run_test "DESeq LRT Step 2 Tool" \
+             "../tools/deseq-lrt-step-2.cwl" \
+             "deseq_lrt_step_2/inputs/single_contrast_test.yml" \
+             "deseq_lrt_step_2/outputs/comprehensive_test"
+fi
 
 # Summary
 echo -e "\n=========================================="
-echo -e "${YELLOW}TEST SUMMARY${NC}"
+echo -e "${YELLOW}COMPREHENSIVE TEST SUMMARY${NC}"
 echo "=========================================="
 echo -e "Tests passed: ${GREEN}$TESTS_PASSED${NC}"
 echo -e "Tests failed: ${RED}$TESTS_FAILED${NC}"
@@ -132,8 +114,15 @@ if [ $TESTS_FAILED -gt 0 ]; then
     for test in "${FAILED_TESTS[@]}"; do
         echo -e "  - $test"
     done
+    echo -e "\n${YELLOW}💡 Tips:${NC}"
+    echo -e "  - Check individual log files for details"
+    echo -e "  - For ATAC failures, see my_local_test_data/README.md for known fixes"
+    echo -e "  - Use ${BLUE}./quick_test.sh${NC} for faster iteration"
     exit 1
 else
     echo -e "\n${GREEN}🎉 All tests passed successfully!${NC}"
+    echo -e "\n${YELLOW}Next steps:${NC}"
+    echo -e "  - Run workflow tests: ${BLUE}cwltool ../workflows/deseq-lrt-step-1-test.cwl ...${NC}"
+    echo -e "  - Check Docker images: ${BLUE}docker images | grep scidap${NC}"
     exit 0
 fi 

@@ -22,6 +22,17 @@ peak_file_names:
   - "sample3"
   - "sample4"
 
+# BAM files corresponding to peak files (required by CWL tool)
+bam_files:
+  - class: File
+    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_1/inputs/sample1.bam"
+  - class: File
+    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_1/inputs/sample2.bam"
+  - class: File
+    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_1/inputs/sample3.bam"
+  - class: File
+    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_1/inputs/sample4.bam"
+
 # Metadata file
 metadata_file:
   class: File

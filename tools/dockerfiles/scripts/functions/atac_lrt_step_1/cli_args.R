@@ -247,8 +247,8 @@ get_args <- function() {
   )
   
   # Parse arguments safely with error handling
-  tryCatch({
-    args <- parser$parse_args()
+  args <- tryCatch({
+    parser$parse_args()
   }, error = function(e) {
     message("Warning: Argument parsing error. Attempting to handle arguments manually.")
     
@@ -259,17 +259,17 @@ get_args <- function() {
       message("Using CLI helper functions for manual parsing")
       
       # Parse using helpers
-      args <- list()
+      parsed_args <- list()
       
       # Multi-value arguments specific to ATAC
-      args$input_files <- cli_helpers$parse_multi_value_args(all_args, "input_files")
-      args$name <- cli_helpers$parse_multi_value_args(all_args, "name")
-      args$bamfiles <- cli_helpers$parse_multi_value_args(all_args, "bamfiles")
+      parsed_args$input_files <- cli_helpers$parse_multi_value_args(all_args, "input_files")
+      parsed_args$name <- cli_helpers$parse_multi_value_args(all_args, "name")
+      parsed_args$bamfiles <- cli_helpers$parse_multi_value_args(all_args, "bamfiles")
       
       # Required single-value arguments
-      args$meta <- cli_helpers$parse_single_value_arg(all_args, "meta")
-      args$design <- cli_helpers$parse_single_value_arg(all_args, "design")
-      args$reduced <- cli_helpers$parse_single_value_arg(all_args, "reduced")
+      parsed_args$meta <- cli_helpers$parse_single_value_arg(all_args, "meta")
+      parsed_args$design <- cli_helpers$parse_single_value_arg(all_args, "design")
+      parsed_args$reduced <- cli_helpers$parse_single_value_arg(all_args, "reduced")
       
       # Optional single-value arguments with defaults
       optional_args <- list(
@@ -280,13 +280,12 @@ get_args <- function() {
         cluster = "none",
         rowdist = "cosangle",
         columndist = "euclid",
-        cluster_method = "row",
         score_type = "DBA_SCORE_RPKM",
         output = "./atac_lrt_step_1"
       )
       
       for (arg in names(optional_args)) {
-        args[[arg]] <- cli_helpers$parse_single_value_arg(all_args, arg, optional_args[[arg]])
+        parsed_args[[arg]] <- cli_helpers$parse_single_value_arg(all_args, arg, optional_args[[arg]])
       }
       
       # Numeric arguments
@@ -300,17 +299,17 @@ get_args <- function() {
         rpkm_cutoff = NULL, k = 3, kmax = 5, threads = 1
       )
       numeric_values <- cli_helpers$parse_numeric_args(all_args, numeric_args, numeric_defaults)
-      args <- c(args, numeric_values)
+      parsed_args <- c(parsed_args, numeric_values)
       
       # Boolean flags
       boolean_flags <- c("use_lfc_thresh", "lrt_only_mode", "test_mode", "with_interaction", "use_limma_correction")
       boolean_values <- cli_helpers$parse_boolean_flags(all_args, boolean_flags)
-      args <- c(args, boolean_values)
+      parsed_args <- c(parsed_args, boolean_values)
       
     } else {
       # Fallback to original defaults
       message("CLI helpers not available, using minimal manual parsing")
-      args <- list(
+      parsed_args <- list(
         input_files = character(0),
         name = character(0),
         bamfiles = character(0),
@@ -337,7 +336,6 @@ get_args <- function() {
         lrt_only_mode = FALSE,
         test_mode = FALSE,
         with_interaction = FALSE,
-        cluster_method = "row",
         use_limma_correction = FALSE,
         score_type = "DBA_SCORE_RPKM"
       )
@@ -347,7 +345,7 @@ get_args <- function() {
         req_flag <- paste0("--", req_arg)
         arg_idx <- which(all_args == req_flag)
         if (length(arg_idx) > 0 && arg_idx[1] < length(all_args)) {
-          args[[req_arg]] <- all_args[arg_idx[1] + 1]
+          parsed_args[[req_arg]] <- all_args[arg_idx[1] + 1]
         }
       }
       
@@ -359,7 +357,7 @@ get_args <- function() {
         while (end_idx <= length(all_args) && !startsWith(all_args[end_idx], "--")) {
           end_idx <- end_idx + 1
         }
-        args$input_files <- all_args[start_idx:(end_idx - 1)]
+        parsed_args$input_files <- all_args[start_idx:(end_idx - 1)]
       }
       
       # Find --name arguments
@@ -370,7 +368,7 @@ get_args <- function() {
         while (end_idx <= length(all_args) && !startsWith(all_args[end_idx], "--")) {
           end_idx <- end_idx + 1
         }
-        args$name <- all_args[start_idx:(end_idx - 1)]
+        parsed_args$name <- all_args[start_idx:(end_idx - 1)]
       }
       
       # Find --bamfiles arguments
@@ -381,7 +379,7 @@ get_args <- function() {
         while (end_idx <= length(all_args) && !startsWith(all_args[end_idx], "--")) {
           end_idx <- end_idx + 1
         }
-        args$bamfiles <- all_args[start_idx:(end_idx - 1)]
+        parsed_args$bamfiles <- all_args[start_idx:(end_idx - 1)]
       }
       
       # Handle boolean flags (both --flag and --flag TRUE/FALSE formats)
@@ -395,10 +393,10 @@ get_args <- function() {
           if (flag_idx[1] < length(all_args) && !startsWith(all_args[flag_idx[1] + 1], "--")) {
             # Has a value (TRUE/FALSE)
             val <- all_args[flag_idx[1] + 1]
-            args[[flag]] <- toupper(val) == "TRUE"
+            parsed_args[[flag]] <- toupper(val) == "TRUE"
           } else {
             # Just the flag present (store_true action)
-            args[[flag]] <- TRUE
+            parsed_args[[flag]] <- TRUE
           }
         }
       }
@@ -406,8 +404,8 @@ get_args <- function() {
     
     message("Manually parsed arguments using helpers")
     
-    # Convert args to match expected format
-    args <- as.list(args)
+    # Convert args to match expected format and return
+    return(as.list(parsed_args))
   })
   
   return(args)
@@ -415,7 +413,13 @@ get_args <- function() {
 
 # Function to validate arguments
 validate_args <- function(args) {
+  message("DEBUG: Starting validate_args")
+  message("DEBUG: args class:", class(args))
+  message("DEBUG: args names:", paste(names(args), collapse = ", "))
+  
   errors <- character(0)
+  
+  message("DEBUG: Checking required arguments...")
   
   # Check required arguments
   if (length(args$input_files) == 0) {
@@ -442,6 +446,8 @@ validate_args <- function(args) {
     errors <- c(errors, "Reduced formula is required")
   }
   
+  message("DEBUG: Checking array lengths...")
+  
   # Check that input, name, and bamfiles have the same length
   if (length(args$input_files) != length(args$name)) {
     errors <- c(errors, "Number of input files must match number of names")
@@ -450,6 +456,8 @@ validate_args <- function(args) {
   if (length(args$input_files) != length(args$bamfiles)) {
     errors <- c(errors, "Number of input files must match number of BAM files")
   }
+  
+  message("DEBUG: Checking file existence...")
   
   # Check file existence
   for (file in args$input_files) {
@@ -467,6 +475,8 @@ validate_args <- function(args) {
   if (!file.exists(args$meta)) {
     errors <- c(errors, paste("Metadata file does not exist:", args$meta))
   }
+  
+  message("DEBUG: Checking parameter ranges...")
   
   # Check parameter ranges
   if (args$k < 1 || args$k > 15) {
@@ -488,6 +498,8 @@ validate_args <- function(args) {
   if (args$scorecol < 1) {
     errors <- c(errors, "scorecol must be at least 1")
   }
+  
+  message("DEBUG: validate_args completed successfully")
   
   if (length(errors) > 0) {
     stop("Argument validation failed:\n", paste(errors, collapse = "\n"))
@@ -524,7 +536,7 @@ print_args <- function(args) {
   cat("LRT only mode:", args$lrt_only_mode, "\n")
   cat("Test mode:", args$test_mode, "\n")
   cat("With interaction:", args$with_interaction, "\n")
-  cat("Cluster method:", args$cluster_method, "\n")
+  cat("Cluster method:", args$cluster, "\n")
   cat("Use limma correction:", args$use_limma_correction, "\n")
   cat("Score type:", args$score_type, "\n")
   cat("=====================================\n")

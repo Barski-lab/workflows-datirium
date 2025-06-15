@@ -99,6 +99,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 #############################################
 # Copy updated ATAC-seq script files
 COPY tools/dockerfiles/scripts/run_atac_lrt_step_1.R /usr/local/bin/run_atac_lrt_step_1.R
+COPY tools/dockerfiles/scripts/run_atac_lrt_step_2.R /usr/local/bin/run_atac_lrt_step_2.R
+COPY tools/dockerfiles/scripts/run_atac_pairwise.R /usr/local/bin/run_atac_pairwise.R
 
 # Copy function directories with updated cli_args.R and helpers
 COPY tools/dockerfiles/scripts/functions/ /usr/local/bin/functions/

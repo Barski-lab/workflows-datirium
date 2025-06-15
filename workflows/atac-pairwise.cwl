@@ -29,20 +29,20 @@ inputs:
 
   output_prefix:
     type: string
-    default: "atac_advanced"
+    default: "atac_pairwise"
 
 outputs:
   diff_expr_file:
     type: File?
-    outputSource: atac_advanced/diff_expr_file
+    outputSource: atac_pairwise/diff_expr_file
 
   stdout_log:
     type: File
-    outputSource: atac_advanced/stdout_log
+    outputSource: atac_pairwise/stdout_log
 
 steps:
-  atac_advanced:
-    run: ../tools/atac-advanced.cwl
+  atac_pairwise:
+    run: ../tools/atac-atac-pairwise.cwl
     in:
       untreated_files: untreated_files
       treated_files: treated_files

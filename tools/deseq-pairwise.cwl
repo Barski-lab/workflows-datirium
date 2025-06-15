@@ -320,7 +320,7 @@ outputs:
     type: stderr
 
 
-baseCommand: [run_deseq.R]
+baseCommand: [run_deseq_pairwise.R]
 stdout: deseq_stdout.log
 stderr: deseq_stderr.log
 

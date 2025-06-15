@@ -6,13 +6,13 @@ requirements:
 
 hints:
 - class: DockerRequirement
-  dockerPull: "biowardrobe2/scidap-atac:v0.0.60"
+  dockerPull: "biowardrobe2/scidap-atac:v0.0.61-fixed"
 
 inputs:
   test_peak_files:
     type: File[]
     inputBinding:
-      prefix: "--input"
+      prefix: "--input_files"
     doc: "Peak files"
 
   peak_file_names:

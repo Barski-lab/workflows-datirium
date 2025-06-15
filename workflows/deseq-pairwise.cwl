@@ -117,14 +117,6 @@ inputs:
     label: "Group by"
     doc: "Grouping method for features: isoforms, genes or common tss"
 
-  rpkm_cutoff:
-    type: float?
-    default: 0
-    label: "Minimum rpkm cutoff. Applied before running DEseq"
-    doc: "Minimum threshold for rpkm filtering. Default: 5"
-    'sd:layout':
-      advanced: true
-
   batch_file:
     type: File?
     default: null
@@ -168,6 +160,22 @@ inputs:
     'sd:layout':
       advanced: true
 
+  k_hopach:
+    type: int?
+    default: 3
+    label: "Number of levels for HOPACH clustering"
+    doc: "Number of levels (depth) for Hopach clustering: min - 1, max - 15. Default: 3."
+    'sd:layout':
+      advanced: true
+
+  kmax_hopach:
+    type: int?
+    default: 5
+    label: "Maximum number of clusters at each level for HOPACH clustering"
+    doc: "Maximum number of clusters at each level for Hopach clustering: min - 2, max - 9. Default: 5."
+    'sd:layout':
+      advanced: true
+
   row_distance:
     type:
     - "null"
@@ -176,7 +184,6 @@ inputs:
       - "cosangle"
       - "abscosangle"
       - "euclid"
-      - "abseuclid"
       - "cor"
       - "abscor"
     default: "cosangle"
@@ -195,7 +202,6 @@ inputs:
       - "cosangle"
       - "abscosangle"
       - "euclid"
-      - "abseuclid"
       - "cor"
       - "abscor"
     default: "euclid"
@@ -206,24 +212,105 @@ inputs:
     'sd:layout':
       advanced: true
 
-  center_row:
-    type: boolean?
-    default: false
-    label: "Apply mean centering for feature expression prior to running clustering by row"
+  rpkm_cutoff:
+    type: int?
+    default: null
+    label: "RPKM cutoff for filtering expression data"
     doc: |
-      Apply mean centering for feature expression prior to running
-      clustering by row. Ignored when --cluster is not row or both.
-      Default: do not centered
+      Integer cutoff for filtering rows in the expression data.
+      Rows will be retained if any column with "Rpkm" in its name exceeds this cutoff.
+      If not provided (i.e. remains null), no filtering is applied.
+      Recommended values are: 3, 5.
+    'sd:layout':
+      advanced: true
+      
+  regulation:
+    type:
+      - "null"
+      - type: enum
+        symbols:
+          - "both"
+          - "up"
+          - "down"
+    default: "both"
+    label: "Direction of Differential Expression"
+    inputBinding:
+      prefix: "--regulation"
+    doc: |
+      Direction of differential expression comparison. β is the log2 fold change.
+      - 'both' for both up and downregulated genes. This includes |β| > lfcThreshold (greaterAbs) with two-tailed p-values, and |β| < lfcThreshold (lessAbs) with p-values being the maximum of the upper and lower tests. This option considers both directions of regulation in the comparison between condition2 and condition1.
+      - 'up' for upregulated genes (β > lfcThreshold in condition2 compared to condition1). This identifies genes that are more highly expressed in condition2.
+      - 'down' for downregulated genes (β < -lfcThreshold in condition2 compared to condition1). This identifies genes that are less expressed in condition2.
+      Default: both
+    'sd:layout':
+      advanced: true   
+
+  fdr:
+    type: float?
+    default: 0.1
+    label: "Maximum P-adjusted to show features in the exploratory visualization analysis"
+    doc: |
+      In the exploratory visualization part of the analysis output only features,
+      with adjusted p-value (FDR) not bigger than this value. Also the significance,
+      cutoff used for optimizing the independent filtering. Default: 0.1.
+    'sd:layout':
+      advanced: true
+      
+  lfcthreshold:
+    type: float?
+    default: 0.59
+    label: "Log2 Fold Change Threshold"
+    inputBinding:
+      prefix: "--lfcthreshold"
+    doc: |
+      Log2 fold change threshold for determining significant differential expression.
+      Genes with absolute log2 fold change greater than this threshold will be considered.
+      Default: 0.59 (about 1.5 fold change)
+    'sd:layout':  
+      advanced: true
+  
+  use_lfc_thresh:
+    type: boolean
+    default: true
+    label: "Use lfcthreshold as the null hypothesis value in the results function call"
+    doc: "Use lfcthreshold as the null hypothesis value in the results function call. Default: TRUE"
+    'sd:layout':
+      advanced: true
+      
+  batchcorrection:
+    type:
+      - "null"
+      - type: enum
+        symbols:
+          - "none"
+          - "combatseq"
+          - "limmaremovebatcheffect"
+    default: "combatseq"
+    label: "Batch Correction Method"
+    inputBinding:
+      prefix: "--batchcorrection"
+    doc: |
+      Specifies the batch correction method to be applied.
+      - 'combatseq' applies ComBat_seq at the beginning of the analysis, removing batch effects from the design formula before differential expression analysis.
+      - 'limmaremovebatcheffect' applies removeBatchEffect from the limma package after differential expression analysis, incorporating batch effects into the model during DE analysis.
+      - Default: none
     'sd:layout':
       advanced: true
 
-  maximum_padj:
-    type: float?
-    default: 0.05
-    label: "Maximum P-adjusted to show features in the exploratory visualization analysis"
+  scaling_type:
+    type:
+      - "null"
+      - type: enum
+        symbols:
+          - "minmax"
+          - "zscore"
+    default: "zscore"
+    label: "Expression Data Scaling Method"
     doc: |
-      In the exploratory visualization analysis output only features with
-      adjusted P-value not bigger than this value. Default: 0.05
+      Specifies the type of scaling to be applied to the expression data.
+      - 'minmax' applies Min-Max scaling, normalizing values to a range of [-2, 2].
+      - 'zscore' applies Z-score standardization, centering data to mean = 0 and standard deviation = 1.
+      - Default: none (no scaling applied).
     'sd:layout':
       advanced: true
 
@@ -257,6 +344,17 @@ inputs:
     'sd:layout':
       advanced: true
 
+  test_mode:
+    type: boolean?
+    default: false
+    label: "Enable test mode for faster processing"
+    doc: |
+      Enable test mode for faster processing with reduced data. When enabled,
+      analysis will use only the top 1000 most highly expressed genes.
+      Default: false
+    'sd:layout':
+      advanced: true
+
 
 outputs:
 
@@ -278,13 +376,33 @@ outputs:
         colors: ["#b3de69"]
         height: 600
         data: [$2, $9, $13]
+  
+  deseq_summary_md:
+    type: File
+    label: "DESeq2 Results Summary"
+    doc: |
+      Markdown file that includes a warning message if batch_file is not provided
+      but batchcorrection is set to "combatseq" or "limmaremovebatcheffect". Additionally,
+      it contains a detailed summary of the DESeq2 analysis results, including total genes
+      with non-zero read count, log fold changes (LFC), outliers, and low count genes.
+    outputSource: deseq/deseq_summary_md
+    "sd:visualPlugins":
+    - markdownView:
+        tab: "Overview"
 
   read_counts_file:
     type: File
-    label: "Normalized read counts in GCT format. Compatible with GSEA"
+    label: "Normalized read counts in GCT format no padj filtering. Compatible with GSEA"
     format: "http://edamontology.org/format_3709"
-    doc: "DESeq generated file of with normalized read counts in GCT format. Compatible with GSEA"
-    outputSource: deseq/read_counts_file
+    doc: "DESeq generated file of all normalized read counts in GCT format. Compatible with GSEA"
+    outputSource: deseq/read_counts_file_all
+
+  read_counts_file_filtered:
+    type: File
+    label: "Normalized read counts in GCT format filtered by padj. Compatible with Morpheus heatmap"
+    format: "http://edamontology.org/format_3709"
+    doc: "DESeq generated file of padjfiltered normalized read counts in GCT format. Compatible with Morpheus heatmap"
+    outputSource: deseq/read_counts_file_filtered
 
   phenotypes_file:
     type: File
@@ -448,7 +566,7 @@ outputs:
 steps:
 
   deseq:
-    run: ../tools/deseq-advanced-deprecated.cwl
+    run: ../tools/deseq-pairwise.cwl
     in:
       untreated_files:
         source: [group_by, rpkm_isoforms_cond_1, rpkm_genes_cond_1, rpkm_common_tss_cond_1]
@@ -478,25 +596,34 @@ steps:
       treated_name: alias_cond_2
       untreated_sample_names: sample_names_cond_1
       treated_sample_names: sample_names_cond_2
-      rpkm_cutoff: rpkm_cutoff
       batch_file: batch_file
       cluster_method:
         source: cluster_method
         valueFrom: $(self=="none"?null:self)
       row_distance: row_distance
+      scaling_type: scaling_type
       column_distance: column_distance
-      center_row: center_row
-      maximum_padj: maximum_padj
+      fdr: fdr
       threads: threads
+      rpkm_cutoff: rpkm_cutoff
+      lfcthreshold: lfcthreshold
+      k_hopach: k_hopach
+      kmax_hopach: kmax_hopach
+      use_lfc_thresh: use_lfc_thresh
+      regulation: regulation
+      batchcorrection: batchcorrection
+      test_mode: test_mode
     out:
       - diff_expr_file
+      - deseq_summary_md
       - plot_lfc_vs_mean
       - gene_expr_heatmap
       - plot_pca
       - plot_lfc_vs_mean_pdf
       - gene_expr_heatmap_pdf
       - plot_pca_pdf
-      - read_counts_file
+      - read_counts_file_all
+      - read_counts_file_filtered
       - phenotypes_file
       - mds_plot_html
       - stdout_log
@@ -553,7 +680,7 @@ steps:
   morpheus_heatmap:
     run: ../tools/morpheus-heatmap.cwl
     in:
-     read_counts_gct: deseq/read_counts_file
+     read_counts_gct: deseq/read_counts_file_filtered
     out:
     - heatmap_html
     - stdout_log
@@ -566,9 +693,9 @@ $namespaces:
 $schemas:
 - https://github.com/schemaorg/schemaorg/raw/main/data/releases/11.01/schemaorg-current-http.rdf
 
-s:name: "Deprecated. DESeq - differential gene expression analysis"
-label: "Deprecated. DESeq - differential gene expression analysis"
-s:alternateName: "Deprecated. Differential gene expression analysis based on the negative binomial distribution"
+s:name: "DESeq2 Wald test - differential gene expression analysis"
+label: "DESeq2 Wald test - differential gene expression analysis"
+s:alternateName: "Differential gene expression analysis based on the negative binomial distribution"
 
 s:downloadUrl: https://raw.githubusercontent.com/datirium/workflows/master/workflows/deseq.cwl
 s:codeRepository: https://github.com/datirium/workflows
@@ -598,22 +725,12 @@ s:creator:
 
 
 doc: |
-  Deprecated. Differential gene expression analysis
+  Differential gene expression analysis
   =====================================
 
   Differential gene expression analysis based on the negative binomial distribution
 
   Estimate variance-mean dependence in count data from high-throughput sequencing assays and test for differential expression based on a model using the negative binomial distribution.
-
-  DESeq1
-  ------
-
-  High-throughput sequencing assays such as RNA-Seq, ChIP-Seq or barcode counting provide quantitative readouts
-  in the form of count data. To infer differential signal in such data correctly and with good statistical power,
-  estimation of data variability throughout the dynamic range and a suitable error model are required.
-  Simon Anders and Wolfgang Huber propose a method based on the negative binomial distribution, with variance and mean
-  linked by local regression and present an implementation, [DESeq](http://bioconductor.org/packages/release/bioc/html/DESeq.html),
-  as an R/Bioconductor package 
 
   DESeq2
   ------
