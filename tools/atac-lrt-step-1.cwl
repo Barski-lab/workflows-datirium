@@ -6,7 +6,7 @@ requirements:
 
 hints:
 - class: DockerRequirement
-  dockerPull: "biowardrobe2/scidap-atac:v0.0.54"
+  dockerPull: "biowardrobe2/scidap-atac:v0.0.60"
 
 inputs:
   test_peak_files:
@@ -20,6 +20,11 @@ inputs:
     inputBinding:
       prefix: "--name"
     doc: "Peak file names"
+  bam_files:
+    type: File[]
+    inputBinding:
+      prefix: "--bamfiles"
+    doc: "BAM files corresponding to peak files"
 
   metadata_file:
     type: File

@@ -24,6 +24,8 @@ eggs/
 
 #bioinformatics stuff
 *.bam
+# Allow test BAM files for ATAC workflows
+!my_local_test_data/atac_lrt_step_1/inputs/*.bam
 *.sam
 *.bt2
 *.bai

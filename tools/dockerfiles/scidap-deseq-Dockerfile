@@ -2,7 +2,7 @@
 # Dockerfile - DESeq/DESeq2 Analysis Container
 #
 # Software:         BioWardrobe DESeq/DESeq2 script
-# Software Version: v0.0.45
+# Software Version: v0.0.53
 # Description:      Dockerized version of DESeq/DESeq2 script from BioWardrobe
 # Website:          https://github.com/Barski-lab/workflows
 #
@@ -37,7 +37,7 @@
 # 
 # Build Commands:
 # ------------------
-# Full build: docker build --no-cache --platform linux/amd64 --rm -t biowardrobe2/scidap-deseq:v0.0.34 -f scidap-deseq-Dockerfile .
+# Full build: docker build --no-cache --platform linux/amd64 --rm -t biowardrobe2/scidap-deseq:v0.0.53 -f scidap-deseq-Dockerfile .
 # Pull:       docker pull biowardrobe2/scidap-deseq:v0.0.34
 # Run:        docker run --rm -ti biowardrobe2/scidap-deseq:v0.0.34 /bin/bash
 #################################################################
@@ -45,6 +45,12 @@
 #################################################################
 # VERSION HISTORY
 #################################################################
+#
+# v0.0.53
+# - Fixed ATAC-seq variable naming conflicts in R scripts (args$input → args$input_files)
+# - Updated ATAC analysis functions with proper parameter handling
+# - Added comprehensive ATAC-seq support with DiffBind integration
+# - Resolved CWL parameter mapping issues for ATAC workflows
 #
 # v0.0.45
 # - Fixed contrasts generation to use the correct algorithm from out_of_date_contrasts_generation.R
