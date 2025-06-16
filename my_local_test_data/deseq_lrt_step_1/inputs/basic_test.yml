@@ -3,28 +3,28 @@ alias: "deseq_lrt_step1_basic_test"
 # Expression files (8 samples: 2 treatments × 2 conditions × 2 replicates)
 expression_files:
   - class: File
-    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/core_data/ABSK0218_CMR_rm.isoforms.csv"
+    path: "../../core_data/ABSK0218_CMR_rm.isoforms.csv"
     format: "http://edamontology.org/format_3752"
   - class: File
-    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/core_data/ABSK0222_CMR_rm.isoforms.csv"
+    path: "../../core_data/ABSK0222_CMR_rm.isoforms.csv"
     format: "http://edamontology.org/format_3752"
   - class: File
-    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/core_data/ABSK0219_CMA_rm.isoforms.csv"
+    path: "../../core_data/ABSK0219_CMA_rm.isoforms.csv"
     format: "http://edamontology.org/format_3752"
   - class: File
-    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/core_data/ABSK0223_CMA_rm.isoforms.csv"
+    path: "../../core_data/ABSK0223_CMA_rm.isoforms.csv"
     format: "http://edamontology.org/format_3752"
   - class: File
-    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/core_data/ABSK0226_KMR_rm.isoforms.csv"
+    path: "../../core_data/ABSK0226_KMR_rm.isoforms.csv"
     format: "http://edamontology.org/format_3752"
   - class: File
-    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/core_data/ABSK0230_KMR_rm.isoforms.csv"
+    path: "../../core_data/ABSK0230_KMR_rm.isoforms.csv"
     format: "http://edamontology.org/format_3752"
   - class: File
-    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/core_data/ABSK0227_KMA_rm.isoforms.csv"
+    path: "../../core_data/ABSK0227_KMA_rm.isoforms.csv"
     format: "http://edamontology.org/format_3752"
   - class: File
-    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/core_data/ABSK231238_rm.isoforms.csv"
+    path: "../../core_data/ABSK231238_rm.isoforms.csv"
     format: "http://edamontology.org/format_3752"
 
 # Sample names matching the file names
@@ -41,7 +41,7 @@ expression_file_names:
 # Metadata file
 metadata_file:
   class: File
-  path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/core_data/metadata.csv"
+  path: "../../core_data/metadata.csv"
 
 # Analysis parameters
 group_by: "genes"

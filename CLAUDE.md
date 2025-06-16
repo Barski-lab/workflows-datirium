@@ -59,42 +59,46 @@ tools/dockerfiles/scripts/functions/
 - **Paths**: Use absolute paths in CWL input YAML files
 - **Parameters**: Use `--input_files` (not `--input`) for ATAC workflows
 
-## Current Status: 4/6 Workflows Working
+## Current Status: 6/6 Workflows Working ✅
 
-### ✅ Working Workflows:
-- DESeq LRT Step 1 - Complete functionality
-- DESeq LRT Step 2 - Multi-contrast analysis  
-- ATAC LRT Step 1 - Test mode bypass functional
-- ATAC LRT Step 2 - Fixed MDS plot filename issue
+### ✅ All Workflows Confirmed Working:
+- **DESeq LRT Step 1** - Complete functionality (`biowardrobe2/scidap-deseq:v0.0.58`)
+- **DESeq LRT Step 2** - Multi-contrast analysis (`biowardrobe2/scidap-deseq:v0.0.58`) 
+- **DESeq Pairwise** - Pairwise differential expression (`biowardrobe2/scidap-deseq:v0.0.61-fixed`)
+- **ATAC LRT Step 1** - Test mode bypass functional (`biowardrobe2/scidap-atac:v0.0.66-fixed`)
+- **ATAC LRT Step 2** - Fixed MDS plot filename (`biowardrobe2/scidap-atac:v0.0.66-fixed`)
+- **ATAC Pairwise** - Fixed missing summary.md creation (`biowardrobe2/scidap-atac:v0.0.66-fixed`)
 
-### 🔧 Final Fixes Needed (2/6):
-- **DESeq Pairwise**: Wrong baseCommand in CWL (`run_deseq.R` → `run_deseq_pairwise.R`)
-- **ATAC Pairwise**: R script exits with status 1, summary.md not created
+### 🧹 Infrastructure Cleanup Complete (2025-06-16):
+- **Test Directory**: Cleaned my_local_test_data/, removed 50+ redundant files
+- **Docker Images**: Updated to latest versions with all script fixes
+- **Paths**: Converted absolute paths to relative paths in all test YAML files
+- **Data Consolidation**: Moved all shared test data to `core_data/` directory
+- **Test Framework**: Streamlined to essential scripts (`quick_test.sh`, `final_comprehensive_test.sh`)
 
-### Infrastructure Complete:
-- Docker images built: `biowardrobe2/scidap-deseq:v0.0.60`, `biowardrobe2/scidap-atac:v0.0.64-fixed`
-- All R scripts updated with correct file paths
-- Test framework operational: `./final_comprehensive_test.sh`
+## Maintenance Tasks
 
-## Next Steps for New Chat:
-1. Fix DESeq pairwise baseCommand in CWL
-2. Debug ATAC pairwise R script error
-3. Run final validation test
+- Periodic Docker image updates
+- Monitor for upstream CWL/R dependency changes
+- Validate scientific accuracy of statistical outputs
 
-### When asked to "add new functionality":
+### When asked to "add new functionality"
+
 1. Identify target workflow type (DESeq2/ATAC/etc.)
 2. Modify appropriate R functions in `functions/[workflow_type]/`
 3. Update entry point script `run_[workflow].R` if needed
 4. Update CWL tool definition in `tools/`
 5. Test with `quick_test.sh`
 
-### When asked to "debug specific errors":
+### When asked to "debug specific errors"
+
 1. Use `cwltool --debug` for CWL issues
 2. Check Docker image availability with `docker images | grep scidap`
 3. For R errors, examine function libraries and CLI argument parsing
 4. Common fixes: missing constants, incorrect parameter names, closure errors
 
-### When asked to "optimize performance":
+### When asked to "optimize performance"
+
 1. Use `test_mode=true` in R scripts for faster development
 2. Mount scripts for testing instead of rebuilding Docker images
 3. Focus on data processing functions first
@@ -102,12 +106,14 @@ tools/dockerfiles/scripts/functions/
 ## Debugging Patterns
 
 **Common Error Types:**
+
 - **CLI parsing errors**: Check `cli_args.R` files for parameter mismatches
 - **Missing constants**: Look for undefined variables in R functions
 - **File path issues**: Ensure absolute paths in CWL input files
 - **Docker issues**: Verify image names and versions match exactly
 
 **Quick Diagnostics:**
+
 ```bash
 # Check what's failing
 cd my_local_test_data && ./quick_test.sh 2>&1 | grep -E "(FAIL|ERROR)"

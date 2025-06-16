@@ -42,7 +42,7 @@ outputs:
 
 steps:
   atac_pairwise:
-    run: ../tools/atac-atac-pairwise.cwl
+    run: ../tools/atac-pairwise.cwl
     in:
       untreated_files: untreated_files
       treated_files: treated_files

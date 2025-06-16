@@ -88,6 +88,14 @@ npm-debug.log
 
 # VsCode configs
 .vscode*
+.claude*
+.cursorignore
+.DS_Store*
+.cursor*
+.vscode*
+*.code-workspace
+
+
 
 # Local test files
 my_local_test_files/*
