@@ -81,6 +81,7 @@ workflows/*.cwl
 !workflows/deseq-lrt-step-1-test.cwl
 !workflows/deseq-lrt-step-2-test.cwl
 !workflows/deseq.cwl
+!workflows/atac-lrt-step-*-test.cwl
 !workflows/deseq-lrt-step-1-test-input.yml
 !workflows/deseq-lrt-step-2-test-input.yml
 
@@ -89,6 +90,7 @@ tools/*.cwl
 !tools/deseq*.cwl
 !tools/group-isoforms*.cwl
 !tools/morpheus-heatmap.cwl
+!tools/atac*.cwl
 
 # Exclude unrelated dockerfiles
 tools/dockerfiles/*-Dockerfile

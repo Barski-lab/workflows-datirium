@@ -1,0 +1,373 @@
+name: Deploy to HPC (Improved)
+
+on:
+  workflow_dispatch:
+    inputs:
+      docker_images:
+        description: 'Comma-separated list of Docker images to deploy (image:tag format)'
+        required: true
+        type: string
+        default: 'scidap-deseq:v0.0.53'
+      target_environment:
+        description: 'Target deployment environment'
+        required: true
+        type: choice
+        options:
+          - 'bmicluster-compute'
+          - 'bmicluster-staging'
+        default: 'bmicluster-compute'
+      deployment_strategy:
+        description: 'Deployment strategy'
+        required: false
+        type: choice
+        options:
+          - 'replace'
+          - 'backup-and-replace'
+        default: 'backup-and-replace'
+  workflow_run:
+    workflows: ["Build and Push Docker Images (Matrix)"]
+    types:
+      - completed
+    branches:
+      - master
+      - main
+
+env:
+  DOCKER_HUB_REPO: biowardrobe2
+  SINGULARITY_MODULE: singularity/3.7.0
+
+jobs:
+  prepare-deployment:
+    name: Prepare Deployment Configuration
+    runs-on: ubuntu-latest
+    outputs:
+      deployment_matrix: ${{ steps.setup-matrix.outputs.deployment_matrix }}
+      target_environment: ${{ steps.setup-matrix.outputs.target_environment }}
+      deployment_strategy: ${{ steps.setup-matrix.outputs.deployment_strategy }}
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Built Images Artifact
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v4
+        with:
+          name: built-images
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Setup Deployment Matrix
+        id: setup-matrix
+        run: |
+          set -euo pipefail
+          
+          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            if [[ -f "built_images.txt" ]]; then
+              # Use images from the build workflow
+              IMAGES=$(cat built_images.txt | grep -v "^The following" | tr '\n' ',' | sed 's/,$//')
+              TARGET_ENV="bmicluster-compute"
+              STRATEGY="backup-and-replace"
+              echo "Using images from build workflow: $IMAGES"
+            else
+              echo "No built images artifact found, skipping deployment"
+              echo "deployment_matrix={\"image\":[]}" >> $GITHUB_OUTPUT
+              echo "target_environment=none" >> $GITHUB_OUTPUT
+              echo "deployment_strategy=none" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          else
+            # Manual workflow dispatch
+            IMAGES="${{ github.event.inputs.docker_images }}"
+            TARGET_ENV="${{ github.event.inputs.target_environment }}"
+            STRATEGY="${{ github.event.inputs.deployment_strategy }}"
+            echo "Using manual input images: $IMAGES"
+          fi
+          
+          # Validate and parse images
+          if [[ -z "$IMAGES" ]]; then
+            echo "Error: No images specified for deployment"
+            exit 1
+          fi
+          
+          # Convert comma-separated list to JSON array
+          IFS=',' read -ra IMAGE_ARRAY <<< "$IMAGES"
+          MATRIX_IMAGES=()
+          
+          for image in "${IMAGE_ARRAY[@]}"; do
+            image=$(echo "$image" | xargs)  # trim whitespace
+            if [[ "$image" =~ ^[a-zA-Z0-9_-]+:[a-zA-Z0-9._-]+$ ]]; then
+              MATRIX_IMAGES+=("\"$image\"")
+            else
+              echo "Warning: Skipping invalid image format: $image"
+            fi
+          done
+          
+          if [[ ${#MATRIX_IMAGES[@]} -eq 0 ]]; then
+            echo "Error: No valid images found for deployment"
+            exit 1
+          fi
+          
+          MATRIX_JSON=$(printf '{"image":[%s]}' "$(IFS=','; echo "${MATRIX_IMAGES[*]}")")
+          echo "deployment_matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+          echo "target_environment=$TARGET_ENV" >> $GITHUB_OUTPUT
+          echo "deployment_strategy=$STRATEGY" >> $GITHUB_OUTPUT
+          
+          echo "Deployment matrix: $MATRIX_JSON"
+          echo "Target environment: $TARGET_ENV"
+          echo "Deployment strategy: $STRATEGY"
+
+  deploy:
+    name: Deploy to HPC
+    needs: prepare-deployment
+    if: needs.prepare-deployment.outputs.target_environment != 'none'
+    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare-deployment.outputs.deployment_matrix) }}
+      
+    steps:
+      - name: Parse Image Information
+        id: parse-image
+        run: |
+          set -euo pipefail
+          
+          IMAGE="${{ matrix.image }}"
+          if [[ ! "$IMAGE" =~ ^([^:]+):(.+)$ ]]; then
+            echo "Error: Invalid image format: $IMAGE"
+            exit 1
+          fi
+          
+          IMAGE_NAME="${BASH_REMATCH[1]}"
+          IMAGE_TAG="${BASH_REMATCH[2]}"
+          
+          echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
+          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "Deploying: $IMAGE_NAME:$IMAGE_TAG"
+
+      - name: Set Environment Paths
+        id: set-paths
+        run: |
+          case "${{ needs.prepare-deployment.outputs.target_environment }}" in
+            "bmicluster-compute")
+              BASE_PATH="/data/barskilab/scidap_server/singularity_images"
+              ;;
+            "bmicluster-staging")
+              BASE_PATH="/data/barskilab/scidap_server/staging/singularity_images"
+              ;;
+            *)
+              echo "Error: Unknown target environment"
+              exit 1
+              ;;
+          esac
+          
+          IMAGE_NAME="${{ steps.parse-image.outputs.image_name }}"
+          IMAGE_TAG="${{ steps.parse-image.outputs.image_tag }}"
+          
+          TEMP_IMAGE_NAME="${IMAGE_NAME}_${IMAGE_TAG}.sif"
+          FINAL_IMAGE_NAME="${{ env.DOCKER_HUB_REPO }}_${IMAGE_NAME}:${IMAGE_TAG}.sif"
+          FINAL_PATH="${BASE_PATH}/${FINAL_IMAGE_NAME}"
+          BACKUP_PATH="${BASE_PATH}/backups/${FINAL_IMAGE_NAME}.backup.$(date +%Y%m%d_%H%M%S)"
+          
+          echo "base_path=$BASE_PATH" >> $GITHUB_OUTPUT
+          echo "temp_image_name=$TEMP_IMAGE_NAME" >> $GITHUB_OUTPUT
+          echo "final_image_name=$FINAL_IMAGE_NAME" >> $GITHUB_OUTPUT
+          echo "final_path=$FINAL_PATH" >> $GITHUB_OUTPUT
+          echo "backup_path=$BACKUP_PATH" >> $GITHUB_OUTPUT
+
+      - name: Prepare Deployment Environment
+        run: |
+          set -euo pipefail
+          echo "=== Preparing deployment environment ==="
+          
+          # Create directories with proper error handling
+          BASE_PATH="${{ steps.set-paths.outputs.base_path }}"
+          mkdir -p "$BASE_PATH" || {
+            echo "Error: Failed to create base directory: $BASE_PATH"
+            echo "Check permissions and disk space"
+            df -h
+            ls -la "$(dirname "$BASE_PATH")" || true
+            exit 1
+          }
+          
+          mkdir -p "$BASE_PATH/backups" || {
+            echo "Warning: Could not create backup directory"
+          }
+          
+          echo "Directories created successfully"
+          echo "Available disk space:"
+          df -h "$BASE_PATH"
+
+      - name: Load Singularity Module
+        run: |
+          set -euo pipefail
+          echo "=== Loading Singularity module ==="
+          
+          # Check if module command exists
+          if ! command -v module &> /dev/null; then
+            echo "Error: module command not found"
+            echo "Available module systems:"
+            ls -la /usr/share/Modules/ || echo "Modules not found in /usr/share/Modules/"
+            ls -la /etc/modulefiles/ || echo "Modulefiles not found in /etc/modulefiles/"
+            exit 1
+          fi
+          
+          # Try to load the module
+          if ! module load ${{ env.SINGULARITY_MODULE }}; then
+            echo "Error: Failed to load Singularity module: ${{ env.SINGULARITY_MODULE }}"
+            echo "Available modules:"
+            module avail singularity 2>&1 || echo "No singularity modules found"
+            exit 1
+          fi
+          
+          # Verify singularity is available
+          if ! command -v singularity &> /dev/null; then
+            echo "Error: singularity command not available after loading module"
+            echo "PATH: $PATH"
+            exit 1
+          fi
+          
+          singularity version
+          echo "Singularity loaded successfully"
+
+      - name: Backup Existing Image
+        if: needs.prepare-deployment.outputs.deployment_strategy == 'backup-and-replace'
+        run: |
+          set -euo pipefail
+          
+          FINAL_PATH="${{ steps.set-paths.outputs.final_path }}"
+          BACKUP_PATH="${{ steps.set-paths.outputs.backup_path }}"
+          
+          if [[ -f "$FINAL_PATH" ]]; then
+            echo "=== Backing up existing image ==="
+            echo "Source: $FINAL_PATH"
+            echo "Backup: $BACKUP_PATH"
+            
+            cp "$FINAL_PATH" "$BACKUP_PATH" || {
+              echo "Error: Failed to create backup"
+              echo "Source file info:"
+              ls -la "$FINAL_PATH"
+              echo "Backup directory info:"
+              ls -la "$(dirname "$BACKUP_PATH")"
+              exit 1
+            }
+            
+            echo "Backup created successfully"
+            ls -la "$BACKUP_PATH"
+          else
+            echo "No existing image to backup: $FINAL_PATH"
+          fi
+
+      - name: Pull and Deploy Singularity Image
+        run: |
+          set -euo pipefail
+          echo "=== Pulling Docker image to Singularity ==="
+          
+          IMAGE_NAME="${{ steps.parse-image.outputs.image_name }}"
+          IMAGE_TAG="${{ steps.parse-image.outputs.image_tag }}"
+          TEMP_IMAGE_NAME="${{ steps.set-paths.outputs.temp_image_name }}"
+          FINAL_PATH="${{ steps.set-paths.outputs.final_path }}"
+          DOCKER_IMAGE="${{ env.DOCKER_HUB_REPO }}/${IMAGE_NAME}:${IMAGE_TAG}"
+          
+          echo "Docker image: $DOCKER_IMAGE"
+          echo "Temporary file: $TEMP_IMAGE_NAME"
+          echo "Final path: $FINAL_PATH"
+          
+          # Pull the image with retry logic
+          for attempt in 1 2 3; do
+            echo "Pull attempt $attempt..."
+            if singularity pull --force "$TEMP_IMAGE_NAME" "docker://$DOCKER_IMAGE"; then
+              echo "Pull successful on attempt $attempt"
+              break
+            else
+              if [[ $attempt -eq 3 ]]; then
+                echo "Error: Failed to pull image after 3 attempts"
+                echo "Check Docker Hub connectivity and image availability"
+                exit 1
+              fi
+              echo "Pull failed, retrying in 10 seconds..."
+              sleep 10
+            fi
+          done
+          
+          # Verify the pulled image
+          if [[ ! -f "$TEMP_IMAGE_NAME" ]]; then
+            echo "Error: Singularity image file not created: $TEMP_IMAGE_NAME"
+            exit 1
+          fi
+          
+          echo "Image pulled successfully:"
+          ls -la "$TEMP_IMAGE_NAME"
+
+      - name: Install and Verify Image
+        run: |
+          set -euo pipefail
+          echo "=== Installing Singularity image ==="
+          
+          TEMP_IMAGE_NAME="${{ steps.set-paths.outputs.temp_image_name }}"
+          FINAL_PATH="${{ steps.set-paths.outputs.final_path }}"
+          
+          echo "Moving image to final location..."
+          echo "Source: $TEMP_IMAGE_NAME"
+          echo "Destination: $FINAL_PATH"
+          
+          # Remove existing image if present (since we have backup)
+          if [[ -f "$FINAL_PATH" ]]; then
+            rm -f "$FINAL_PATH" || {
+              echo "Warning: Could not remove existing image"
+            }
+          fi
+          
+          # Move to final location
+          mv "$TEMP_IMAGE_NAME" "$FINAL_PATH" || {
+            echo "Error: Failed to move image to final location"
+            echo "Source info:"
+            ls -la "$TEMP_IMAGE_NAME" || echo "Source file not found"
+            echo "Destination directory:"
+            ls -la "$(dirname "$FINAL_PATH")"
+            exit 1
+          }
+          
+          # Set permissions
+          chmod 755 "$FINAL_PATH" || {
+            echo "Warning: Could not set permissions on image file"
+          }
+          
+          echo "Image installed successfully:"
+          ls -la "$FINAL_PATH"
+          
+          # Verify the image works
+          echo "=== Verifying image functionality ==="
+          if ! singularity exec "$FINAL_PATH" echo "Image verification successful"; then
+            echo "Warning: Image verification failed - image may not be functional"
+          fi
+
+      - name: Cleanup and Report
+        if: always()
+        run: |
+          set -euo pipefail
+          echo "=== Deployment Summary ==="
+          
+          IMAGE_NAME="${{ steps.parse-image.outputs.image_name }}"
+          IMAGE_TAG="${{ steps.parse-image.outputs.image_tag }}"
+          FINAL_PATH="${{ steps.set-paths.outputs.final_path }}"
+          
+          echo "Image: $IMAGE_NAME:$IMAGE_TAG"
+          echo "Environment: ${{ needs.prepare-deployment.outputs.target_environment }}"
+          echo "Strategy: ${{ needs.prepare-deployment.outputs.deployment_strategy }}"
+          echo "Final path: $FINAL_PATH"
+          
+          if [[ -f "$FINAL_PATH" ]]; then
+            echo "✅ Deployment successful"
+            echo "Image size: $(du -h "$FINAL_PATH" | cut -f1)"
+            echo "Image permissions: $(ls -la "$FINAL_PATH")"
+          else
+            echo "❌ Deployment failed - image not found at final path"
+            exit 1
+          fi
+          
+          # Cleanup temporary files
+          TEMP_IMAGE_NAME="${{ steps.set-paths.outputs.temp_image_name }}"
+          if [[ -f "$TEMP_IMAGE_NAME" ]]; then
+            rm -f "$TEMP_IMAGE_NAME" || echo "Warning: Could not clean up temporary file"
+          fi

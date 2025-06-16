@@ -1,0 +1,6 @@
+deseq_lrt_step_1:SUCCESS:146s
+deseq_lrt_step_2:SUCCESS:23s
+atac_lrt_step_1:SUCCESS:15s
+deseq_pairwise:FAILED:16s:[1;30mERROR[0m [31m[job deseq-pairwise.cwl] Job error:
+atac_lrt_step_2:SUCCESS:19s
+atac_pairwise:FAILED:19s:[1;30mERROR[0m [31m[job atac-pairwise.cwl] Job error:

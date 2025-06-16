@@ -1,0 +1,71 @@
+=== USEFUL INFORMATION EXTRACTION ===
+Timestamp: Mon Jun 16 11:18:30 EDT 2025
+
+Current Working Workflows (4/6):
+deseq_lrt_step_1:SUCCESS:146s
+deseq_lrt_step_2:SUCCESS:23s
+atac_lrt_step_1:SUCCESS:15s
+atac_lrt_step_2:SUCCESS:19s
+
+Remaining Issues (2/6):
+deseq_pairwise:FAILED - Exit status 1 (ArgumentParser and summary.md file creation issue)
+atac_pairwise:FAILED - Exit status 1 (ArgumentParser and summary.md file creation issue)
+
+Key Diagnostic Information:
+- DESeq Pairwise: Manual argument parsing fallback added, but still failing with missing summary files
+- ATAC Pairwise: R script exits with status 1, prevents summary.md creation  
+- Docker images working: biowardrobe2/scidap-deseq:v0.0.58, biowardrobe2/scidap-atac:v0.0.64-fixed
+- Test framework operational: 4/6 workflows passing comprehensive tests
+
+Infrastructure Complete:
+- All R scripts updated with manual CLI parsing fallbacks
+- CWL workflow definitions functional
+- Docker containerization working correctly
+- Test data and input files validated
+
+Key Files to Preserve:
+./atac_lrt_step_2/inputs/basic_test.yml
+./deseq_lrt_step_2/inputs/basic_test.yml  
+./deseq_pairwise/inputs/basic_test.yml
+./atac_pairwise/inputs/basic_test.yml
+./atac_lrt_step_1/inputs/basic_test.yml
+./deseq_lrt_step_1/inputs/basic_test.yml
+./test_results.txt
+./CLAUDE.md
+./cleanup_log.txt
+=== CLEANUP PHASE ===
+Files removed:
+Removed test_outputs directories
+Removed workflow test log files
+Removed remaining stdout/stderr log files
+Removed root-level output files
+Removed workflow outputs directories
+Removed generated result files and status reports
+Removed image files
+Removed remaining validation and test log files
+=== CLEANUP COMPLETE ===
+Final directory structure:
+total 128
+drwxr-xr-x  22 pavb5f  staff    704 Jun 16 11:24 .
+drwxr-xr-x  31 pavb5f  staff    992 Jun 16 02:02 ..
+drwxr-xr-x@  3 pavb5f  staff     96 Jun 16 04:09 .claude
+-rw-r--r--@  1 pavb5f  staff   3882 Jun 16 05:10 CLAUDE.md
+-rw-r--r--@  1 pavb5f  staff     50 Jun 16 02:54 FINAL_FIXES_SUMMARY.md
+-rw-r--r--@  1 pavb5f  staff  11241 Jun 16 04:33 README.md
+drwxr-xr-x@  5 pavb5f  staff    160 Jun 16 11:23 atac_lrt_step_1
+drwxr-xr-x@  3 pavb5f  staff     96 Jun 16 11:23 atac_lrt_step_2
+drwxr-xr-x@  6 pavb5f  staff    192 Jun 16 11:23 atac_pairwise
+-rw-r--r--@  1 pavb5f  staff   1713 Jun 16 11:24 cleanup_log.txt
+drwxr-xr-x@ 14 pavb5f  staff    448 Jun 13 15:23 core_data
+drwxr-xr-x@  4 pavb5f  staff    128 Jun 16 11:23 deseq_lrt_step_1
+drwxr-xr-x@  4 pavb5f  staff    128 Jun 16 11:23 deseq_lrt_step_2
+-rw-r--r--@  1 pavb5f  wheel   3155 Jun 16 11:14 deseq_lrt_step_2_stderr.log
+drwxr-xr-x@  3 pavb5f  staff     96 Jun 16 11:23 deseq_pairwise
+-rw-r--r--@  1 pavb5f  staff   4446 Jun 16 10:00 deseq_pairwise_debug.log
+-rwxr-xr-x@  1 pavb5f  staff   1197 Jun 16 04:54 final_comprehensive_test.sh
+drwxr-xr-x@  5 pavb5f  staff    160 Jun 16 02:51 my_local_test_data
+-rwxr-xr-x@  1 pavb5f  staff   2833 Jun 16 03:55 quick_test.sh
+-rwxr-xr-x@  1 pavb5f  staff   4182 Jun 15 13:08 run_all_tests.sh
+-rwxr-xr-x@  1 pavb5f  staff   4542 Jun 16 03:41 test_all_workflows_comprehensive.sh
+-rw-r--r--@  1 pavb5f  staff    281 Jun 16 11:15 test_results.txt
+ 23M	.

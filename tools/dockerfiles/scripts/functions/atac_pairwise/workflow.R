@@ -7,14 +7,17 @@
 #' 
 #' Wraps the run_workflow function with memory tracking
 #' 
+#' @param args Command line arguments (optional, will be parsed if not provided)
 #' @return Results from the analysis workflow
 #' @export
-main_with_memory_management <- function() {
+main_with_memory_management <- function(args = NULL) {
   # Report initial memory usage
   report_memory_usage("Initial")
   
-  # Get command-line arguments
-  args <- get_args()
+  # Get command-line arguments if not provided
+  if (is.null(args)) {
+    args <- get_args()
+  }
   
   # Run the main workflow
   results <- tryCatch({
@@ -84,6 +87,9 @@ initialize_environment <- function() {
   source_with_fallback("functions/common/error_handling.R", "/usr/local/bin/functions/common/error_handling.R")
   source_with_fallback("functions/common/logging.R", "/usr/local/bin/functions/common/logging.R")
 
+  # Source ATAC common functions
+  source_with_fallback("functions/common/atac_common/cli_args_base.R", "/usr/local/bin/functions/common/atac_common/cli_args_base.R")
+
   # Source ATAC-seq pairwise specific functions
   source_with_fallback("functions/atac_pairwise/cli_args.R", "/usr/local/bin/functions/atac_pairwise/cli_args.R")
   source_with_fallback("functions/atac_pairwise/data_processing.R", "/usr/local/bin/functions/atac_pairwise/data_processing.R")
@@ -94,6 +100,7 @@ initialize_environment <- function() {
     message("Loading required libraries...")
     suppressPackageStartupMessages({
       required_packages <- c(
+        # "argparse", # Optional - using manual parsing fallback
         "DiffBind",
         "DESeq2",
         "BiocParallel",
@@ -139,7 +146,7 @@ run_workflow <- function(args) {
   
   # Parse and validate arguments
   validate_args(args)
-  print_args(args)
+  print_atac_args(args, "ATAC-seq Pairwise")
   
   # Load and validate metadata for pairwise comparison
   metadata_df <- load_and_validate_pairwise_metadata(args)

@@ -2,7 +2,7 @@
 # Dockerfile - DESeq/DESeq2 Analysis Container
 #
 # Software:         BioWardrobe DESeq/DESeq2 script
-# Software Version: v0.0.53
+# Software Version: v0.0.54
 # Description:      Dockerized version of DESeq/DESeq2 script from BioWardrobe
 # Website:          https://github.com/Barski-lab/workflows
 #
@@ -37,14 +37,21 @@
 # 
 # Build Commands:
 # ------------------
-# Full build: docker build --no-cache --platform linux/amd64 --rm -t biowardrobe2/scidap-deseq:v0.0.53 -f scidap-deseq-Dockerfile .
-# Pull:       docker pull biowardrobe2/scidap-deseq:v0.0.34
-# Run:        docker run --rm -ti biowardrobe2/scidap-deseq:v0.0.34 /bin/bash
+# Full build: docker build --no-cache --platform linux/amd64 --rm -t biowardrobe2/scidap-deseq:v0.0.54 -f scidap-deseq-Dockerfile .
+# Pull:       docker pull biowardrobe2/scidap-deseq:v0.0.54
+# Run:        docker run --rm -ti biowardrobe2/scidap-deseq:v0.0.54 /bin/bash
 #################################################################
 
 #################################################################
 # VERSION HISTORY
 #################################################################
+#
+# v0.0.54
+# - CRITICAL FIXES: Integrated all three workflow fixes into main scripts
+# - Fixed DESeq Pairwise variable shadowing (args parameter renamed to parsed_arguments)
+# - Fixed ATAC Pairwise missing library import (added library(argparse))
+# - Fixed ATAC LRT Step 2 S4 object accessor (moved colnames() after data frame conversion)
+# - All fixes now integrated in main script files for production deployment
 #
 # v0.0.53
 # - Fixed ATAC-seq variable naming conflicts in R scripts (args$input → args$input_files)
@@ -101,7 +108,7 @@
 # BASE IMAGE SELECTION
 #############################################
 # Incremental build from previous version
-FROM biowardrobe2/scidap-deseq:v0.0.51
+FROM biowardrobe2/scidap-deseq:v0.0.60
 LABEL maintainer="pavlvalera3301@gmail.com"
 ENV DEBIAN_FRONTEND=noninteractive
 

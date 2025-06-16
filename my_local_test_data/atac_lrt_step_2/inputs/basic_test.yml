@@ -1,14 +1,17 @@
 alias: "atac_lrt_step2_basic_test"
 
 # Input from ATAC LRT Step 1 results
-diffbind_object:
+dsq_obj_data:
   class: File
-  path: "my_local_test_data/atac_lrt_step_1/outputs/basic_test/diffbind_results.rds"
+  path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_2/inputs/diffbind_results.rds"
 
 # Contrasts for specific comparisons
 contrasts_table:
   class: File
-  path: "my_local_test_data/core_data/contrasts_table_example.csv"
+  path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_2/inputs/contrasts_table.csv"
+
+# Which contrasts to analyze (comma-separated indices, e.g., "1,2,3" or "1")
+contrast_indices: "1"
 
 # Analysis parameters
 fdr: 0.05

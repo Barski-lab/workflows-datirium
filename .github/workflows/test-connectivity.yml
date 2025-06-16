@@ -1,0 +1,240 @@
+name: Test HPC Connectivity
+
+on:
+  workflow_dispatch:
+    inputs:
+      connection_type:
+        description: 'Type of connection test to perform'
+        required: true
+        type: choice
+        options:
+          - 'basic'
+          - 'comprehensive'
+        default: 'basic'
+      target_host:
+        description: 'Target host to test'
+        required: false
+        type: string
+        default: 'bmiclusterp.chmcres.cchmc.org'
+
+jobs:
+  test-connectivity:
+    name: Test HPC Connectivity
+    runs-on: self-hosted
+    
+    steps:
+      - name: Basic System Information
+        run: |
+          echo "=== System Information ==="
+          echo "Runner: $(hostname)"
+          echo "User: $(whoami)"
+          echo "OS: $(uname -a)"
+          echo "Date: $(date)"
+          echo ""
+
+      - name: Network Connectivity Test
+        run: |
+          set -euo pipefail
+          echo "=== Network Connectivity Test ==="
+          
+          TARGET_HOST="${{ github.event.inputs.target_host }}"
+          
+          echo "Testing connectivity to: $TARGET_HOST"
+          
+          # Basic ping test (may be blocked by firewall)
+          echo "Ping test:"
+          if ping -c 3 -W 5 "$TARGET_HOST"; then
+            echo "✅ Ping successful"
+          else
+            echo "⚠️  Ping failed (may be normal if ICMP is blocked)"
+          fi
+          
+          # Port connectivity test
+          echo ""
+          echo "Port 22 (SSH) connectivity test:"
+          if timeout 10 bash -c "</dev/tcp/$TARGET_HOST/22"; then
+            echo "✅ Port 22 is reachable"
+          else
+            echo "❌ Port 22 is not reachable"
+            exit 1
+          fi
+
+      - name: SSH Key Validation
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          echo "=== SSH Key Validation ==="
+          
+          # Check if secret is available
+          if [[ -z "$SSH_PRIVATE_KEY" ]]; then
+            echo "❌ SSH_PRIVATE_KEY secret is not set"
+            exit 1
+          fi
+          
+          # Create .ssh directory
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          
+          # Create temporary key file
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/temp_key
+          chmod 600 ~/.ssh/temp_key
+          
+          # Validate key format
+          if ! grep -q "BEGIN OPENSSH PRIVATE KEY\|BEGIN RSA PRIVATE KEY\|BEGIN EC PRIVATE KEY" ~/.ssh/temp_key; then
+            echo "❌ Invalid SSH key format"
+            rm -f ~/.ssh/temp_key
+            exit 1
+          fi
+          
+          # Check key validity
+          if ssh-keygen -l -f ~/.ssh/temp_key >/dev/null 2>&1; then
+            echo "✅ SSH key format is valid"
+            # Show key fingerprint (safe to display)
+            ssh-keygen -l -f ~/.ssh/temp_key
+          else
+            echo "❌ SSH key validation failed"
+            rm -f ~/.ssh/temp_key
+            exit 1
+          fi
+          
+          # Cleanup
+          rm -f ~/.ssh/temp_key
+
+      - name: SSH Connection Test
+        if: github.event.inputs.connection_type == 'comprehensive'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          echo "=== SSH Connection Test ==="
+          
+          TARGET_HOST="${{ github.event.inputs.target_host }}"
+          SSH_USER="${{ secrets.SSH_USER || 'pavb5f' }}"
+          
+          # Setup SSH key
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/test_key
+          chmod 600 ~/.ssh/test_key
+          
+          # Create SSH config
+          cat > ~/.ssh/test_config << EOF
+          Host testhost
+            HostName $TARGET_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/test_key
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+            ConnectTimeout 30
+            LogLevel ERROR
+          EOF
+          chmod 600 ~/.ssh/test_config
+          
+          # Test SSH connection with minimal output
+          echo "Testing SSH connection to $SSH_USER@$TARGET_HOST..."
+          
+          if timeout 30 ssh -F ~/.ssh/test_config testhost "echo 'SSH connection successful'" 2>/dev/null; then
+            echo "✅ SSH connection successful"
+          else
+            echo "❌ SSH connection failed"
+            echo "Troubleshooting steps:"
+            echo "1. Verify the SSH key is correctly configured in GitHub secrets"
+            echo "2. Ensure the public key is added to ~/.ssh/authorized_keys on the target host"
+            echo "3. Check if the target host allows SSH connections from this runner"
+            echo "4. Verify the username is correct"
+            
+            # Additional network diagnostics
+            echo ""
+            echo "Network diagnostic information:"
+            echo "Target host: $TARGET_HOST"
+            echo "SSH user: $SSH_USER"
+            
+            # Test basic connectivity again
+            if timeout 5 bash -c "</dev/tcp/$TARGET_HOST/22" 2>/dev/null; then
+              echo "✅ Network connectivity to port 22 is working"
+              echo "Issue is likely with authentication or SSH configuration"
+            else
+              echo "❌ Network connectivity to port 22 is failing"
+              echo "Issue is likely with network routing or firewall"
+            fi
+            
+            exit 1
+          fi
+          
+          # Cleanup
+          rm -f ~/.ssh/test_key ~/.ssh/test_config
+
+      - name: Environment Verification
+        if: github.event.inputs.connection_type == 'comprehensive'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          echo "=== Environment Verification ==="
+          
+          TARGET_HOST="${{ github.event.inputs.target_host }}"
+          SSH_USER="${{ secrets.SSH_USER || 'pavb5f' }}"
+          
+          # Setup SSH (reuse from previous step pattern)
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/test_key
+          chmod 600 ~/.ssh/test_key
+          
+          cat > ~/.ssh/test_config << EOF
+          Host testhost
+            HostName $TARGET_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/test_key
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+            ConnectTimeout 30
+            LogLevel ERROR
+          EOF
+          chmod 600 ~/.ssh/test_config
+          
+          echo "Verifying deployment environment..."
+          
+          # Check if required directories exist
+          ssh -F ~/.ssh/test_config testhost "
+            echo 'Checking deployment paths...'
+            if [[ -d '/data/barskilab/scidap_server' ]]; then
+              echo '✅ Base deployment directory exists'
+              ls -la /data/barskilab/scidap_server/ || echo 'Cannot list directory contents'
+            else
+              echo '❌ Base deployment directory not found'
+            fi
+            
+            echo 'Checking Singularity availability...'
+            if command -v module >/dev/null 2>&1; then
+              echo '✅ Module system available'
+              if module avail singularity 2>&1 | grep -q singularity; then
+                echo '✅ Singularity modules found'
+                module avail singularity 2>&1 | head -5
+              else
+                echo '⚠️  No Singularity modules found'
+              fi
+            else
+              echo '❌ Module system not available'
+            fi
+          " || {
+            echo "❌ Environment verification failed"
+            exit 1
+          }
+          
+          echo "✅ Environment verification completed"
+          
+          # Cleanup
+          rm -f ~/.ssh/test_key ~/.ssh/test_config
+
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "=== Test Summary ==="
+          echo "Connection type: ${{ github.event.inputs.connection_type }}"
+          echo "Target host: ${{ github.event.inputs.target_host }}"
+          echo "Test completed at: $(date)"
+          echo ""
+          echo "If all tests passed, the HPC deployment workflow should work correctly."
+          echo "If tests failed, check the error messages above for troubleshooting guidance."

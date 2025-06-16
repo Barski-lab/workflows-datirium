@@ -1,0 +1,69 @@
+# Shared Configuration for GitHub Actions Workflows
+# This file defines common variables and settings used across multiple workflows
+
+name: Shared Configuration
+
+# This workflow doesn't run - it's just for documentation and shared values
+on:
+  workflow_call:
+    outputs:
+      docker_hub_repo:
+        description: "Docker Hub repository name"
+        value: "biowardrobe2"
+      singularity_module:
+        description: "Singularity module to load on HPC"
+        value: "singularity/3.7.0"
+      base_deployment_path:
+        description: "Base path for HPC deployments"
+        value: "/data/barskilab/scidap_server/singularity_images"
+
+# Environment variables that can be referenced in other workflows
+env:
+  # Docker Configuration
+  DOCKER_HUB_REPO: biowardrobe2
+  DOCKERFILE_BASE_PATH: tools/dockerfiles
+  
+  # HPC Configuration  
+  SINGULARITY_MODULE: singularity/3.7.0
+  HPC_BASE_PATH: /data/barskilab/scidap_server/singularity_images
+  HPC_STAGING_PATH: /data/barskilab/scidap_server/staging/singularity_images
+  HPC_BACKUP_PATH: /data/barskilab/scidap_server/singularity_images/backups
+  
+  # Default target hosts
+  HPC_PRODUCTION_HOST: bmiclusterp.chmcres.cchmc.org
+  HPC_STAGING_HOST: bmicluster-staging.chmcres.cchmc.org
+  
+  # Build Configuration
+  SUPPORTED_PLATFORMS: linux/amd64
+  CACHE_RETENTION_DAYS: 7
+  ARTIFACT_RETENTION_DAYS: 7
+  
+# Docker image configurations
+# Format: image_name -> dockerfile_name
+# This could be converted to a JSON format if needed for matrix builds
+# DOCKER_IMAGES:
+#   scidap-deseq: scidap-deseq-Dockerfile
+#   scidap-atacseq: scidap-atacseq-Dockerfile  
+#   scidap-addons: scidap-addons-Dockerfile
+#   scidap-merge: scidap-merge-Dockerfile
+
+jobs:
+  # This job never runs - it's just for documentation
+  documentation:
+    if: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configuration Documentation
+        run: |
+          echo "This workflow provides shared configuration for:"
+          echo "- Docker Hub repository: ${{ env.DOCKER_HUB_REPO }}"
+          echo "- HPC deployment paths and modules"
+          echo "- Common build settings and retention policies"
+          echo ""
+          echo "Available Docker images:"
+          echo "- scidap-deseq (DESeq2 analysis)"
+          echo "- scidap-atacseq (ATAC-seq analysis)"
+          echo ""
+          echo "HPC Environments:"
+          echo "- Production: bmicluster-compute"
+          echo "- Staging: bmicluster-staging"

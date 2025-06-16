@@ -16,7 +16,17 @@ with_error_handling <- function(expr, message = NULL, exit_on_error = TRUE) {
     error = function(e) {
       error_msg <- ifelse(is.null(message), e$message, paste0(message, ": ", e$message))
       log_error(error_msg)
-      print(rlang::last_trace())
+      # Safely handle trace - avoid S4 object issues in test mode
+      tryCatch({
+        if (requireNamespace("rlang", quietly = TRUE)) {
+          print(rlang::last_trace())
+        } else {
+          cat("Error details: ", e$message, "\n")
+        }
+      }, error = function(trace_error) {
+        cat("Error details: ", e$message, "\n")
+        cat("Trace error: ", trace_error$message, "\n")
+      })
       if (exit_on_error) {
         quit(save = "no", status = 1, runLast = FALSE)
       }

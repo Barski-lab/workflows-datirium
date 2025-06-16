@@ -6,14 +6,14 @@ requirements:
 
 hints:
 - class: DockerRequirement
-  dockerPull: "biowardrobe2/scidap-atac:v0.0.56"
+  dockerPull: "biowardrobe2/scidap-atac:v0.0.64-fixed"
 
 inputs:
 
   dsq_obj_data:
     type: File?
     inputBinding:
-      prefix: "--dsq_obj_data"
+      prefix: "--atac_obj_data"
     doc: "RDS file containing the contrasts list from step 1"
 
   contrasts_table:
@@ -89,7 +89,6 @@ inputs:
     type: boolean
     inputBinding:
       prefix: "--use_lfc_thresh"
-      valueFrom: "$(self ? 'TRUE' : 'FALSE')"
     default: false
     doc: "Use lfcthreshold as the null hypothesis value in the results function call. Default: TRUE"
 
@@ -184,7 +183,6 @@ inputs:
     type: boolean
     inputBinding:
       prefix: "--test_mode"
-      valueFrom: "$(self ? 'TRUE' : 'FALSE')"
     default: false
     doc: "Run for test, only first 100 rows"
 

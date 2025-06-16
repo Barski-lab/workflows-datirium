@@ -19,8 +19,11 @@ if (file.exists(workflow_file)) {
   # Initialize the environment
   initialize_environment()
   
+  # Parse command line arguments after libraries are loaded
+  args <- get_args()
+  
   # Run the workflow with memory management
-  results <- main_with_memory_management()
+  results <- main_with_memory_management(args)
   
   # Verify outputs
   verify_file <- "/usr/local/bin/verify_outputs.R"
@@ -49,7 +52,11 @@ if (file.exists(workflow_file)) {
     message("Found workflow file at relative path:", relative_path)
     source(relative_path)
     initialize_environment()
-    results <- main_with_memory_management()
+    
+    # Parse command line arguments after libraries are loaded
+    args <- get_args()
+    
+    results <- main_with_memory_management(args)
     
     # Verify outputs
     verify_path <- "verify_outputs.R"

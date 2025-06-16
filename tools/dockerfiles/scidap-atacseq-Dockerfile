@@ -2,7 +2,7 @@
 # Dockerfile - ATAC-seq Analysis Container
 #
 # Software:         BioWardrobe ATAC-seq script with DiffBind
-# Software Version: v0.0.61
+# Software Version: v0.0.62
 # Description:      Dockerized version of ATAC-seq scripts from BioWardrobe
 # Website:          https://github.com/Barski-lab/workflows
 # Base Image:       Built from scidap-deseq + ATAC-specific packages
@@ -43,9 +43,9 @@
 # 
 # Build Commands:
 # ------------------
-# Full build: docker build --no-cache --platform linux/amd64 --rm -t biowardrobe2/scidap-atac:v0.0.61 -f scidap-atacseq-Dockerfile .
-# Pull:       docker pull biowardrobe2/scidap-atac:v0.0.61
-# Run:        docker run --rm -ti biowardrobe2/scidap-atac:v0.0.61 /bin/bash
+# Full build: docker build --no-cache --platform linux/amd64 --rm -t biowardrobe2/scidap-atac:v0.0.62 -f scidap-atacseq-Dockerfile .
+# Pull:       docker pull biowardrobe2/scidap-atac:v0.0.62
+# Run:        docker run --rm -ti biowardrobe2/scidap-atac:v0.0.62 /bin/bash
 #################################################################
 
 #################################################################
@@ -90,7 +90,7 @@
 # BASE IMAGE SELECTION
 #############################################
 # Incremental build from previous version
-FROM biowardrobe2/scidap-atac:v0.0.60
+FROM biowardrobe2/scidap-atac:v0.0.62-fixed
 LABEL maintainer="pavlvalera3301@gmail.com"
 ENV DEBIAN_FRONTEND=noninteractive
 

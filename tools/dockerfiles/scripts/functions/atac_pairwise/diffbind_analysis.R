@@ -12,18 +12,24 @@
 run_pairwise_diffbind_analysis <- function(sample_sheet, args) {
   log_message("Running DiffBind analysis pipeline for pairwise comparison...")
   
+  # Set default values for DiffBind parameters if not provided
+  peakformat <- if (is.null(args$peakformat)) "csv" else args$peakformat
+  peakcaller <- if (is.null(args$peakcaller)) "macs" else args$peakcaller
+  scorecol <- if (is.null(args$scorecol)) 6 else args$scorecol
+  minoverlap <- if (is.null(args$minoverlap)) 2 else args$minoverlap
+  
   # Create DBA object
   log_message("Creating DBA object...")
   dba_obj <- dba(
     sampleSheet = sample_sheet,
-    peakFormat = args$peakformat,
-    peakCaller = args$peakcaller,
-    scoreCol = args$scorecol
+    peakFormat = peakformat,
+    peakCaller = peakcaller,
+    scoreCol = scorecol
   )
   
   # Create consensus peaks
   log_message("Creating consensus peaks...")
-  dba_consensus <- dba.peakset(dba_obj, consensus = DBA_CONDITION, minOverlap = args$minoverlap)
+  dba_consensus <- dba.peakset(dba_obj, consensus = DBA_CONDITION, minOverlap = minoverlap)
   dba_consensus <- dba(dba_consensus, mask = dba_consensus$masks$Consensus, minOverlap = 1)
   
   # Get consensus peaks
@@ -259,13 +265,35 @@ generate_pairwise_summary <- function(results, args) {
     downregulated_peaks = downregulated,
     fdr_threshold = args$fdr,
     lfc_threshold = args$lfcthreshold,
-    condition1 = args$condition1,
-    condition2 = args$condition2,
-    comparison = paste(args$condition1, "vs", args$condition2)
+    condition1 = ifelse(is.null(args$condition1), args$untreated_name, args$condition1),
+    condition2 = ifelse(is.null(args$condition2), args$treated_name, args$condition2),
+    comparison = paste(ifelse(is.null(args$condition1), args$untreated_name, args$condition1), "vs", ifelse(is.null(args$condition2), args$treated_name, args$condition2))
   )
   
   # Save summary
   saveRDS(summary_stats, file.path(args$output, paste0(args$output, "_pairwise_summary.rds")))
+  
+  # Create markdown summary file (required by CWL)
+  md_content <- c(
+    "# ATAC-seq Pairwise Analysis Summary",
+    "",
+    paste("**Comparison:**", ifelse(is.null(args$condition1), args$untreated_name, args$condition1), "vs", ifelse(is.null(args$condition2), args$treated_name, args$condition2)),
+    paste("**Total peaks analyzed:**", total_peaks),
+    paste("**Significant peaks (FDR <", args$fdr, "):**", significant_peaks),
+    paste("**Upregulated in", ifelse(is.null(args$condition1), args$untreated_name, args$condition1), ":**", upregulated),
+    paste("**Downregulated in", ifelse(is.null(args$condition1), args$untreated_name, args$condition1), ":**", downregulated),
+    paste("**Percentage significant:**", round(100 * significant_peaks / total_peaks, 2), "%"),
+    "",
+    "## Analysis Parameters",
+    paste("- FDR threshold:", args$fdr),
+    paste("- Log2 fold change threshold:", args$lfcthreshold),
+    "",
+    paste("Analysis completed at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S"))
+  )
+  
+  # Write markdown summary (required by CWL glob pattern)
+  summary_file <- paste0(args$output, "_summary.md")
+  writeLines(md_content, summary_file)
   
   # Print summary
   cat("=== ATAC-seq Pairwise Analysis Summary ===\n")

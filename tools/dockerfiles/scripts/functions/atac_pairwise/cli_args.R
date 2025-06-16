@@ -3,6 +3,9 @@
 # Command-line argument handling for ATAC-seq Pairwise Analysis
 #
 
+# Load required libraries
+# library(argparse) - Made optional, using manual parsing fallback
+
 # Try to source helper functions with robust path resolution
 if (exists("source_cli_helpers")) {
   source_cli_helpers()
@@ -31,304 +34,282 @@ if (exists("source_cli_helpers")) {
 }
 
 #' Define and parse command line arguments for ATAC-seq pairwise analysis
+#' Uses common ATAC argument base functions to reduce duplication
 #'
 #' @return Parsed arguments list
 #' @export
 get_args <- function() {
-  parser <- ArgumentParser(description = "ATAC-seq pairwise differential accessibility analysis")
+  # Use manual parsing as fallback if ArgumentParser is not available
+  if (!requireNamespace("argparse", quietly = TRUE)) {
+    args <- parse_args_manual_atac()
+    # Map to expected format (same as argparse version)
+    args$condition1 <- args$treated_name
+    args$condition2 <- args$untreated_name
+    args$condition_column <- "condition"
+    args$input_files <- c(args$untreated_files, args$treated_files)
+    args$name <- c(args$untreated_sample_names, args$treated_sample_names)
+    return(args)
+  }
   
-  # Input files
-  parser$add_argument(
-    "--input_files",
-    help = "Peak files for all samples (space-separated)",
-    nargs = "+",
-    required = TRUE,
-    type = "character"
-  )
-  parser$add_argument(
-    "--bamfiles",
-    help = "BAM files for all samples (space-separated)",
-    nargs = "+",
-    required = TRUE,
-    type = "character"
-  )
-  parser$add_argument(
-    "--name",
-    help = "Sample names (space-separated)",
-    nargs = "+",
-    required = TRUE,
-    type = "character"
-  )
-  parser$add_argument(
-    "--meta",
-    help = "Metadata file with sample information",
-    required = TRUE,
-    type = "character"
-  )
-  
-  # Group definitions for pairwise comparison
-  parser$add_argument(
-    "--condition_column",
-    help = "Column name in metadata that defines the groups to compare",
-    type = "character",
-    default = "condition"
-  )
-  parser$add_argument(
-    "--condition1",
-    help = "First condition/group name for comparison (numerator)",
-    required = TRUE,
-    type = "character"
-  )
-  parser$add_argument(
-    "--condition2", 
-    help = "Second condition/group name for comparison (denominator/reference)",
-    required = True,
-    type = "character"
-  )
-  
-  # DiffBind parameters
-  parser$add_argument(
-    "--peakformat",
-    help = "Peak file format",
-    type = "character",
-    choices = c("bed", "narrow", "macs"),
-    default = "narrow"
-  )
-  parser$add_argument(
-    "--peakcaller",
-    help = "Peak caller used",
-    type = "character",
-    choices = c("macs", "bed", "narrow"),
-    default = "macs"
-  )
-  parser$add_argument(
-    "--scorecol",
-    help = "Column to use for peak scores",
-    type = "integer",
-    default = 5
-  )
-  parser$add_argument(
-    "--minoverlap",
-    help = "Minimum overlap for consensus peaks",
-    type = "integer",
-    default = 2
-  )
-  
-  # Analysis parameters
-  parser$add_argument(
-    "--fdr",
-    help = "FDR cutoff for significance filtering. Default: 0.1",
-    type = "double",
-    default = 0.1
-  )
-  parser$add_argument(
-    "--lfcthreshold",
-    help = "Log2 fold change threshold for significance. Default: 0.59 (1.5 fold)",
-    type = "double",
-    default = 0.59
-  )
-  parser$add_argument(
-    "--use_lfc_thresh",
-    help = "Use lfcthreshold as null hypothesis in results function",
-    action = "store_true",
-    default = FALSE
-  )
-  parser$add_argument(
-    "--regulation",
-    help = "Direction of differential accessibility: 'both', 'up', or 'down'",
-    type = "character",
-    choices = c("both", "up", "down"),
-    default = "both"
-  )
-  
-  # Batch correction
-  parser$add_argument(
-    "--batchcorrection",
-    help = "Batch correction method: 'none', 'combatseq', 'limmaremovebatcheffect'",
-    type = "character",
-    choices = c("none", "combatseq", "limmaremovebatcheffect"),
-    default = "none"
-  )
-  
-  # Clustering options
-  parser$add_argument(
-    "--cluster",
-    help = "Hopach clustering method to be run on normalized accessibility counts",
-    type = "character",
-    choices = c("row", "column", "both", "none"),
-    default = "none"
-  )
-  parser$add_argument(
-    "--scaling_type",
-    help = "Type of scaling for accessibility data: 'minmax' or 'zscore'",
-    type = "character",
-    choices = c("minmax", "zscore"),
-    default = "zscore"
-  )
-  parser$add_argument(
-    "--rowdist",
-    help = "Distance metric for HOPACH row clustering",
-    type = "character",
-    choices = c("cosangle", "abscosangle", "euclid", "cor", "abscor"),
-    default = "cosangle"
-  )
-  parser$add_argument(
-    "--columndist",
-    help = "Distance metric for HOPACH column clustering",
-    type = "character",
-    choices = c("cosangle", "abscosangle", "euclid", "cor", "abscor"),
-    default = "euclid"
-  )
-  parser$add_argument(
-    "--k",
-    help = "Number of levels for Hopach clustering (1-15). Default: 3.",
-    type = "integer",
-    default = 3
-  )
-  parser$add_argument(
-    "--kmax",
-    help = "Maximum number of clusters at each level (2-9). Default: 5.",
-    type = "integer",
-    default = 5
-  )
-  
-  # Output options
-  parser$add_argument(
-    "--output",
-    help = "Output prefix. Default: atac-pairwise",
-    type = "character",
-    default = "atac-pairwise"
-  )
-  parser$add_argument(
-    "--threads",
-    help = "Number of threads",
-    type = "integer",
-    default = 1
-  )
-  parser$add_argument(
-    "--test_mode",
-    help = "Run in test mode (first 500 peaks only)",
-    action = "store_true",
-    default = FALSE
-  )
-  
-  # Parse arguments with better error handling
-  args <- tryCatch({
-    parser$parse_args(commandArgs(trailingOnly = TRUE))
+  # Try using argparse first, with fallback to manual parsing
+  tryCatch({
+    # Simple argparse approach without helper functions
+    parser <- argparse::ArgumentParser(description = "ATAC-seq pairwise differential accessibility analysis")
+    
+    # Basic required arguments for pairwise comparison
+    parser$add_argument("-t", "--treated_files", nargs = "+", required = TRUE, help = "Treated/condition1 files")
+    parser$add_argument("-u", "--untreated_files", nargs = "+", required = TRUE, help = "Untreated/condition2 files")
+    parser$add_argument("-tn", "--treated_name", required = TRUE, help = "Treated group name")
+    parser$add_argument("-un", "--untreated_name", required = TRUE, help = "Untreated group name")
+    parser$add_argument("-ta", "--treated_sample_names", nargs = "+", required = TRUE, help = "Treated sample names")
+    parser$add_argument("-ua", "--untreated_sample_names", nargs = "+", required = TRUE, help = "Untreated sample names")
+    parser$add_argument("-o", "--output", default = "atac-pairwise", help = "Output prefix")
+    
+    # Analysis parameters
+    parser$add_argument("--fdr", type = "double", default = 0.05, help = "FDR threshold")
+    parser$add_argument("--lfcthreshold", type = "double", default = 0.5, help = "Log fold change threshold")
+    parser$add_argument("--use_lfc_thresh", action = "store_true", default = FALSE, help = "Use LFC threshold")
+    parser$add_argument("--regulation", default = "both", choices = c("both", "up", "down"), help = "Regulation direction")
+    parser$add_argument("--batchcorrection", default = "none", help = "Batch correction method")
+    parser$add_argument("--cluster", default = "row", help = "Clustering method")
+    parser$add_argument("--scaling_type", default = "zscore", help = "Scaling type")
+    parser$add_argument("--k", type = "integer", default = 3, help = "Hopach k parameter")
+    parser$add_argument("--kmax", type = "integer", default = 5, help = "Hopach kmax parameter")
+    parser$add_argument("-p", "--threads", type = "integer", default = 1, help = "Number of threads")
+    parser$add_argument("--test_mode", action = "store_true", default = FALSE, help = "Test mode")
+    
+    # Parse arguments
+    args <- parser$parse_args()
+    
+    # Map to expected format
+    args$condition1 <- args$treated_name
+    args$condition2 <- args$untreated_name
+    args$condition_column <- "condition"
+    args$input_files <- c(args$untreated_files, args$treated_files)
+    args$name <- c(args$untreated_sample_names, args$treated_sample_names)
+    
   }, error = function(e) {
-    message("Warning: Argument parsing error. Attempting to handle arguments manually.")
+    message("Warning: argparse failed, using manual argument parsing")
+    message(paste("Error:", e$message))
     
+    # Fallback to manual parsing
     all_args <- commandArgs(trailingOnly = TRUE)
+    args <- parse_manually_pairwise(all_args)
     
-    # Use helper functions if available, otherwise fallback to manual parsing
-    if (exists("cli_helpers") && is.environment(cli_helpers)) {
-      message("Using CLI helper functions for manual parsing")
-      
-      # Parse using helpers
-      manual_args <- list()
-      
-      # Required single-value arguments
-      required_args <- c("meta", "condition_column", "condition1", "condition2")
-      for (arg in required_args) {
-        manual_args[[arg]] <- cli_helpers$parse_single_value_arg(all_args, arg)
-      }
-      
-      # Multi-value arguments (arrays)
-      array_args <- c("input_files", "bamfiles", "name")
-      for (arg in array_args) {
-        manual_args[[arg]] <- cli_helpers$parse_multi_value_arg(all_args, arg)
-      }
-      
-      # Optional single-value arguments with defaults
-      optional_args <- list(
-        peakformat = "narrow",
-        peakcaller = "macs",
-        regulation = "both",
-        batchcorrection = "none",
-        cluster = "none",
-        scaling_type = "zscore",
-        rowdist = "cosangle",
-        columndist = "euclid",
-        output = "atac-pairwise"
-      )
-      
-      for (arg in names(optional_args)) {
-        manual_args[[arg]] <- cli_helpers$parse_single_value_arg(all_args, arg, optional_args[[arg]])
-      }
-      
-      # Numeric arguments
-      numeric_args <- list(
-        scorecol = "integer", minoverlap = "integer", 
-        fdr = "double", lfcthreshold = "double", 
-        k = "integer", kmax = "integer", threads = "integer"
-      )
-      numeric_defaults <- list(
-        scorecol = 5, minoverlap = 2, fdr = 0.1, lfcthreshold = 0.59, 
-        k = 3, kmax = 5, threads = 1
-      )
-      numeric_values <- cli_helpers$parse_numeric_args(all_args, numeric_args, numeric_defaults)
-      manual_args <- c(manual_args, numeric_values)
-      
-      # Boolean flags
-      boolean_flags <- c("use_lfc_thresh", "test_mode")
-      boolean_values <- cli_helpers$parse_boolean_flags(all_args, boolean_flags)
-      manual_args <- c(manual_args, boolean_values)
-      
-    } else {
-      # Fallback to original manual parsing logic
-      message("CLI helpers not available, using original manual parsing")
-      manual_args <- list()
-      
-      # Basic manual parsing for required arguments
-      required_args <- c("meta", "condition1", "condition2")
-      for (req_arg in required_args) {
-        req_flag <- paste0("--", req_arg)
-        arg_idx <- which(all_args == req_flag)
-        if (length(arg_idx) > 0 && arg_idx[1] < length(all_args)) {
-          manual_args[[req_arg]] <- all_args[arg_idx[1] + 1]
-        }
-      }
-      
-      # Simple flag processing for other arguments
-      i <- 1
-      while (i <= length(all_args)) {
-        current_arg <- all_args[i]
-        if (grepl("^--", current_arg)) {
-          arg_name <- sub("^--", "", current_arg)
-          if (i < length(all_args) && !grepl("^--", all_args[i + 1])) {
-            manual_args[[arg_name]] <- all_args[i + 1]
-            i <- i + 2
-          } else {
-            manual_args[[arg_name]] <- TRUE
-            i <- i + 1
-          }
-        } else {
-          i <- i + 1
-        }
-      }
-    }
-    
-    message("Manually parsed arguments using helpers")
-    return(manual_args)
+    # Map to expected format (same as argparse version)
+    args$condition1 <- args$treated_name
+    args$condition2 <- args$untreated_name
+    args$condition_column <- "condition"
+    args$input_files <- c(args$untreated_files, args$treated_files)
+    args$name <- c(args$untreated_sample_names, args$treated_sample_names)
   })
   
-  # Validate required arguments
-  required_args <- c("input_files", "bamfiles", "name", "meta", "condition1", "condition2")
-  missing_args <- required_args[!required_args %in% names(args)]
+  # Add pairwise-specific required arguments to validation
+  pairwise_required <- c("condition1", "condition2")
+  missing_args <- pairwise_required[!pairwise_required %in% names(args)]
   if (length(missing_args) > 0) {
-    stop(paste("Missing required arguments:", paste(missing_args, collapse=", ")))
+    stop(paste("Missing required pairwise arguments:", paste(missing_args, collapse=", ")))
   }
   
-  # Validate input file counts
-  if (length(args$input_files) != length(args$bamfiles)) {
-    stop("Number of peak files must match number of BAM files")
+  # Set default values for pairwise-specific arguments
+  if (is.null(args$condition_column)) {
+    args$condition_column <- "condition"
   }
   
-  if (length(args$input_files) != length(args$name)) {
-    stop("Number of input files must match number of sample names")
+  return(args)
+}
+
+#' Manual parsing fallback for ATAC pairwise arguments
+#' @param all_args Command line arguments vector
+#' @return Parsed arguments list
+parse_manually_pairwise <- function(all_args) {
+  message("Using manual parsing for ATAC pairwise arguments")
+  
+  # Initialize with defaults
+  args <- list(
+    condition_column = "condition",
+    fdr = 0.05,
+    lfcthreshold = 0.5,
+    use_lfc_thresh = FALSE,
+    regulation = "both",
+    batchcorrection = "none",
+    cluster = "row",
+    scaling_type = "zscore",
+    k = 3,
+    kmax = 5,
+    output = "atac-pairwise",
+    threads = 1,
+    test_mode = FALSE
+  )
+  
+  # Parse arguments manually
+  i <- 1
+  while (i <= length(all_args)) {
+    arg <- all_args[i]
+    
+    if (arg == "-t" && i + 1 <= length(all_args)) {
+      # Parse treated files (multiple values)
+      i <- i + 1
+      treated_files <- c()
+      while (i <= length(all_args) && !startsWith(all_args[i], "-")) {
+        treated_files <- c(treated_files, all_args[i])
+        i <- i + 1
+      }
+      args$treated_files <- treated_files
+      next
+    } else if (arg == "-u" && i + 1 <= length(all_args)) {
+      # Parse untreated files (multiple values)
+      i <- i + 1
+      untreated_files <- c()
+      while (i <= length(all_args) && !startsWith(all_args[i], "-")) {
+        untreated_files <- c(untreated_files, all_args[i])
+        i <- i + 1
+      }
+      args$untreated_files <- untreated_files
+      next
+    } else if (arg == "-tn" && i + 1 <= length(all_args)) {
+      args$treated_name <- all_args[i + 1]
+      # Map to condition1 (treatment)
+      args$condition1 <- all_args[i + 1]
+      i <- i + 2
+    } else if (arg == "-un" && i + 1 <= length(all_args)) {
+      args$untreated_name <- all_args[i + 1]
+      # Map to condition2 (reference)
+      args$condition2 <- all_args[i + 1]
+      i <- i + 2
+    } else if (arg == "-ta" && i + 1 <= length(all_args)) {
+      # Parse treated sample names (multiple values)
+      i <- i + 1
+      treated_sample_names <- c()
+      while (i <= length(all_args) && !startsWith(all_args[i], "-")) {
+        treated_sample_names <- c(treated_sample_names, all_args[i])
+        i <- i + 1
+      }
+      args$treated_sample_names <- treated_sample_names
+      next
+    } else if (arg == "-ua" && i + 1 <= length(all_args)) {
+      # Parse untreated sample names (multiple values)
+      i <- i + 1
+      untreated_sample_names <- c()
+      while (i <= length(all_args) && !startsWith(all_args[i], "-")) {
+        untreated_sample_names <- c(untreated_sample_names, all_args[i])
+        i <- i + 1
+      }
+      args$untreated_sample_names <- untreated_sample_names
+      next
+    } else if (arg == "-o" && i + 1 <= length(all_args)) {
+      args$output <- all_args[i + 1]
+      i <- i + 2
+    } else if (arg == "--fdr" && i + 1 <= length(all_args)) {
+      args$fdr <- as.numeric(all_args[i + 1])
+      i <- i + 2
+    } else if (arg == "--lfcthreshold" && i + 1 <= length(all_args)) {
+      args$lfcthreshold <- as.numeric(all_args[i + 1])
+      i <- i + 2
+    } else if (arg == "--use_lfc_thresh") {
+      args$use_lfc_thresh <- TRUE
+      i <- i + 1
+    } else if (arg == "--test_mode") {
+      args$test_mode <- TRUE
+      i <- i + 1
+    } else if (arg == "--regulation" && i + 1 <= length(all_args)) {
+      args$regulation <- all_args[i + 1]
+      i <- i + 2
+    } else if (arg == "--scaling_type" && i + 1 <= length(all_args)) {
+      args$scaling_type <- all_args[i + 1]
+      i <- i + 2
+    } else if (arg == "--cluster" && i + 1 <= length(all_args)) {
+      args$cluster <- all_args[i + 1]
+      i <- i + 2
+    } else if (arg == "--batchcorrection" && i + 1 <= length(all_args)) {
+      args$batchcorrection <- all_args[i + 1]
+      i <- i + 2
+    } else if (arg == "--k" && i + 1 <= length(all_args)) {
+      args$k <- as.integer(all_args[i + 1])
+      i <- i + 2
+    } else if (arg == "--kmax" && i + 1 <= length(all_args)) {
+      args$kmax <- as.integer(all_args[i + 1])
+      i <- i + 2
+    } else if (arg == "-p" && i + 1 <= length(all_args)) {
+      args$threads <- as.integer(all_args[i + 1])
+      i <- i + 2
+    } else {
+      i <- i + 1
+    }
   }
   
-  # Convert boolean string values if needed
+  # Create metadata information based on the parsed arguments
+  # This mimics what the original pairwise workflow expects
+  args$meta <- NULL  # Will be created from sample information
+  args$input_files <- c(args$untreated_files, args$treated_files)
+  args$name <- c(args$untreated_sample_names, args$treated_sample_names)
+  
+  message(paste("Parsed condition1 (treatment):", args$condition1))
+  message(paste("Parsed condition2 (reference):", args$condition2))
+  message(paste("Parsed", length(args$input_files), "input files"))
+  message(paste("Parsed", length(args$name), "sample names"))
+  
+  return(args)
+}
+
+#' Validate command line arguments for ATAC-seq pairwise analysis
+#' Uses common validation functions to reduce duplication
+#'
+#' @param args Parsed arguments
+#' @return Validated args
+#' @export
+validate_args <- function(args) {
+  log_message("Validating ATAC-seq pairwise arguments")
+  
+  # Basic validation without helper functions
+  errors <- c()
+  
+  # Check required arguments
+  if (is.null(args$condition1) || args$condition1 == "") {
+    errors <- c(errors, "condition1 (treated_name) is required")
+  }
+  
+  if (is.null(args$condition2) || args$condition2 == "") {
+    errors <- c(errors, "condition2 (untreated_name) is required")
+  }
+  
+  # Pairwise-specific validation
+  if (!is.null(args$condition1) && !is.null(args$condition2) && args$condition1 == args$condition2) {
+    errors <- c(errors, "Condition1 and condition2 cannot be the same")
+  }
+  
+  # Validate numeric parameters
+  if (!is.null(args$fdr) && (args$fdr <= 0 || args$fdr >= 1)) {
+    errors <- c(errors, "FDR must be between 0 and 1")
+  }
+  
+  if (!is.null(args$lfcthreshold) && args$lfcthreshold < 0) {
+    errors <- c(errors, "Log fold change threshold must be non-negative")
+  }
+  
+  if (!is.null(args$k) && (args$k < 1 || args$k > 15)) {
+    errors <- c(errors, "k must be between 1 and 15")
+  }
+  
+  if (!is.null(args$kmax) && (args$kmax < 2 || args$kmax > 9)) {
+    errors <- c(errors, "kmax must be between 2 and 9")
+  }
+  
+  # Check file arguments
+  if (is.null(args$input_files) || length(args$input_files) == 0) {
+    errors <- c(errors, "No input files provided")
+  }
+  
+  if (is.null(args$name) || length(args$name) == 0) {
+    errors <- c(errors, "No sample names provided")
+  }
+  
+  if (!is.null(args$input_files) && !is.null(args$name) && 
+      length(args$input_files) != length(args$name)) {
+    errors <- c(errors, "Number of input files must match number of sample names")
+  }
+  
+  # Convert boolean values if they're strings
   for (arg_name in c("use_lfc_thresh", "test_mode")) {
     if (!is.null(args[[arg_name]])) {
       if (is.character(args[[arg_name]])) {
@@ -337,54 +318,8 @@ get_args <- function() {
     }
   }
   
-  # Convert numeric values
-  for (arg_name in c("scorecol", "minoverlap", "fdr", "lfcthreshold", "k", "kmax", "threads")) {
-    if (!is.null(args[[arg_name]]) && is.character(args[[arg_name]])) {
-      if (grepl("^[0-9.]+$", args[[arg_name]])) {
-        args[[arg_name]] <- as.numeric(args[[arg_name]])
-      }
-    }
-  }
-  
-  return(args)
-}
-
-#' Validate command line arguments for ATAC-seq pairwise analysis
-#'
-#' @param args Parsed arguments
-#' @return Validated args
-#' @export
-validate_args <- function(args) {
-  log_message("Validating ATAC-seq pairwise arguments")
-  
-  # Check file existence
-  for (file in args$input_files) {
-    if (!file.exists(file)) {
-      stop(paste("Peak file not found:", file))
-    }
-  }
-  
-  for (file in args$bamfiles) {
-    if (!file.exists(file)) {
-      stop(paste("BAM file not found:", file))
-    }
-  }
-  
-  if (!file.exists(args$meta)) {
-    stop(paste("Metadata file not found:", args$meta))
-  }
-  
-  # Validate numeric parameters
-  if (args$fdr <= 0 || args$fdr >= 1) {
-    stop("FDR must be between 0 and 1")
-  }
-  
-  if (args$lfcthreshold < 0) {
-    stop("Log fold change threshold must be non-negative")
-  }
-  
-  if (args$minoverlap < 1) {
-    stop("Minimum overlap must be at least 1")
+  if (length(errors) > 0) {
+    stop("Argument validation failed:\n", paste(errors, collapse = "\n"))
   }
   
   log_message("ATAC-seq pairwise arguments validated successfully")
@@ -392,27 +327,129 @@ validate_args <- function(args) {
 }
 
 #' Print command line arguments for debugging
+#' Uses common print function with pairwise-specific additions
 #'
 #' @param args Parsed arguments
 #' @export
 print_args <- function(args) {
-  log_message("ATAC-seq Pairwise Analysis Arguments:")
-  log_message(paste("  Input files:", length(args$input_files), "peak files"))
-  log_message(paste("  BAM files:", length(args$bamfiles), "files"))
-  log_message(paste("  Sample names:", paste(args$name, collapse=", ")))
-  log_message(paste("  Metadata file:", args$meta))
-  log_message(paste("  Condition column:", args$condition_column))
-  log_message(paste("  Condition 1 (treatment):", args$condition1))
-  log_message(paste("  Condition 2 (reference):", args$condition2))
-  log_message(paste("  Peak format:", args$peakformat))
-  log_message(paste("  Peak caller:", args$peakcaller))
-  log_message(paste("  Score column:", args$scorecol))
-  log_message(paste("  Minimum overlap:", args$minoverlap))
-  log_message(paste("  FDR threshold:", args$fdr))
-  log_message(paste("  LFC threshold:", args$lfcthreshold))
-  log_message(paste("  Regulation:", args$regulation))
-  log_message(paste("  Batch correction:", args$batchcorrection))
-  log_message(paste("  Clustering:", args$cluster))
-  log_message(paste("  Output prefix:", args$output))
-  log_message(paste("  Test mode:", args$test_mode))
+  # Use common print function
+  print_atac_args(args, "ATAC-seq Pairwise")
+  
+  # Add pairwise-specific information
+  log_message("  Pairwise-specific parameters:")
+  log_message(paste("    Condition column:", args$condition_column))
+  log_message(paste("    Condition 1 (treatment):", args$condition1))
+  log_message(paste("    Condition 2 (reference):", args$condition2))
+}
+
+#' Manual argument parsing function as fallback when argparse is not available
+#'
+#' @return Parsed argument list
+parse_args_manual_atac <- function() {
+  args <- commandArgs(trailingOnly = TRUE)
+  
+  # Initialize result with defaults
+  result <- list(
+    treated_files = NULL,
+    untreated_files = NULL,
+    treated_name = "treated",
+    untreated_name = "untreated",
+    treated_sample_names = NULL,
+    untreated_sample_names = NULL,
+    batchcorrection = "none",
+    fdr = 0.05,
+    lfcthreshold = 0.5,
+    use_lfc_thresh = FALSE,
+    regulation = "both",
+    scaling_type = "zscore",
+    cluster = "row",
+    rowdist = "cosangle",
+    columndist = "euclid",
+    k = 3,
+    kmax = 5,
+    output = "atac_pairwise",
+    threads = 1,
+    test_mode = FALSE
+  )
+  
+  # Parse arguments manually
+  i <- 1
+  while (i <= length(args)) {
+    arg <- args[i]
+    
+    if (arg %in% c("-t", "--treated_files")) {
+      result$treated_files <- c()
+      j <- i + 1
+      while (j <= length(args) && !startsWith(args[j], "-")) {
+        result$treated_files <- c(result$treated_files, args[j])
+        j <- j + 1
+      }
+      i <- j
+    } else if (arg %in% c("-u", "--untreated_files")) {
+      result$untreated_files <- c()
+      j <- i + 1
+      while (j <= length(args) && !startsWith(args[j], "-")) {
+        result$untreated_files <- c(result$untreated_files, args[j])
+        j <- j + 1
+      }
+      i <- j
+    } else if (arg %in% c("-ta", "--treated_sample_names")) {
+      result$treated_sample_names <- c()
+      j <- i + 1
+      while (j <= length(args) && !startsWith(args[j], "-")) {
+        result$treated_sample_names <- c(result$treated_sample_names, args[j])
+        j <- j + 1
+      }
+      i <- j
+    } else if (arg %in% c("-ua", "--untreated_sample_names")) {
+      result$untreated_sample_names <- c()
+      j <- i + 1
+      while (j <= length(args) && !startsWith(args[j], "-")) {
+        result$untreated_sample_names <- c(result$untreated_sample_names, args[j])
+        j <- j + 1
+      }
+      i <- j
+    } else if (arg %in% c("-tn", "--treated_name")) {
+      result$treated_name <- args[i + 1]
+      i <- i + 2
+    } else if (arg %in% c("-un", "--untreated_name")) {
+      result$untreated_name <- args[i + 1]
+      i <- i + 2
+    } else if (arg %in% c("-o", "--output")) {
+      result$output <- args[i + 1]
+      i <- i + 2
+    } else if (arg == "--fdr") {
+      result$fdr <- as.numeric(args[i + 1])
+      i <- i + 2
+    } else if (arg == "--lfcthreshold") {
+      result$lfcthreshold <- as.numeric(args[i + 1])
+      i <- i + 2
+    } else if (arg %in% c("-p", "--threads")) {
+      result$threads <- as.integer(args[i + 1])
+      i <- i + 2
+    } else if (arg == "--test_mode") {
+      result$test_mode <- TRUE
+      i <- i + 1
+    } else if (arg == "--use_lfc_thresh") {
+      result$use_lfc_thresh <- TRUE
+      i <- i + 1
+    } else if (arg == "--batchcorrection") {
+      result$batchcorrection <- args[i + 1]
+      i <- i + 2
+    } else if (arg == "--regulation") {
+      result$regulation <- args[i + 1]
+      i <- i + 2
+    } else if (arg == "--scaling_type") {
+      result$scaling_type <- args[i + 1]
+      i <- i + 2
+    } else if (arg == "--cluster") {
+      result$cluster <- args[i + 1]
+      i <- i + 2
+    } else {
+      # Skip unknown arguments
+      i <- i + 1
+    }
+  }
+  
+  return(result)
 }

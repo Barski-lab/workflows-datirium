@@ -11,21 +11,46 @@
 load_and_validate_pairwise_metadata <- function(args) {
   log_message("Loading metadata for ATAC-seq pairwise analysis...")
   
-  # Get the file delimiter
-  delimiter <- check_file_delimiter(args$meta)
-  
-  # Load metadata
-  metadata_df <- read.table(
-    args$meta,
-    sep = delimiter,
-    header = TRUE,
-    stringsAsFactors = FALSE,
-    row.names = 1
-  )
-  
-  # Clean metadata column and row names
-  colnames(metadata_df) <- clean_sample_names(colnames(metadata_df))
-  rownames(metadata_df) <- clean_sample_names(rownames(metadata_df))
+  # For pairwise analysis, create metadata from sample information
+  if (is.null(args$meta)) {
+    log_message("Creating metadata from sample information for pairwise analysis")
+    
+    # Create metadata data frame from sample names and conditions
+    all_sample_names <- args$name
+    all_conditions <- c(
+      rep(args$condition2, length(args$untreated_sample_names)),  # Reference condition first
+      rep(args$condition1, length(args$treated_sample_names))     # Treatment condition second
+    )
+    
+    metadata_df <- data.frame(
+      condition = all_conditions,
+      stringsAsFactors = FALSE,
+      row.names = all_sample_names
+    )
+    
+    # Set condition column name
+    args$condition_column <- "condition"
+    
+  } else {
+    # Load metadata from file if provided
+    log_message("Loading metadata from file...")
+    
+    # Get the file delimiter
+    delimiter <- check_file_delimiter(args$meta)
+    
+    # Load metadata
+    metadata_df <- read.table(
+      args$meta,
+      sep = delimiter,
+      header = TRUE,
+      stringsAsFactors = FALSE,
+      row.names = 1
+    )
+    
+    # Clean metadata column and row names
+    colnames(metadata_df) <- clean_sample_names(colnames(metadata_df))
+    rownames(metadata_df) <- clean_sample_names(rownames(metadata_df))
+  }
   
   log_message(paste("Loaded metadata for", nrow(metadata_df), "samples with", 
                    ncol(metadata_df), "covariates"))
@@ -92,8 +117,16 @@ load_and_validate_pairwise_atac_data <- function(args, metadata_df) {
   
   # Filter to only relevant samples
   filtered_input_files <- args$input_files[sample_mask]
-  filtered_bamfiles <- args$bamfiles[sample_mask]
   filtered_names <- clean_names[sample_mask]
+  
+  # Handle BAM files if provided, otherwise create dummy BAM file paths
+  if (!is.null(args$bamfiles) && length(args$bamfiles) > 0) {
+    filtered_bamfiles <- args$bamfiles[sample_mask]
+  } else {
+    # Create dummy BAM file paths for peak-only analysis
+    log_message("No BAM files provided - using peak-only analysis mode")
+    filtered_bamfiles <- paste0(filtered_names, ".bam")
+  }
   
   log_message(paste("Filtered to", length(filtered_names), "samples matching metadata"))
   
@@ -117,17 +150,20 @@ load_and_validate_pairwise_atac_data <- function(args, metadata_df) {
 #' @return DiffBind sample sheet
 #' @export
 create_pairwise_diffbind_sample_sheet <- function(input_files, bamfiles, clean_names, metadata_df, args) {
+  # Set default values for missing arguments
+  peakcaller <- if (is.null(args$peakcaller)) "macs" else args$peakcaller
+  
   # Create the basic sample sheet structure required by DiffBind
   sample_sheet <- data.frame(
     SampleID = clean_names,
-    Tissue = "N",  # Default tissue type
-    Factor = "ATAC",  # Factor being analyzed
+    Tissue = rep("N", length(clean_names)),  # Default tissue type
+    Factor = rep("ATAC", length(clean_names)),  # Factor being analyzed
     Condition = metadata_df[clean_names, args$condition_column],
     Treatment = metadata_df[clean_names, args$condition_column],
     Replicate = seq_along(clean_names),  # Sequential replicate numbers
     bamReads = bamfiles,
     Peaks = input_files,
-    PeakCaller = args$peakcaller,
+    PeakCaller = rep(peakcaller, length(clean_names)),
     stringsAsFactors = FALSE
   )
   
@@ -153,8 +189,11 @@ create_pairwise_diffbind_sample_sheet <- function(input_files, bamfiles, clean_n
   
   # Validate file accessibility
   for (i in 1:nrow(sample_sheet)) {
-    if (!file.exists(sample_sheet$bamReads[i])) {
-      stop(paste("BAM file not found:", sample_sheet$bamReads[i]))
+    # Only check BAM files if they're real files (not dummy paths)
+    if (file.exists(dirname(sample_sheet$bamReads[i])) && !grepl("^[^/]*\\.bam$", sample_sheet$bamReads[i])) {
+      if (!file.exists(sample_sheet$bamReads[i])) {
+        stop(paste("BAM file not found:", sample_sheet$bamReads[i]))
+      }
     }
     if (!file.exists(sample_sheet$Peaks[i])) {
       stop(paste("Peak file not found:", sample_sheet$Peaks[i]))

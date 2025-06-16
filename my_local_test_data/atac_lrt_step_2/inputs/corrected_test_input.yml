@@ -1,0 +1,33 @@
+# ATAC LRT Step 2 Test Input (Corrected Paths)
+# This file matches the actual CWL tool parameter names
+
+# Input objects from Step 1 (using available test data)
+dsq_obj_data:
+  class: File
+  path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_2/inputs/diffbind_results.rds"
+
+contrasts_table:
+  class: File
+  path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_2/inputs/contrasts_table.csv"
+
+# Required parameters
+contrast_indices: "1,2"  # Test first two contrasts
+
+# Analysis parameters
+fdr_cutoff: 0.05
+lfcthreshold: 0.5
+use_lfc_thresh: true
+regulation: "both"
+
+# Processing parameters  
+threads: 1
+test_mode: true
+
+# Clustering parameters
+cluster_method: "row"
+scaling_type: "zscore"
+k_hopach: 3
+kmax_hopach: 5
+
+# Output
+output_prefix: "atac_lrt_step_2_test" 

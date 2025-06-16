@@ -1,0 +1,224 @@
+name: Build and Push Docker Images (Matrix)
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - 'tools/dockerfiles/**'
+      - '.github/workflows/docker-build-matrix.yml'
+  pull_request:
+    branches:
+      - master
+      - main
+    paths:
+      - 'tools/dockerfiles/**'
+      - '.github/workflows/docker-build-matrix.yml'
+  workflow_dispatch:
+    inputs:
+      image_filter:
+        description: 'Build specific image (leave empty for all changed images)'
+        required: false
+        default: ''
+        type: string
+      force_build:
+        description: 'Force build all images regardless of changes'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  DOCKER_HUB_REPO: biowardrobe2
+  DOCKERFILE_PATH: tools/dockerfiles
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      has_changes: ${{ steps.set-matrix.outputs.has_changes }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect Changed Dockerfiles and Set Matrix
+        id: set-matrix
+        run: |
+          set -euo pipefail
+          
+          # Define all available Docker images with their configurations
+          declare -A DOCKER_CONFIGS=(
+            ["scidap-deseq"]="scidap-deseq-Dockerfile"
+            ["scidap-atacseq"]="scidap-atacseq-Dockerfile"
+          )
+          
+          CHANGED_IMAGES=()
+          
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            if [[ "${{ github.event.inputs.force_build }}" == "true" ]]; then
+              # Build all images if force_build is true
+              CHANGED_IMAGES=($(printf '%s\n' "${!DOCKER_CONFIGS[@]}"))
+              echo "Force build enabled - building all images"
+            elif [[ -n "${{ github.event.inputs.image_filter }}" ]]; then
+              # Build specific image if provided
+              if [[ -v "DOCKER_CONFIGS[${{ github.event.inputs.image_filter }}]" ]]; then
+                CHANGED_IMAGES=("${{ github.event.inputs.image_filter }}")
+                echo "Building specific image: ${{ github.event.inputs.image_filter }}"
+              else
+                echo "Error: Image '${{ github.event.inputs.image_filter }}' not found in available configurations"
+                exit 1
+              fi
+            fi
+          else
+            # Detect changed files for push/PR events
+            if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+              BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            else
+              BASE_SHA="${{ github.event.before }}"
+            fi
+            
+            # Get changed files
+            CHANGED_FILES=$(git diff --name-only ${BASE_SHA} HEAD || git diff --name-only HEAD~1 HEAD)
+            echo "Changed files: $CHANGED_FILES"
+            
+            # Check which Docker images need rebuilding
+            for image_name in "${!DOCKER_CONFIGS[@]}"; do
+              dockerfile="${DOCKER_CONFIGS[$image_name]}"
+              dockerfile_path="tools/dockerfiles/$dockerfile"
+              
+              # Check if dockerfile or related scripts changed
+              if echo "$CHANGED_FILES" | grep -E "(^${dockerfile_path}$|^tools/dockerfiles/scripts/)" > /dev/null; then
+                CHANGED_IMAGES+=("$image_name")
+                echo "Image $image_name needs rebuilding (dockerfile or scripts changed)"
+              fi
+            done
+          fi
+          
+          # Create matrix JSON
+          if [[ ${#CHANGED_IMAGES[@]} -gt 0 ]]; then
+            MATRIX_JSON=$(printf '{"image_name":["%s"]}' "$(IFS='","'; echo "${CHANGED_IMAGES[*]}")")
+            echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Matrix: $MATRIX_JSON"
+          else
+            echo "matrix={\"image_name\":[]}" >> $GITHUB_OUTPUT
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected - skipping builds"
+          fi
+
+  build:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+      
+    outputs:
+      docker_tags: ${{ steps.collect-tags.outputs.docker_tags }}
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set Image Configuration
+        id: config
+        run: |
+          case "${{ matrix.image_name }}" in
+            "scidap-deseq")
+              echo "dockerfile=scidap-deseq-Dockerfile" >> $GITHUB_OUTPUT
+              ;;
+            "scidap-atacseq")
+              echo "dockerfile=scidap-atacseq-Dockerfile" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "Error: Unknown image name ${{ matrix.image_name }}"
+              exit 1
+              ;;
+          esac
+
+      - name: Extract Version from Dockerfile
+        id: extract-version
+        run: |
+          set -euo pipefail
+          
+          DOCKERFILE_PATH="${{ env.DOCKERFILE_PATH }}/${{ steps.config.outputs.dockerfile }}"
+          
+          if [[ ! -f "$DOCKERFILE_PATH" ]]; then
+            echo "Error: Dockerfile not found at $DOCKERFILE_PATH"
+            exit 1
+          fi
+          
+          # Extract version with better error handling
+          VERSION=$(grep -oP "Software Version: \K[^\s]+" "$DOCKERFILE_PATH" | head -n 1 || echo "")
+          
+          if [[ -z "$VERSION" ]]; then
+            # Fallback: try to extract from build command or use default
+            VERSION=$(grep -oP "docker build .+\s+${{ env.DOCKER_HUB_REPO }}/${{ matrix.image_name }}:\K[^\s]+" "$DOCKERFILE_PATH" | head -n 1 || echo "v0.0.1")
+            echo "Warning: Version not found in header comment, using fallback: $VERSION"
+          fi
+          
+          echo "Extracted version: $VERSION"
+          echo "docker_tag=$VERSION" >> $GITHUB_OUTPUT
+          
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ env.DOCKERFILE_PATH }}
+          file: ${{ env.DOCKERFILE_PATH }}/${{ steps.config.outputs.dockerfile }}
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.image_name }}:${{ steps.extract-version.outputs.docker_tag }}
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.image_name }}:latest
+            ${{ env.DOCKER_HUB_REPO }}/${{ matrix.image_name }}:${{ steps.extract-version.outputs.docker_tag }}
+            ${{ env.DOCKER_HUB_REPO }}/${{ matrix.image_name }}:latest
+          cache-from: type=gha,scope=${{ matrix.image_name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image_name }}
+          
+      - name: Collect Built Tags
+        id: collect-tags
+        if: github.event_name != 'pull_request'
+        run: |
+          TAGS="${{ matrix.image_name }}:${{ steps.extract-version.outputs.docker_tag }}"
+          echo "docker_tags=$TAGS" >> $GITHUB_OUTPUT
+          echo "Built image: $TAGS"
+
+  notify-deployment:
+    needs: [detect-changes, build]
+    if: needs.detect-changes.outputs.has_changes == 'true' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Save Built Images Info
+        run: |
+          echo "The following images were built and are ready for deployment:" > built_images.txt
+          echo "${{ needs.build.outputs.docker_tags }}" | tr ',' '\n' >> built_images.txt
+          cat built_images.txt
+          
+      - name: Upload Built Images Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-images
+          path: built_images.txt
+          retention-days: 7

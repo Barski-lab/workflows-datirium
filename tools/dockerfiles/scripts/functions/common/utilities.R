@@ -441,11 +441,22 @@ resolve_namespace_conflicts <- function() {
 # Load all required libraries for DESeq2 LRT analysis
 load_required_libraries <- function() {
   suppressMessages({
-    # Core packages
-    library(argparse)
+    # Core packages (argparse is optional, fallback to manual parsing)
+    tryCatch({
+      library(argparse)
+    }, error = function(e) {
+      message("Note: argparse package not available, using manual argument parsing")
+    })
     library(BiocParallel)
     library(DESeq2)
     library(SummarizedExperiment)
+    
+    # EdgeR for single replicate analysis
+    tryCatch({
+      library(edgeR)
+    }, error = function(e) {
+      message("Note: edgeR package not available - single replicate analysis will be disabled")
+    })
     
     # Data manipulation
     library(tidyverse)

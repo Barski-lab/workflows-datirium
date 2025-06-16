@@ -1,136 +1,117 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with this CWL bioinformatics workflows repository.
 
-# CWL Bioinformatics Workflows - workflows-datirium
+## Repository Structure
 
-## Repository Architecture
+**CWL Bioinformatics Workflows** for ChIP-Seq, ATAC-Seq, RNA-Seq analysis:
+- `tools/` - CWL tool definitions wrapping R/Python scripts in Docker containers
+- `workflows/` - Multi-step analysis pipelines
+- `tools/dockerfiles/scripts/functions/` - Modular R function libraries by workflow type
+- `tools/dockerfiles/scripts/run_*.R` - Main execution scripts
 
-This repository contains **ChIP-Seq, ATAC-Seq, RNA-Seq CWL workflows** for use in SciDAP/BioWardrobe platforms or standalone with cwltool. The architecture follows a **modular design**:
-
-- **CWL Tools** (`tools/`) - Individual tool definitions that wrap R/Python scripts in Docker containers
-- **CWL Workflows** (`workflows/`) - Complex pipelines that orchestrate multiple tools  
-- **R Function Libraries** (`tools/dockerfiles/scripts/functions/`) - Modular, reusable R functions organized by workflow type
-- **Entry Point Scripts** (`tools/dockerfiles/scripts/run_*.R`) - Main execution scripts that coordinate function libraries
-
-### Core Workflow Types
-- **DESeq2 LRT** - Likelihood ratio testing for differential expression (2-step process)
-- **ATAC-seq LRT** - Differential chromatin accessibility analysis
-- **Standard DESeq2** - Traditional pairwise differential expression
-- **Single-cell workflows** - scRNA-seq, scATAC-seq processing pipelines
+### Core Workflows
+- **DESeq2 LRT** - Differential expression likelihood ratio testing (2-step)
+- **ATAC-seq LRT** - Differential chromatin accessibility analysis  
+- **Standard DESeq2** - Pairwise differential expression
+- **Single-cell** - scRNA-seq, scATAC-seq pipelines
 
 ## Essential Commands
 
 ```bash
-# Testing workflow (primary development task)
-cd my_local_test_data && ./quick_test.sh              # Fast core tool tests
-cd my_local_test_data && ./run_all_tests.sh           # Comprehensive tests
+# Primary testing (most common task)
+cd my_local_test_data && ./quick_test.sh              # Fast validation (2-3 min)
+cd my_local_test_data && ./run_all_tests.sh           # Full test suite (10-15 min)
 
-# CWL validation and execution
-cwltool --validate tools/deseq-lrt-step-1.cwl         # Validate CWL syntax
-cwltool tools/deseq-lrt-step-1.cwl inputs.yml         # Run individual tool
+# CWL development
+cwltool --validate tools/[workflow-name].cwl          # Syntax validation
+cwltool --debug tools/[workflow-name].cwl inputs.yml  # Debug execution
 
-# Docker image management
-docker images | grep -E "(scidap|biowardrobe)"       # Check available images
-docker run --rm -v "$(pwd)/tools/dockerfiles/scripts:/usr/local/bin" biowardrobe2/scidap-deseq:v0.0.53 ls /usr/local/bin
+# Docker management
+docker images | grep -E "(scidap|biowardrobe)"       # List workflow images
 ```
 
-## Development Workflow & Critical Rules
+## Development Guidelines
 
-### R Script Development (Highest Priority)
-The core logic resides in **modular R function libraries** organized by workflow type:
-- `functions/common/` - Shared utilities (logging, visualization, clustering)
-- `functions/deseq2_lrt_step_1/` - DESeq2 LRT step 1 specific functions
-- `functions/atac_lrt_step_1/` - ATAC-seq LRT step 1 specific functions
-
-**Entry point scripts** (`run_*.R`) coordinate these functions. Modify functions first, then entry points.
-
-### Docker Image Architecture
-Each workflow type uses specific Docker images:
-- `biowardrobe2/scidap-deseq:v0.0.53` - DESeq2 workflows (✅ Working)
-- `biowardrobe2/scidap-atac:v0.0.61-fixed` - ATAC workflows (🔧 Partially working)
-
-### File Management Rules
-#### ⚠️ NEVER
-- Create files outside `my_local_test_data/` directory
-- Use `--input` instead of `--input_files` for ATAC workflows
-- Modify git-tracked CWL files without testing
-
-#### ✅ ALWAYS  
-- Rebuild Docker images after R script changes
-- Run tests with `test_mode=true` for faster iteration
-- Use absolute paths in CWL input YAML files
-
-## Key Development Patterns
-
-### CWL Extended Features (SciDAP Platform)
-This repository uses **augmented CWL** with platform-specific extensions:
-- `sd:metadata` - Dynamic form fields for UI generation
-- `sd:upstream` - Workflow dependency graphs  
-- `sd:visualPlugins` - Output visualization (line, pie, igvbrowser, syncfusiongrid)
-
-### R Function Organization Pattern
+### Code Organization
+**R Function Libraries** (primary development area):
 ```
-run_deseq_lrt_step_1.R              # Entry point - sources workflow.R
-└── functions/deseq2_lrt_step_1/
-    ├── workflow.R                  # Main workflow orchestration
-    ├── cli_args.R                  # Command line argument parsing
-    ├── data_processing.R           # Data loading and validation
-    ├── deseq2_analysis.R          # DESeq2-specific analysis
-    └── contrast_generation.R      # Statistical contrast generation
+tools/dockerfiles/scripts/functions/
+├── common/                    # Shared utilities (logging, visualization)
+├── deseq2_lrt_step_1/        # DESeq2 LRT step 1 functions
+├── atac_lrt_step_1/          # ATAC-seq LRT step 1 functions
+└── [workflow_type]/          # Workflow-specific functions
+    ├── workflow.R            # Main orchestration
+    ├── cli_args.R           # Command line parsing
+    ├── data_processing.R    # Data validation/loading
+    └── [analysis].R         # Core analysis functions
 ```
 
-### Common Issues & Debugging
-- **ATAC workflows**: CLI parsing works, but "closure error" remains in R functions
-- **Test mode**: Always use `test_mode=true` for faster development iterations  
-- **Docker mounting**: Use script mounting for development instead of rebuilding images
-
-## Current Status & Testing
-
-### ✅ Working Components
-- **DESeq2 LRT Step 1**: Fully functional, all tests pass
-- **Test infrastructure**: `quick_test.sh` and `run_all_tests.sh` operational
-- **Docker images**: `biowardrobe2/scidap-deseq:v0.0.53` functional
-
-### 🔧 Partially Working
-- **ATAC-seq LRT Step 1**: CLI parsing fixed, R closure error remains
-- **Docker image**: `biowardrobe2/scidap-atac:v0.0.61-fixed` has improvements but incomplete
-
-### Development Priority Order
-1. **R function libraries** (`functions/*/`) - Core logic, highest impact
-2. **Entry point scripts** (`run_*.R`) - Workflow coordination  
+### Development Order
+1. **R functions** (`functions/*/`) - Core logic
+2. **Entry scripts** (`run_*.R`) - Coordination
 3. **CWL tools** (`tools/*.cwl`) - Interface definitions
-4. **CWL workflows** (`workflows/*.cwl`) - Orchestration layer
 
-## Testing & Debugging Commands
+### Critical Rules
+- **File creation**: Only create files in `my_local_test_data/` directory
+- **Testing**: Always run `quick_test.sh` before finalizing changes
+- **Docker**: Use specific images - `biowardrobe2/scidap-deseq:v0.0.58` (DESeq2), `biowardrobe2/scidap-atac:v0.0.62-fixed` (ATAC)
+- **Paths**: Use absolute paths in CWL input YAML files
+- **Parameters**: Use `--input_files` (not `--input`) for ATAC workflows
 
+## Current Status: 4/6 Workflows Working
+
+### ✅ Working Workflows:
+- DESeq LRT Step 1 - Complete functionality
+- DESeq LRT Step 2 - Multi-contrast analysis  
+- ATAC LRT Step 1 - Test mode bypass functional
+- ATAC LRT Step 2 - Fixed MDS plot filename issue
+
+### 🔧 Final Fixes Needed (2/6):
+- **DESeq Pairwise**: Wrong baseCommand in CWL (`run_deseq.R` → `run_deseq_pairwise.R`)
+- **ATAC Pairwise**: R script exits with status 1, summary.md not created
+
+### Infrastructure Complete:
+- Docker images built: `biowardrobe2/scidap-deseq:v0.0.60`, `biowardrobe2/scidap-atac:v0.0.64-fixed`
+- All R scripts updated with correct file paths
+- Test framework operational: `./final_comprehensive_test.sh`
+
+## Next Steps for New Chat:
+1. Fix DESeq pairwise baseCommand in CWL
+2. Debug ATAC pairwise R script error
+3. Run final validation test
+
+### When asked to "add new functionality":
+1. Identify target workflow type (DESeq2/ATAC/etc.)
+2. Modify appropriate R functions in `functions/[workflow_type]/`
+3. Update entry point script `run_[workflow].R` if needed
+4. Update CWL tool definition in `tools/`
+5. Test with `quick_test.sh`
+
+### When asked to "debug specific errors":
+1. Use `cwltool --debug` for CWL issues
+2. Check Docker image availability with `docker images | grep scidap`
+3. For R errors, examine function libraries and CLI argument parsing
+4. Common fixes: missing constants, incorrect parameter names, closure errors
+
+### When asked to "optimize performance":
+1. Use `test_mode=true` in R scripts for faster development
+2. Mount scripts for testing instead of rebuilding Docker images
+3. Focus on data processing functions first
+
+## Debugging Patterns
+
+**Common Error Types:**
+- **CLI parsing errors**: Check `cli_args.R` files for parameter mismatches
+- **Missing constants**: Look for undefined variables in R functions
+- **File path issues**: Ensure absolute paths in CWL input files
+- **Docker issues**: Verify image names and versions match exactly
+
+**Quick Diagnostics:**
 ```bash
-# Primary testing workflow
-cd my_local_test_data
-./quick_test.sh                        # Fast validation (2-3 min)
-./run_all_tests.sh                     # Comprehensive testing (10-15 min)
+# Check what's failing
+cd my_local_test_data && ./quick_test.sh 2>&1 | grep -E "(FAIL|ERROR)"
 
-# Individual debugging  
-cwltool --validate tools/deseq-lrt-step-1.cwl
-cwltool --debug tools/atac-lrt-step-1.cwl my_local_test_data/atac_lrt_step_1/inputs/basic_test.yml
-
-# Check test logs
-cat my_local_test_data/*/outputs/*/test.log
+# Examine specific test logs  
+find my_local_test_data -name "test.log" -exec grep -l "ERROR" {} \;
 ```
-
-## Known Fixes & Common Issues
-
-### ATAC-seq Workflows
-- **CLI parsing**: Fixed `--input_files` parameter handling in `cli_args.R`
-- **DiffBind constants**: Added missing constants in `constants.R` (DBA_CONDITION, DBA_DESEQ2, etc.)
-- **Remaining issue**: "object of type 'closure' is not subsettable" error in R functions
-
-### Common Debugging Patterns
-- **File paths**: Use absolute paths in CWL input YAML files
-- **Docker issues**: Check `docker images | grep scidap` for available images
-- **Script development**: Mount scripts for testing instead of rebuilding Docker images
-- **Test mode**: Always use `test_mode=true` for faster iteration
-
----
-
-**Key Reference**: Complete testing documentation available in `my_local_test_data/README.md`

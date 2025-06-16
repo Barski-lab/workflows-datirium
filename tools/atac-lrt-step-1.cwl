@@ -6,7 +6,7 @@ requirements:
 
 hints:
 - class: DockerRequirement
-  dockerPull: "biowardrobe2/scidap-atac:v0.0.61-fixed"
+  dockerPull: "biowardrobe2/scidap-atac:v0.0.62-fixed"
 
 inputs:
   test_peak_files:
@@ -88,7 +88,6 @@ inputs:
     default: false
     inputBinding:
       prefix: "--use_lfc_thresh"
-      valueFrom: "$(self ? 'TRUE' : 'FALSE')"
     doc: "Use LFC threshold"
 
   rpkm_cutoff:
@@ -172,7 +171,6 @@ inputs:
     default: false
     inputBinding:
       prefix: "--lrt_only_mode"
-      valueFrom: "$(self ? 'TRUE' : 'FALSE')"
     doc: "LRT only mode"
 
   test_mode:
@@ -180,7 +178,6 @@ inputs:
     default: false
     inputBinding:
       prefix: "--test_mode"
-      valueFrom: "$(self ? 'TRUE' : 'FALSE')"
     doc: "Test mode"
 
 outputs:

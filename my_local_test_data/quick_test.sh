@@ -1,4 +1,4 @@
-#!/bin/bash
+    #!/bin/bash
 
 # Quick test script for DESeq and ATAC-seq workflows
 # Must be run from repository root directory
