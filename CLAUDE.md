@@ -55,19 +55,19 @@ tools/dockerfiles/scripts/functions/
 ### Critical Rules
 - **File creation**: Only create files in `my_local_test_data/` directory
 - **Testing**: Always run `quick_test.sh` before finalizing changes
-- **Docker**: Use specific images - `biowardrobe2/scidap-deseq:v0.0.58` (DESeq2), `biowardrobe2/scidap-atac:v0.0.62-fixed` (ATAC)
+- **Docker**: Use specific images - `biowardrobe2/scidap-deseq:v0.0.62` (DESeq2), `biowardrobe2/scidap-atac:v0.0.67` (ATAC)
 - **Paths**: Use absolute paths in CWL input YAML files
 - **Parameters**: Use `--input_files` (not `--input`) for ATAC workflows
 
 ## Current Status: 6/6 Workflows Working ✅
 
 ### ✅ All Workflows Confirmed Working:
-- **DESeq LRT Step 1** - Complete functionality (`biowardrobe2/scidap-deseq:v0.0.58`)
-- **DESeq LRT Step 2** - Multi-contrast analysis (`biowardrobe2/scidap-deseq:v0.0.58`) 
-- **DESeq Pairwise** - Pairwise differential expression (`biowardrobe2/scidap-deseq:v0.0.61-fixed`)
-- **ATAC LRT Step 1** - Test mode bypass functional (`biowardrobe2/scidap-atac:v0.0.66-fixed`)
-- **ATAC LRT Step 2** - Fixed MDS plot filename (`biowardrobe2/scidap-atac:v0.0.66-fixed`)
-- **ATAC Pairwise** - Fixed missing summary.md creation (`biowardrobe2/scidap-atac:v0.0.66-fixed`)
+- **DESeq LRT Step 1** - Complete functionality (`biowardrobe2/scidap-deseq:v0.0.62`)
+- **DESeq LRT Step 2** - Multi-contrast analysis (`biowardrobe2/scidap-deseq:v0.0.62`) 
+- **DESeq Pairwise** - Pairwise differential expression (`biowardrobe2/scidap-deseq:v0.0.62`)
+- **ATAC LRT Step 1** - Test mode bypass functional (`biowardrobe2/scidap-atac:v0.0.67`)
+- **ATAC LRT Step 2** - Fixed MDS plot filename (`biowardrobe2/scidap-atac:v0.0.67`)
+- **ATAC Pairwise** - Fixed missing summary.md creation (`biowardrobe2/scidap-atac:v0.0.67`)
 
 ### 🧹 Infrastructure Cleanup Complete (2025-06-16):
 - **Test Directory**: Cleaned my_local_test_data/, removed 50+ redundant files
