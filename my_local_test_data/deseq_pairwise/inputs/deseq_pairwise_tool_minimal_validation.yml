@@ -1,0 +1,43 @@
+# Direct test for deseq-advanced.cwl tool
+untreated_files:
+  - class: File
+    path: "../../core_data/ABSK0218_CMR_rm.isoforms.csv"
+  - class: File
+    path: "../../core_data/ABSK0222_CMR_rm.isoforms.csv"
+  - class: File
+    path: "../../core_data/ABSK0219_CMA_rm.isoforms.csv"
+  - class: File
+    path: "../../core_data/ABSK0223_CMA_rm.isoforms.csv"
+
+treated_files:
+  - class: File
+    path: "../../core_data/ABSK0226_KMR_rm.isoforms.csv"
+  - class: File
+    path: "../../core_data/ABSK0230_KMR_rm.isoforms.csv"
+  - class: File
+    path: "../../core_data/ABSK0227_KMA_rm.isoforms.csv"
+  - class: File
+    path: "../../core_data/ABSK231238_rm.isoforms.csv"
+
+untreated_name: "Control"
+treated_name: "Knockout"
+
+untreated_sample_names:
+  - "ABSK0218_CMR_rm"
+  - "ABSK0222_CMR_rm"
+  - "ABSK0219_CMA_rm"
+  - "ABSK0223_CMA_rm"
+
+treated_sample_names:
+  - "ABSK0226_KMR_rm"
+  - "ABSK0230_KMR_rm"
+  - "ABSK0227_KMA_rm"
+  - "ABSK231238_rm"
+
+fdr: 0.1
+lfcthreshold: 0.59
+use_lfc_thresh: true
+regulation: "both"
+batchcorrection: "none"
+threads: 4
+test_mode: true 

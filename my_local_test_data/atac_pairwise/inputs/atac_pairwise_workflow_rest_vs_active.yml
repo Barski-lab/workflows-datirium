@@ -4,16 +4,16 @@
 # Untreated group files (Rest condition)
 untreated_files:
   - class: File
-    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_pairwise/inputs/sample1_peaks.csv"
+    path: "../../core_data/sample1_peaks.csv"
   - class: File  
-    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_pairwise/inputs/sample2_peaks.csv"
+    path: "../../core_data/sample2_peaks.csv"
 
 # Treated group files (Act condition)
 treated_files:
   - class: File
-    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_pairwise/inputs/sample3_peaks.csv"
+    path: "../../core_data/sample3_peaks.csv"
   - class: File
-    path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_pairwise/inputs/sample4_peaks.csv"
+    path: "../../core_data/sample4_peaks.csv"
 
 # Group names
 untreated_name: "Rest"

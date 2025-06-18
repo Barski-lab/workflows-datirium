@@ -1,5 +1,4 @@
-    #!/bin/bash
-
+#!/bin/bash
 # Quick test script for DESeq and ATAC-seq workflows
 # Must be run from repository root directory
 # Usage: cd my_local_test_data && ./quick_test.sh
@@ -33,19 +32,16 @@ FAILED_TESTS=()
 # Function to run a test and track results
 run_test() {
     local test_name="$1"
-    local tool_path="$2"  # Now using tools/ directly
+    local tool_path="$2"
     local input_file="$3"
     local output_dir="$4"
     
-    echo -e "\n${YELLOW}Running: $test_name${NC}"
-    echo -e "${BLUE}Tool: $tool_path${NC}"
-    echo -e "${BLUE}Input: $input_file${NC}"
-    echo -e "${BLUE}Output: $output_dir${NC}"
+    echo -e "\n${YELLOW}Testing: $test_name${NC}"
     
     # Create output directory
     mkdir -p "$output_dir"
     
-    # Run the test (tools only for quick testing)
+    # Run the test
     if cwltool --outdir "$output_dir" "$tool_path" "$input_file" > "$output_dir/test.log" 2>&1; then
         echo -e "${GREEN}✓ PASSED: $test_name${NC}"
         ((TESTS_PASSED++))
@@ -54,22 +50,20 @@ run_test() {
         echo -e "${RED}  Check log: $output_dir/test.log${NC}"
         ((TESTS_FAILED++))
         FAILED_TESTS+=("$test_name")
-        # Continue with other tests instead of exiting
     fi
 }
 
-echo -e "\n${YELLOW}=== CORE TOOL TESTS (FAST) ===${NC}"
+echo -e "\n${YELLOW}=== QUICK VALIDATION TESTS ===${NC}"
 
-# Test 1: DESeq LRT Step 1 - Basic Test (KNOWN WORKING)
-run_test "DESeq LRT Step 1 Tool" \
+# Test core workflows for rapid development feedback
+run_test "DESeq LRT Step 1" \
          "../tools/deseq-lrt-step-1.cwl" \
-         "deseq_lrt_step_1/inputs/basic_test.yml" \
+         "deseq_lrt_step_1/inputs/deseq_lrt_s1_workflow_standard_testmode.yml" \
          "deseq_lrt_step_1/outputs/quick_test"
 
-# Test 2: ATAC LRT Step 1 - Basic Test (NEEDS FIXING)
-run_test "ATAC LRT Step 1 Tool" \
+run_test "ATAC LRT Step 1" \
          "../tools/atac-lrt-step-1.cwl" \
-         "atac_lrt_step_1/inputs/basic_test.yml" \
+         "atac_lrt_step_1/inputs/atac_lrt_s1_workflow_interaction_testmode.yml" \
          "atac_lrt_step_1/outputs/quick_test"
 
 # Summary

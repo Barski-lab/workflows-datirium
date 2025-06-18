@@ -7,8 +7,7 @@ This file provides specific testing guidance for the my_local_test_data director
 ```bash
 # Primary testing commands (run from my_local_test_data/)
 ./quick_test.sh                    # Fast validation (2-3 min)
-./run_all_tests.sh                 # Comprehensive testing (10-15 min)
-./test_all_workflows_comprehensive.sh  # Full suite
+./comprehensive_test.sh            # Full test suite (10-15 min)
 
 # Environment setup for Apple Silicon
 export DOCKER_DEFAULT_PLATFORM=linux/amd64
@@ -25,7 +24,15 @@ Each workflow has its own test directory:
 - `atac_pairwise/` - Pairwise ATAC-seq tests
 
 ### Input Files
-All input YAML files in `*/inputs/basic_test.yml` must use **absolute paths**.
+All input YAML files use **descriptive, self-documenting names** and **relative paths** to `core_data/`.
+
+### Input File Naming Convention
+Files follow the pattern: `{workflow_type}_{test_scope}_{test_scenario}_{complexity}.yml`
+
+**Examples:**
+- `deseq_lrt_s1_workflow_standard_testmode.yml` - DESeq2 LRT Step 1 standard workflow with test mode
+- `atac_pairwise_workflow_rest_vs_active.yml` - ATAC pairwise comparison between Rest and Active conditions
+- `deseq_lrt_s2_workflow_multicontrast_complex.yml` - DESeq2 LRT Step 2 with multiple contrasts and complex clustering
 
 ### Output Validation
 Check these files for successful runs:
@@ -64,37 +71,27 @@ Check these files for successful runs:
 
 **Platform Note:** Apple Silicon users will see platform warnings but workflows function correctly.
 
-## Final Status: 4/6 Workflows Working (Last Updated: 2025-06-16)
+## Current Status: 6/6 Workflows Working (Last Updated: 2025-06-17)
 
-**✅ Confirmed Working (4/6):**
-- DESeq LRT Step 1 - Complete analysis (151s runtime)
-- DESeq LRT Step 2 - Multi-contrast analysis (input file issue resolved)
-- ATAC LRT Step 1 - Test mode bypass functional (20s runtime)
-- ATAC LRT Step 2 - Fixed MDS plot filename (mds_plot.html)
+**✅ All Workflows Confirmed Working:**
+- **DESeq LRT Step 1** - Complete functionality
+- **DESeq LRT Step 2** - Multi-contrast analysis
+- **DESeq Pairwise** - Pairwise differential expression
+- **ATAC LRT Step 1** - Test mode bypass functional
+- **ATAC LRT Step 2** - Fixed MDS plot filename
+- **ATAC Pairwise** - Fixed missing summary.md creation
 
-**🔧 Final Fixes Needed (2/6):**
-- **DESeq Pairwise** - IDENTIFIED: Wrong CWL baseCommand (`run_deseq.R` should be `run_deseq_pairwise.R`)
-- **ATAC Pairwise** - R script exits with status 1, prevents summary.md creation
+**🧹 Infrastructure Cleanup Complete (2025-06-17):**
+- ✅ Test directory cleaned: removed 8 redundant files
+- ✅ All paths converted to relative references (`core_data/`, step outputs)
+- ✅ Fixed ATAC metadata file paths to reference `core_data/`
+- ✅ Consolidated test framework: `quick_test.sh`, `comprehensive_test.sh`
+- ✅ Standardized parameter naming across workflows
+- ✅ Renamed all input files to descriptive, self-documenting names
 
-**🏗️ Infrastructure Complete:**
-- ✅ Docker images: `biowardrobe2/scidap-deseq:v0.0.60`, `biowardrobe2/scidap-atac:v0.0.64-fixed`
-- ✅ CWL tools updated to latest image versions
-- ✅ R scripts fixed for correct file paths (summary.md, mds_plot.html)
-- ✅ Test framework: `./final_comprehensive_test.sh` shows 4/6 success
-
-**Fixes Applied:**
-- Modified `/tools/dockerfiles/scripts/functions/atac_pairwise/diffbind_analysis.R` to create markdown summary
-- Modified `/tools/dockerfiles/scripts/functions/deseq/workflow.R` to use correct filename pattern
-
-**Common Issues Identified:**
-- Missing `basic_test.yml` files in some directories (fixed)
-- R script execution completing but not generating expected output files
-- Docker stats parsing warnings (non-blocking)
-- Platform compatibility warnings (Apple Silicon vs Linux/amd64)
-
-**Image Versions in Use:**
-- DESeq workflows: `biowardrobe2/scidap-deseq:v0.0.58`
-- ATAC workflows: `biowardrobe2/scidap-atac:v0.0.62-fixed`
+**Docker Images in Use:**
+- DESeq workflows: `biowardrobe2/scidap-deseq:v0.0.62`
+- ATAC workflows: `biowardrobe2/scidap-atac:v0.0.67`
 
 ## Debugging Commands
 

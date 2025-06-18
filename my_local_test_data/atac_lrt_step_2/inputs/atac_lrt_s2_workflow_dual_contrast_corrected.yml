@@ -4,17 +4,17 @@
 # Input objects from Step 1 (using available test data)
 dsq_obj_data:
   class: File
-  path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_2/inputs/diffbind_results.rds"
+  path: "../../core_data/diffbind_results.rds"
 
 contrasts_table:
   class: File
-  path: "/Users/pavb5f/Documents/Git/workflows-datirium/my_local_test_data/atac_lrt_step_2/inputs/contrasts_table.csv"
+  path: "../../core_data/contrasts_table_example.csv"
 
 # Required parameters
 contrast_indices: "1,2"  # Test first two contrasts
 
 # Analysis parameters
-fdr_cutoff: 0.05
+fdr: 0.05
 lfcthreshold: 0.5
 use_lfc_thresh: true
 regulation: "both"

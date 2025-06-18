@@ -21,7 +21,7 @@ This file provides guidance to Claude Code when working with this CWL bioinforma
 ```bash
 # Primary testing (most common task)
 cd my_local_test_data && ./quick_test.sh              # Fast validation (2-3 min)
-cd my_local_test_data && ./run_all_tests.sh           # Full test suite (10-15 min)
+cd my_local_test_data && ./comprehensive_test.sh      # Full test suite (10-15 min)
 
 # CWL development
 cwltool --validate tools/[workflow-name].cwl          # Syntax validation
@@ -56,7 +56,7 @@ tools/dockerfiles/scripts/functions/
 - **File creation**: Only create files in `my_local_test_data/` directory
 - **Testing**: Always run `quick_test.sh` before finalizing changes
 - **Docker**: Use specific images - `biowardrobe2/scidap-deseq:v0.0.62` (DESeq2), `biowardrobe2/scidap-atac:v0.0.67` (ATAC)
-- **Paths**: Use absolute paths in CWL input YAML files
+- **Paths**: Use relative paths to core_data/ in CWL input YAML files
 - **Parameters**: Use `--input_files` (not `--input`) for ATAC workflows
 
 ## Current Status: 6/6 Workflows Working ✅
@@ -74,7 +74,7 @@ tools/dockerfiles/scripts/functions/
 - **Docker Images**: Updated to latest versions with all script fixes
 - **Paths**: Converted absolute paths to relative paths in all test YAML files
 - **Data Consolidation**: Moved all shared test data to `core_data/` directory
-- **Test Framework**: Streamlined to essential scripts (`quick_test.sh`, `final_comprehensive_test.sh`)
+- **Test Framework**: Streamlined to essential scripts (`quick_test.sh`, `comprehensive_test.sh`)
 
 ## Maintenance Tasks
 
@@ -109,7 +109,7 @@ tools/dockerfiles/scripts/functions/
 
 - **CLI parsing errors**: Check `cli_args.R` files for parameter mismatches
 - **Missing constants**: Look for undefined variables in R functions
-- **File path issues**: Ensure absolute paths in CWL input files
+- **File path issues**: Ensure relative paths to core_data/ in CWL input files
 - **Docker issues**: Verify image names and versions match exactly
 
 **Quick Diagnostics:**
