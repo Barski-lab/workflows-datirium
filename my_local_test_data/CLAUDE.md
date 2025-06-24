@@ -9,11 +9,9 @@ This file provides specific testing guidance for the my_local_test_data director
 ./quick_test.sh                    # Fast validation (2-3 min)
 ./comprehensive_test.sh            # Full test suite (10-15 min)
 
-# Cross-Platform Docker Setup
-# Current Status: Images are ARM64-native but HPC clusters require AMD64
-# Local Testing (ARM64): Uses native ARM64 images automatically
-# HPC Deployment (AMD64): Needs AMD64 images to be built and deployed
-# NOTE: Test scripts automatically detect platform and configure appropriately
+# Docker Platform Setup
+# Local: ARM64 native (optimal performance)
+# HPC: Use multi-arch buildx (see main CLAUDE.md)
 ```
 
 ## Test Structure

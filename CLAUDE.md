@@ -29,6 +29,13 @@ cwltool --debug tools/[workflow-name].cwl inputs.yml  # Debug execution
 
 # Docker management
 docker images | grep -E "(scidap|biowardrobe)"       # List workflow images
+
+# Multi-arch Docker builds (ARM64 + AMD64 for HPC)
+cd tools/dockerfiles
+docker buildx create --use
+docker buildx build --platform linux/arm64,linux/amd64 -t biowardrobe2/scidap-deseq:v0.0.XX --push -f scidap-deseq-Dockerfile ../..
+docker buildx build --platform linux/arm64,linux/amd64 -t biowardrobe2/scidap-atac:v0.0.XX --push -f scidap-atacseq-Dockerfile ../..
+docker buildx imagetools inspect biowardrobe2/scidap-deseq:v0.0.XX  # Verify platforms
 ```
 
 ## Development Guidelines
