@@ -58,6 +58,41 @@ tools/dockerfiles/scripts/functions/
 - **Docker**: Use specific images - `biowardrobe2/scidap-deseq:v0.0.62` (DESeq2), `biowardrobe2/scidap-atac:v0.0.67` (ATAC)
 - **Paths**: Use relative paths to core_data/ in CWL input YAML files
 - **Parameters**: Use `--input_files` (not `--input`) for ATAC workflows
+- **Always use descriptive variable names**
+- **Never create a new version of script using "fixed/updated/final/enhanced/backup" or other suffixes. Work with the files that are already exists.**
+- **After each reasonable (!!) changing do git commit with description of those changes also explaining the reason of that change.**
+- **Before git push always using reasoning critique the changes making sure they are reasonable.**
+- **Before git push check out that there's no large files (>150MB) that are loading into GitHub. Unstage them and add to .gitignore if there some.**
+- **Always use lintr and other (like styler from R, cwltool --valid from cwltool) tools before git push to make sure scripts doesn't contain errors.**
+
+### Docker and Dockerfile Management
+- For all dockerfiles located at "barskilab-workflows/tools/dockerfiles":
+  - NEVER create any dockerfile out of that directory
+  - ALWAYS use those that are latest (check it out first) on docker hub
+  - Rebuild docker images ALWAYS using the biowardrobe/... naming with following after previous versions
+  - RScripts and bash scripts used by dockerfiles are located at "barskilab-workflows/tools/dockerfiles/scripts" directory
+  - ALWAYS update all CWL tools (from "barskilab-workflows/tools" dir) with the latest dockerfile version if you updated it - using efficient CLI tools check out which tools uses that docker image and update with latest
+  - FOCUS on updating scripts (Rscript / bash) rather than CWL tools (but do it if it's necessary)
+  - ALWAYS check out if docker consists of reasonable layers and update if it's not efficient (but provide a reason first and critique)
+
+### Git Push Guidelines
+- **Before doing git push ALWAYS make sure using reasoning and critique your own changes to make sure that there's no redundancy.**
+- **Redundancy must be removed - in scripts, in directories (files) - you MUST keep things clean, manageable and providing key functionality as a first priority.**
+- **Focus on one thing per time - quality, not quantity matters.**
+- **Always make sure you are following best practices of code / analysis.**
+- **Get rid of "extra" stuff that only adds mess.**
+
+## Development Methodology
+
+### Implementation Planning
+- **ALWAYS before starting to implement something create a step-by-step plan of manageable tasks - then critique it using reasoning chain-of-thoughts, then update plan and only then start to implement.**
+- **ALWAYS provide a strong reason if some file has to be added or deleted.**
+- **Critique the proposed approach and if it still looks valid - proceed with implementation.**
+
+## Efficiency Guidelines
+
+- **Use advanced approaches/tools of operating in terminal and scripts to do everything efficiently.**
+- **If you are repeating same command several times - put it into bash script to easier re-running without typing each time.**
 
 ## Current Status: 6/6 Workflows Working ✅
 

@@ -9,8 +9,11 @@ This file provides specific testing guidance for the my_local_test_data director
 ./quick_test.sh                    # Fast validation (2-3 min)
 ./comprehensive_test.sh            # Full test suite (10-15 min)
 
-# Environment setup for Apple Silicon
-export DOCKER_DEFAULT_PLATFORM=linux/amd64
+# Cross-Platform Docker Setup
+# Current Status: Images are ARM64-native but HPC clusters require AMD64
+# Local Testing (ARM64): Uses native ARM64 images automatically
+# HPC Deployment (AMD64): Needs AMD64 images to be built and deployed
+# NOTE: Test scripts automatically detect platform and configure appropriately
 ```
 
 ## Test Structure
