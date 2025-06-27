@@ -112,11 +112,21 @@ All CWL tools now reference fixed Docker images:
 - `atac-lrt-step-2.cwl` → v0.0.68-fixed
 - `atac-pairwise.cwl` → v0.0.68-fixed
 
-### Workflow Status (Last Updated: 2025-06-27)
-✅ **Working**: DESeq LRT Step 1, DESeq LRT Step 2
-🔧 **Fixed (pending verification)**: DESeq Pairwise, ATAC Pairwise, ATAC LRT Step 2
-- **Root cause resolved**: Missing `*summary.md` output files in pairwise workflows
-- **Technical solution**: Enhanced R workflow functions with proper summary generation
+### Workflow Status (Last Updated: 2025-06-27 17:15 - Post Docker Fixes)
+✅ **Working (50%)**: DESeq LRT Step 1, DESeq LRT Step 2, ATAC LRT Step 1
+❌ **Failing (50%)**: DESeq Pairwise, ATAC Pairwise, ATAC LRT Step 2
+
+#### Remaining Issues Analysis
+**1. DESeq Pairwise & ATAC Pairwise (Missing `*summary.md`)**
+- **Technical Infrastructure**: ✅ FIXED - summary generation functions confirmed working
+- **Statistical Issue**: ❌ Design matrix has same number of samples and coefficients 
+- **Root Cause**: Insufficient replicates for dispersion estimation in DESeq2 v1.22+
+- **Error**: "The design matrix has the same number of samples and coefficients to fit"
+
+**2. ATAC LRT Step 2 (Missing `counts_all.gct`)**
+- **Error**: "Did not find output file with glob pattern: ['counts_all.gct']"
+- **Status**: Needs investigation - likely missing output generation in ATAC Step 2 workflow
+- **Docker Image**: Using v0.0.70-fixed (latest)
 
 ### Docker and Dockerfile Management
 - For all dockerfiles located at "barskilab-workflows/tools/dockerfiles":
@@ -243,3 +253,10 @@ echo "header1,header2" > simple_file.csv
 - Always make sure script is using efficient and advanced libraries / methods. It's often a trouble with out-of-date. Especially things in R like tidyverse, Seurat and so on. 
 - Always use the :: to clarify what package the function calls from. 
 - Don't forget about the conflicted package - ideally you need to use it with one file for several functions for example.
+
+## Efficient AI Collaboration Strategies
+- **Use systematic reasoning to break down complex tasks into manageable subtasks**
+- **Always provide a clear, step-by-step implementation plan before coding**
+- **Critique proposed approaches to identify potential inefficiencies or errors**
+- **Focus on creating modular, reusable code with clear documentation**
+- **Prioritize code quality, readability, and maintainability over rapid development**
