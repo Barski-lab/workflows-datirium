@@ -2,7 +2,7 @@
 # Dockerfile - DESeq/DESeq2 Analysis Container
 #
 # Software:         BioWardrobe DESeq/DESeq2 script
-# Software Version: v0.0.54
+# Software Version: v0.0.66
 # Description:      Dockerized version of DESeq/DESeq2 script from BioWardrobe
 # Website:          https://github.com/Barski-lab/workflows
 #
@@ -45,6 +45,13 @@
 #################################################################
 # VERSION HISTORY
 #################################################################
+#
+# v0.0.66
+# - CRITICAL FIXES: Fixed missing summary.md output files for pairwise workflows
+# - Added generate_deseq_summary() calls to DESeq and EdgeR workflow functions
+# - Fixed verification workflow types in run_deseq_pairwise.R and run_atac_pairwise.R
+# - Both DESeq and ATAC pairwise workflows now generate required *summary.md files expected by CWL tools
+# - All CWL output collection issues for pairwise workflows resolved
 #
 # v0.0.54
 # - CRITICAL FIXES: Integrated all three workflow fixes into main scripts
@@ -108,7 +115,7 @@
 # BASE IMAGE SELECTION
 #############################################
 # Incremental build from previous version
-FROM biowardrobe2/scidap-deseq:v0.0.62
+FROM biowardrobe2/scidap-deseq:v0.0.65
 LABEL maintainer="pavlvalera3301@gmail.com"
 ENV DEBIAN_FRONTEND=noninteractive
 
