@@ -8,7 +8,7 @@ requirements:
 
 hints:
 - class: DockerRequirement
-  dockerPull: "biowardrobe2/scidap-deseq:v0.0.67-fallback"
+  dockerPull: "biowardrobe2/scidap-deseq:v0.0.66-fixed"
 
 
 inputs:
@@ -265,7 +265,7 @@ outputs:
       glob: "*counts_all.gct"
 
   read_counts_file_filtered:
-    type: File
+    type: File?
     outputBinding:
       glob: "*counts_filtered.gct"
 
