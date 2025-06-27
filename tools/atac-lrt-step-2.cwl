@@ -6,7 +6,7 @@ requirements:
 
 hints:
 - class: DockerRequirement
-  dockerPull: "biowardrobe2/scidap-atac:v0.0.67"
+  dockerPull: "biowardrobe2/scidap-atac:v0.0.68-fixed"
 
 inputs:
 
