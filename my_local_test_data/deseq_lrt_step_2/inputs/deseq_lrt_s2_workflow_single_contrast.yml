@@ -13,7 +13,7 @@ batchcorrection: "none"
 cluster_method: "row"
 dsq_obj_data:
   class: File
-  path: "../deseq_lrt_step_1/outputs/quick_test/deseq_lrt_step_1_contrasts.rds"
+  path: "../../deseq_lrt_step_1/outputs/quick_test/deseq_lrt_step_1_contrasts.rds"
 contrasts_table:
   class: File
-  path: "../deseq_lrt_step_1/outputs/quick_test/deseq_lrt_step_1_contrasts_table.tsv" 
+  path: "../../deseq_lrt_step_1/outputs/quick_test/deseq_lrt_step_1_contrasts_table.tsv" 

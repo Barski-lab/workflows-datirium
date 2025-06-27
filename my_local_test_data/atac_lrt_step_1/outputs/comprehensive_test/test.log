@@ -1,0 +1,98 @@
+[1;30mINFO[0m /opt/homebrew/Caskroom/mambaforge/base/bin/cwltool 3.1.20250110105449
+[1;30mINFO[0m Resolved '../tools/atac-lrt-step-1.cwl' to 'file:///Users/pavb5f/Documents/barskilab-workflows/tools/atac-lrt-step-1.cwl'
+[1;30mINFO[0m [job atac-lrt-step-1.cwl] /private/tmp/docker_tmp507n7uj7$ docker \
+    run \
+    -i \
+    --mount=type=bind,source=/private/tmp/docker_tmp507n7uj7,target=/AWoPyu \
+    --mount=type=bind,source=/private/tmp/docker_tmpprqxwp78,target=/tmp \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample1.bam,target=/var/lib/cwl/stg50fd0449-92f7-4bac-ae50-9e3a5cb2f94a/sample1.bam,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample2.bam,target=/var/lib/cwl/stgeb5d6708-8d16-4bf1-8928-d983af856a9d/sample2.bam,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample3.bam,target=/var/lib/cwl/stg0848c079-02ed-437c-b2f9-913019d8d5c3/sample3.bam,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample4.bam,target=/var/lib/cwl/stg0cb05139-7022-43d6-850f-98d955294120/sample4.bam,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/atac_metadata.csv,target=/var/lib/cwl/stgffe9b46a-1e51-4f1f-bd86-db2381cad58f/atac_metadata.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample1_peaks.csv,target=/var/lib/cwl/stgcce48756-8fb7-442b-9ffd-016e9c0baab7/sample1_peaks.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample2_peaks.csv,target=/var/lib/cwl/stg04e7c5cb-645b-4f9a-ab6c-2fa89034c795/sample2_peaks.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample3_peaks.csv,target=/var/lib/cwl/stgbbd41ae0-9582-4773-bb8b-6d72b10cd14c/sample3_peaks.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample4_peaks.csv,target=/var/lib/cwl/stgc6f6722a-51f1-4cbd-80e0-f03045fdd18f/sample4_peaks.csv,readonly \
+    --workdir=/AWoPyu \
+    --read-only=true \
+    --log-driver=none \
+    --user=504:20 \
+    --rm \
+    --cidfile=/private/tmp/docker_tmptxp4yts4/20250624024211-163213.cid \
+    --env=TMPDIR=/tmp \
+    --env=HOME=/AWoPyu \
+    biowardrobe2/scidap-atac:v0.0.67 \
+    /usr/bin/Rscript \
+    /usr/local/bin/run_atac_lrt_step_1.R \
+    --bamfiles \
+    /var/lib/cwl/stg50fd0449-92f7-4bac-ae50-9e3a5cb2f94a/sample1.bam \
+    /var/lib/cwl/stgeb5d6708-8d16-4bf1-8928-d983af856a9d/sample2.bam \
+    /var/lib/cwl/stg0848c079-02ed-437c-b2f9-913019d8d5c3/sample3.bam \
+    /var/lib/cwl/stg0cb05139-7022-43d6-850f-98d955294120/sample4.bam \
+    --batchcorrection \
+    combatseq \
+    --cluster \
+    row \
+    --design \
+    '~ Condition + Tissue + Condition:Tissue' \
+    --fdr \
+    0.001 \
+    --k \
+    3 \
+    --kmax \
+    5 \
+    --lfcthreshold \
+    0.59 \
+    --lrt_only_mode \
+    --meta \
+    /var/lib/cwl/stgffe9b46a-1e51-4f1f-bd86-db2381cad58f/atac_metadata.csv \
+    --output \
+    ./deseq_lrt_step_1 \
+    --name \
+    sample1 \
+    sample2 \
+    sample3 \
+    sample4 \
+    --reduced \
+    '~ Condition + Tissue' \
+    --scaling_type \
+    zscore \
+    --test_mode \
+    --input_files \
+    /var/lib/cwl/stgcce48756-8fb7-442b-9ffd-016e9c0baab7/sample1_peaks.csv \
+    /var/lib/cwl/stg04e7c5cb-645b-4f9a-ab6c-2fa89034c795/sample2_peaks.csv \
+    /var/lib/cwl/stgbbd41ae0-9582-4773-bb8b-6d72b10cd14c/sample3_peaks.csv \
+    /var/lib/cwl/stgc6f6722a-51f1-4cbd-80e0-f03045fdd18f/sample4_peaks.csv \
+    --threads \
+    4 \
+    --use_lfc_thresh > /private/tmp/docker_tmp507n7uj7/deseq_lrt_step_1_stdout.log 2> /private/tmp/docker_tmp507n7uj7/deseq_lrt_step_1_stderr.log
+[1;30mINFO[0m [job atac-lrt-step-1.cwl] Max memory used: 1990MiB
+[1;30mINFO[0m [job atac-lrt-step-1.cwl] completed success
+{
+    "alignment_stats_barchart": null,
+    "contrasts_table": null,
+    "counts_all_gct": null,
+    "counts_filtered_gct": null,
+    "dsq_obj_data": null,
+    "lrt_diff_expr": null,
+    "lrt_summary_md": null,
+    "mds_plots_corrected_html": null,
+    "mds_plots_html": null,
+    "stderr_log": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_stderr.log",
+        "basename": "deseq_lrt_step_1_stderr.log",
+        "class": "File",
+        "checksum": "sha1$a22ca68c837eff0a314a3a4f3ad52d1f00e1faec",
+        "size": 3551,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_stderr.log"
+    },
+    "stdout_log": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_stdout.log",
+        "basename": "deseq_lrt_step_1_stdout.log",
+        "class": "File",
+        "checksum": "sha1$f1f2d849aab641cf94631bf2ac78cbcc6fdb9673",
+        "size": 103299,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_stdout.log"
+    }
+}[1;30mINFO[0m Final process status is success

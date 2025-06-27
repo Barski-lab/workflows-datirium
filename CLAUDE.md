@@ -2,6 +2,17 @@
 
 This file provides guidance to Claude Code when working with this CWL bioinformatics workflows repository.
 
+# UPDATE YOURSELF PROMPTLY
+- If you notice any GAME-CHANGER (really efficient) way of optimize your work (through special commands / tools / approach / anything) - update that memory file to include it and to ease your next hours of work. Imaging you are saving a ton of time and so you will use it much better. 
+- Use those tips to even more enhance it: https://cursorintro.com/best-practices
+
+## Key Principles
+- **Minimalistic approach**: Don't create unnecessary files - explain why each file is required
+- **Relative paths**: Always use relative paths unless absolute paths are mandatory
+- **Modern R practices**: Use tidyverse, explicit `package::function()` calls, conflicted package for namespace management
+- **Advanced CLI tools**: Use efficient terminal tools for file manipulation and navigation
+
+
 ## Repository Structure
 
 **CWL Bioinformatics Workflows** for ChIP-Seq, ATAC-Seq, RNA-Seq analysis:
@@ -29,6 +40,8 @@ cwltool --debug tools/[workflow-name].cwl inputs.yml  # Debug execution
 
 # Docker management
 docker images | grep -E "(scidap|biowardrobe)"       # List workflow images
+docker image prune -f                                 # Clean dangling images
+unset DOCKER_DEFAULT_PLATFORM                         # Use native ARM64 for 3x performance
 
 # Multi-arch Docker builds (ARM64 + AMD64 for HPC)
 cd tools/dockerfiles
@@ -36,6 +49,10 @@ docker buildx create --use
 docker buildx build --platform linux/arm64,linux/amd64 -t biowardrobe2/scidap-deseq:v0.0.XX --push -f scidap-deseq-Dockerfile ../..
 docker buildx build --platform linux/arm64,linux/amd64 -t biowardrobe2/scidap-atac:v0.0.XX --push -f scidap-atacseq-Dockerfile ../..
 docker buildx imagetools inspect biowardrobe2/scidap-deseq:v0.0.XX  # Verify platforms
+
+# Error diagnosis shortcuts
+find . -name "*stderr.log" -path "*/outputs/*" -exec tail -10 {} \; -print  # Check recent errors
+grep -r "ERROR\|FAILED" */outputs/*/test.log          # Find failed tests
 ```
 
 ## Development Guidelines
@@ -64,13 +81,20 @@ tools/dockerfiles/scripts/functions/
 - **Testing**: Always run `quick_test.sh` before finalizing changes
 - **Docker**: Use specific images - `biowardrobe2/scidap-deseq:v0.0.62` (DESeq2), `biowardrobe2/scidap-atac:v0.0.67` (ATAC)
 - **Paths**: Use relative paths to core_data/ in CWL input YAML files
-- **Parameters**: Use `--input_files` (not `--input`) for ATAC workflows
+- **Path validation**: Before testing, check input YAML files for correct relative paths (../../core_data/ not ../core_data/)
+- **Test data completeness**: Verify core_data/ has all required files: *.csv, *.bam, contrasts_table_example.csv, diffbind_results.rds
 - **Always use descriptive variable names**
 - **Never create a new version of script using "fixed/updated/final/enhanced/backup" or other suffixes. Work with the files that are already exists.**
 - **After each reasonable (!!) changing do git commit with description of those changes also explaining the reason of that change.**
 - **Before git push always using reasoning critique the changes making sure they are reasonable.**
 - **Before git push check out that there's no large files (>150MB) that are loading into GitHub. Unstage them and add to .gitignore if there some.**
 - **Always use lintr and other (like styler from R, cwltool --valid from cwltool) tools before git push to make sure scripts doesn't contain errors.**
+
+### Common Error Prevention
+- **Missing output files**: If workflows fail with "Did not find output file with glob pattern", check R script output generation functions
+- **Path resolution**: DESeq LRT Step 2 requires relative paths like "../../deseq_lrt_step_1/outputs/quick_test/" 
+- **Docker platform**: Use `unset DOCKER_DEFAULT_PLATFORM` for native ARM64 performance (~3x faster)
+- **Test file creation**: Use Write tool for complex files, simple echo for basic files
 
 ### Docker and Dockerfile Management
 - For all dockerfiles located at "barskilab-workflows/tools/dockerfiles":
@@ -101,22 +125,21 @@ tools/dockerfiles/scripts/functions/
 - **Use advanced approaches/tools of operating in terminal and scripts to do everything efficiently.**
 - **If you are repeating same command several times - put it into bash script to easier re-running without typing each time.**
 
-## Current Status: 6/6 Workflows Working ✅
+## Docker Management
 
-### ✅ All Workflows Confirmed Working:
-- **DESeq LRT Step 1** - Complete functionality (`biowardrobe2/scidap-deseq:v0.0.62`)
-- **DESeq LRT Step 2** - Multi-contrast analysis (`biowardrobe2/scidap-deseq:v0.0.62`) 
-- **DESeq Pairwise** - Pairwise differential expression (`biowardrobe2/scidap-deseq:v0.0.62`)
-- **ATAC LRT Step 1** - Test mode bypass functional (`biowardrobe2/scidap-atac:v0.0.67`)
-- **ATAC LRT Step 2** - Fixed MDS plot filename (`biowardrobe2/scidap-atac:v0.0.67`)
-- **ATAC Pairwise** - Fixed missing summary.md creation (`biowardrobe2/scidap-atac:v0.0.67`)
+### Docker Optimization Workflow
+```bash
+# ALWAYS run this sequence when working with Docker:
+docker images | grep -E "(scidap|biowardrobe)" | head -20  # Check current images
+docker image prune -f                                       # Remove dangling images
+docker system df                                           # Check disk usage
+unset DOCKER_DEFAULT_PLATFORM                              # Ensure native ARM64 performance
+```
 
-### 🧹 Infrastructure Cleanup Complete (2025-06-16):
-- **Test Directory**: Cleaned my_local_test_data/, removed 50+ redundant files
-- **Docker Images**: Updated to latest versions with all script fixes
-- **Paths**: Converted absolute paths to relative paths in all test YAML files
-- **Data Consolidation**: Moved all shared test data to `core_data/` directory
-- **Test Framework**: Streamlined to essential scripts (`quick_test.sh`, `comprehensive_test.sh`)
+### Docker Platform Strategy
+- **Local Development**: Use native ARM64 images (3x faster, `unset DOCKER_DEFAULT_PLATFORM`)
+- **HPC Deployment**: Build multi-arch images with buildx (AMD64 + ARM64)
+- **Never force platform** unless specifically building for HPC deployment
 
 ## Maintenance Tasks
 
@@ -147,19 +170,54 @@ tools/dockerfiles/scripts/functions/
 
 ## Debugging Patterns
 
-**Common Error Types:**
-
-- **CLI parsing errors**: Check `cli_args.R` files for parameter mismatches
-- **Missing constants**: Look for undefined variables in R functions
-- **File path issues**: Ensure relative paths to core_data/ in CWL input files
-- **Docker issues**: Verify image names and versions match exactly
-
-**Quick Diagnostics:**
-
+### Systematic Error Diagnosis
 ```bash
-# Check what's failing
-cd my_local_test_data && ./quick_test.sh 2>&1 | grep -E "(FAIL|ERROR)"
+# 1. Quick test status check
+cd my_local_test_data && ./comprehensive_test.sh 2>&1 | grep -A 20 "COMPREHENSIVE TEST SUMMARY"
 
-# Examine specific test logs  
-find my_local_test_data -name "test.log" -exec grep -l "ERROR" {} \;
+# 2. Find specific errors
+find . -name "*stderr.log" -path "*/outputs/*" -exec tail -10 {} \; -print
+grep -r "ERROR\|FAILED\|permanentFail" */outputs/*/test.log
+
+# 3. Check missing files patterns
+find . -name "test.log" -exec grep -l "No such file or directory" {} \;
+find . -name "test.log" -exec grep -l "Did not find output file" {} \;
 ```
+
+### Common Error Categories
+
+**Path Resolution Errors:**
+- Input YAML files using wrong relative paths (../core_data/ vs ../../core_data/)
+- Missing input files in core_data/ directory
+- **Quick Fix**: Check all YAML files with `grep -r "path.*\.\." */inputs/`
+
+**Missing Output Files:**
+- R scripts not generating required summary.md or .gct files
+- **Pattern**: "Did not find output file with glob pattern"
+- **Fix**: Check R function output generation logic
+
+**Docker Platform Issues:**
+- DOCKER_DEFAULT_PLATFORM causing 3x slower emulated execution
+- **Fix**: Always run `unset DOCKER_DEFAULT_PLATFORM` before testing
+
+**File Creation Guidelines:**
+```bash
+# Minimal test files (use echo)
+echo "header1,header2" > simple_file.csv
+
+# Complex files (use Write tool)
+# For RDS, BAM, or structured data files
+```
+
+## Development Philosophy
+
+### Minimalistic Style and Modular Design
+- Always keep minimalistic style - don't create a lot of new files if only it is not indeed required (and you have to explain and prove it at least to yourself). 
+- Same logic works for individual scripts - keep it minimalistic with all modular functions.
+- Functions must be manageable and clear. 
+- One function - one purpose.
+
+### R Development Best Practices
+- Always make sure script is using efficient and advanced libraries / methods. It's often a trouble with out-of-date. Especially things in R like tidyverse, Seurat and so on. 
+- Always use the :: to clarify what package the function calls from. 
+- Don't forget about the conflicted package - ideally you need to use it with one file for several functions for example.

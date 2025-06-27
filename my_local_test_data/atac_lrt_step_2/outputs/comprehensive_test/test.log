@@ -1,0 +1,54 @@
+[1;30mINFO[0m /opt/homebrew/Caskroom/mambaforge/base/bin/cwltool 3.1.20250110105449
+[1;30mINFO[0m Resolved '../tools/atac-lrt-step-2.cwl' to 'file:///Users/pavb5f/Documents/barskilab-workflows/tools/atac-lrt-step-2.cwl'
+[1;30mINFO[0m [job atac-lrt-step-2.cwl] /private/tmp/docker_tmp06_fbhnt$ docker \
+    run \
+    -i \
+    --mount=type=bind,source=/private/tmp/docker_tmp06_fbhnt,target=/YudsaZ \
+    --mount=type=bind,source=/private/tmp/docker_tmpvqlsre1k,target=/tmp \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/contrasts_table_example.csv,target=/var/lib/cwl/stgf5d59e5e-f5d3-4ff5-9bb8-0693a0960f21/contrasts_table_example.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/diffbind_results.rds,target=/var/lib/cwl/stgbc9549b8-2336-4f53-ab53-a98b35f7687d/diffbind_results.rds,readonly \
+    --workdir=/YudsaZ \
+    --read-only=true \
+    --log-driver=none \
+    --user=504:20 \
+    --rm \
+    --cidfile=/private/tmp/docker_tmpm9jxlv3s/20250624024226-275010.cid \
+    --env=TMPDIR=/tmp \
+    --env=HOME=/YudsaZ \
+    biowardrobe2/scidap-atac:v0.0.67 \
+    /usr/bin/Rscript \
+    /usr/local/bin/run_atac_lrt_step_2.R \
+    --batchcorrection \
+    none \
+    --cluster \
+    row \
+    --contrast_indices \
+    1 \
+    --contrast_df \
+    /var/lib/cwl/stgf5d59e5e-f5d3-4ff5-9bb8-0693a0960f21/contrasts_table_example.csv \
+    --atac_obj_data \
+    /var/lib/cwl/stgbc9549b8-2336-4f53-ab53-a98b35f7687d/diffbind_results.rds \
+    --fdr \
+    0.1 \
+    --k \
+    3 \
+    --kmax \
+    5 \
+    --lfcthreshold \
+    0.5 \
+    --output \
+    deseq-lrt-step-2 \
+    --regulation \
+    both \
+    --scaling_type \
+    zscore \
+    --test_mode \
+    --threads \
+    4 \
+    --use_lfc_thresh > /private/tmp/docker_tmp06_fbhnt/deseq_lrt_step_2_stdout.log 2> /private/tmp/docker_tmp06_fbhnt/deseq_lrt_step_2_stderr.log
+[1;30mINFO[0m [job atac-lrt-step-2.cwl] Max memory used: 2005MiB
+[1;30mWARNING[0m [33m[job atac-lrt-step-2.cwl] exited with status: 1[0m
+[1;30mERROR[0m [31m[job atac-lrt-step-2.cwl] Job error:
+("Error collecting output for parameter 'counts_all_gct': ../tools/atac-lrt-step-2.cwl:204:7: Did not find output file with glob pattern: ['counts_all.gct'].", {})[0m
+[1;30mWARNING[0m [33m[job atac-lrt-step-2.cwl] completed permanentFail[0m
+{}[1;30mWARNING[0m [33mFinal process status is permanentFail[0m
