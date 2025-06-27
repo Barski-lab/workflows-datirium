@@ -1,20 +1,20 @@
 [1;30mINFO[0m /opt/homebrew/Caskroom/mambaforge/base/bin/cwltool 3.1.20250110105449
 [1;30mINFO[0m Resolved '../tools/atac-lrt-step-2.cwl' to 'file:///Users/pavb5f/Documents/barskilab-workflows/tools/atac-lrt-step-2.cwl'
-[1;30mINFO[0m [job atac-lrt-step-2.cwl] /private/tmp/docker_tmp06_fbhnt$ docker \
+[1;30mINFO[0m [job atac-lrt-step-2.cwl] /private/tmp/docker_tmps26q01ab$ docker \
     run \
     -i \
-    --mount=type=bind,source=/private/tmp/docker_tmp06_fbhnt,target=/YudsaZ \
-    --mount=type=bind,source=/private/tmp/docker_tmpvqlsre1k,target=/tmp \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/contrasts_table_example.csv,target=/var/lib/cwl/stgf5d59e5e-f5d3-4ff5-9bb8-0693a0960f21/contrasts_table_example.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/diffbind_results.rds,target=/var/lib/cwl/stgbc9549b8-2336-4f53-ab53-a98b35f7687d/diffbind_results.rds,readonly \
-    --workdir=/YudsaZ \
+    --mount=type=bind,source=/private/tmp/docker_tmps26q01ab,target=/zdJhQB \
+    --mount=type=bind,source=/private/tmp/docker_tmpnb7vcmsj,target=/tmp \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/contrasts_table_example.csv,target=/var/lib/cwl/stg6b7a804f-15aa-4803-8c60-5494899fc74e/contrasts_table_example.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/diffbind_results.rds,target=/var/lib/cwl/stg9977e5d9-35c0-4194-a199-a19ab572fee9/diffbind_results.rds,readonly \
+    --workdir=/zdJhQB \
     --read-only=true \
     --log-driver=none \
     --user=504:20 \
     --rm \
-    --cidfile=/private/tmp/docker_tmpm9jxlv3s/20250624024226-275010.cid \
+    --cidfile=/private/tmp/docker_tmpdu4v2zvg/20250627042925-627670.cid \
     --env=TMPDIR=/tmp \
-    --env=HOME=/YudsaZ \
+    --env=HOME=/zdJhQB \
     biowardrobe2/scidap-atac:v0.0.67 \
     /usr/bin/Rscript \
     /usr/local/bin/run_atac_lrt_step_2.R \
@@ -25,9 +25,9 @@
     --contrast_indices \
     1 \
     --contrast_df \
-    /var/lib/cwl/stgf5d59e5e-f5d3-4ff5-9bb8-0693a0960f21/contrasts_table_example.csv \
+    /var/lib/cwl/stg6b7a804f-15aa-4803-8c60-5494899fc74e/contrasts_table_example.csv \
     --atac_obj_data \
-    /var/lib/cwl/stgbc9549b8-2336-4f53-ab53-a98b35f7687d/diffbind_results.rds \
+    /var/lib/cwl/stg9977e5d9-35c0-4194-a199-a19ab572fee9/diffbind_results.rds \
     --fdr \
     0.1 \
     --k \
@@ -45,8 +45,8 @@
     --test_mode \
     --threads \
     4 \
-    --use_lfc_thresh > /private/tmp/docker_tmp06_fbhnt/deseq_lrt_step_2_stdout.log 2> /private/tmp/docker_tmp06_fbhnt/deseq_lrt_step_2_stderr.log
-[1;30mINFO[0m [job atac-lrt-step-2.cwl] Max memory used: 2005MiB
+    --use_lfc_thresh > /private/tmp/docker_tmps26q01ab/deseq_lrt_step_2_stdout.log 2> /private/tmp/docker_tmps26q01ab/deseq_lrt_step_2_stderr.log
+[1;30mINFO[0m [job atac-lrt-step-2.cwl] Max memory used: 1989MiB
 [1;30mWARNING[0m [33m[job atac-lrt-step-2.cwl] exited with status: 1[0m
 [1;30mERROR[0m [31m[job atac-lrt-step-2.cwl] Job error:
 ("Error collecting output for parameter 'counts_all_gct': ../tools/atac-lrt-step-2.cwl:204:7: Did not find output file with glob pattern: ['counts_all.gct'].", {})[0m

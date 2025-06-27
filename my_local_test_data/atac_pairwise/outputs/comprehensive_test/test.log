@@ -1,22 +1,22 @@
 [1;30mINFO[0m /opt/homebrew/Caskroom/mambaforge/base/bin/cwltool 3.1.20250110105449
 [1;30mINFO[0m Resolved '../tools/atac-pairwise.cwl' to 'file:///Users/pavb5f/Documents/barskilab-workflows/tools/atac-pairwise.cwl'
-[1;30mINFO[0m [job atac-pairwise.cwl] /private/tmp/docker_tmpc8t9mywv$ docker \
+[1;30mINFO[0m [job atac-pairwise.cwl] /private/tmp/docker_tmp8_xmwn99$ docker \
     run \
     -i \
-    --mount=type=bind,source=/private/tmp/docker_tmpc8t9mywv,target=/fQxIdT \
-    --mount=type=bind,source=/private/tmp/docker_tmpigi4se5a,target=/tmp \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample3_peaks.csv,target=/var/lib/cwl/stga8776894-7c25-48d7-8614-d3604b9eb85f/sample3_peaks.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample4_peaks.csv,target=/var/lib/cwl/stgac351459-3efa-42f3-8347-5e08e053d1d0/sample4_peaks.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample1_peaks.csv,target=/var/lib/cwl/stg8934135d-8228-47be-9bc7-cf567bf1d5d6/sample1_peaks.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample2_peaks.csv,target=/var/lib/cwl/stg00381861-4afa-4278-a941-453e60c1cb5f/sample2_peaks.csv,readonly \
-    --workdir=/fQxIdT \
+    --mount=type=bind,source=/private/tmp/docker_tmp8_xmwn99,target=/QUBCsa \
+    --mount=type=bind,source=/private/tmp/docker_tmpr5in2g3t,target=/tmp \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample3_peaks.csv,target=/var/lib/cwl/stg879644b3-6b63-4dec-8ab1-d8b850a59e59/sample3_peaks.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample4_peaks.csv,target=/var/lib/cwl/stg694304f5-c442-4abc-982c-47e11be5c50e/sample4_peaks.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample1_peaks.csv,target=/var/lib/cwl/stga6852970-1fbb-4389-962e-4f92cb86e70c/sample1_peaks.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample2_peaks.csv,target=/var/lib/cwl/stgc689c41f-8050-4481-88b4-ced43af3f86b/sample2_peaks.csv,readonly \
+    --workdir=/QUBCsa \
     --read-only=true \
     --log-driver=none \
     --user=504:20 \
     --rm \
-    --cidfile=/private/tmp/docker_tmp1z6n5doz/20250624024242-560699.cid \
+    --cidfile=/private/tmp/docker_tmpr1m3iiaj/20250627042942-576924.cid \
     --env=TMPDIR=/tmp \
-    --env=HOME=/fQxIdT \
+    --env=HOME=/QUBCsa \
     biowardrobe2/scidap-atac:v0.0.67 \
     run_atac_pairwise.R \
     --batchcorrection \
@@ -41,23 +41,23 @@
     -p \
     1 \
     -t \
-    /var/lib/cwl/stga8776894-7c25-48d7-8614-d3604b9eb85f/sample3_peaks.csv \
-    /var/lib/cwl/stgac351459-3efa-42f3-8347-5e08e053d1d0/sample4_peaks.csv \
+    /var/lib/cwl/stg879644b3-6b63-4dec-8ab1-d8b850a59e59/sample3_peaks.csv \
+    /var/lib/cwl/stg694304f5-c442-4abc-982c-47e11be5c50e/sample4_peaks.csv \
     -tn \
     Act \
     -ta \
     sample3 \
     sample4 \
     -u \
-    /var/lib/cwl/stg8934135d-8228-47be-9bc7-cf567bf1d5d6/sample1_peaks.csv \
-    /var/lib/cwl/stg00381861-4afa-4278-a941-453e60c1cb5f/sample2_peaks.csv \
+    /var/lib/cwl/stga6852970-1fbb-4389-962e-4f92cb86e70c/sample1_peaks.csv \
+    /var/lib/cwl/stgc689c41f-8050-4481-88b4-ced43af3f86b/sample2_peaks.csv \
     -un \
     Rest \
     -ua \
     sample1 \
     sample2 \
-    --use_lfc_thresh > /private/tmp/docker_tmpc8t9mywv/deseq_stdout.log 2> /private/tmp/docker_tmpc8t9mywv/deseq_stderr.log
-[1;30mINFO[0m [job atac-pairwise.cwl] Max memory used: 2057MiB
+    --use_lfc_thresh > /private/tmp/docker_tmp8_xmwn99/deseq_stdout.log 2> /private/tmp/docker_tmp8_xmwn99/deseq_stderr.log
+[1;30mINFO[0m [job atac-pairwise.cwl] Max memory used: 2062MiB
 [1;30mWARNING[0m [33m[job atac-pairwise.cwl] exited with status: 1[0m
 [1;30mERROR[0m [31m[job atac-pairwise.cwl] Job error:
 ("Error collecting output for parameter 'deseq_summary_md': ../tools/atac-pairwise.cwl:260:7: Did not find output file with glob pattern: ['*summary.md'].", {})[0m

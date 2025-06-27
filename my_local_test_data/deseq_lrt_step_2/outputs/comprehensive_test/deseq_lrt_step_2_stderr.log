@@ -1,5 +1,5 @@
 Starting DESeq2 LRT Step 2 Analysis
-Working directory:/FgCteV
+Working directory:/VwnDov
 Looking for workflow file at:/usr/local/bin/functions/deseq2_lrt_step_2/workflow.R
 Found workflow file. Sourcing:/usr/local/bin/functions/deseq2_lrt_step_2/workflow.R
 Loading utilities from Docker path: /usr/local/bin/functions/common/utilities.R

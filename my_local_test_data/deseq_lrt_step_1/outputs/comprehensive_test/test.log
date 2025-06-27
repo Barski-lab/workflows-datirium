@@ -1,27 +1,27 @@
 [1;30mINFO[0m /opt/homebrew/Caskroom/mambaforge/base/bin/cwltool 3.1.20250110105449
 [1;30mINFO[0m Resolved '../tools/deseq-lrt-step-1.cwl' to 'file:///Users/pavb5f/Documents/barskilab-workflows/tools/deseq-lrt-step-1.cwl'
-[1;30mINFO[0m [job deseq-lrt-step-1.cwl] /private/tmp/docker_tmpes_l8l8f$ docker \
+[1;30mINFO[0m [job deseq-lrt-step-1.cwl] /private/tmp/docker_tmpd1p76tny$ docker \
     run \
     -i \
-    --mount=type=bind,source=/private/tmp/docker_tmpes_l8l8f,target=/WEAEDe \
-    --mount=type=bind,source=/private/tmp/docker_tmp8lzmfii7,target=/tmp \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/ABSK0218_CMR_rm.isoforms.csv,target=/var/lib/cwl/stgbcb0e5e0-370a-4854-b73e-669e2fdfb9d9/ABSK0218_CMR_rm.isoforms.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/ABSK0222_CMR_rm.isoforms.csv,target=/var/lib/cwl/stg9f3ed45c-2d34-421d-b173-19b4b635af3d/ABSK0222_CMR_rm.isoforms.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/ABSK0219_CMA_rm.isoforms.csv,target=/var/lib/cwl/stg980ba68a-099b-41c0-8f34-8df52c9f1eb1/ABSK0219_CMA_rm.isoforms.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/ABSK0223_CMA_rm.isoforms.csv,target=/var/lib/cwl/stg89402f2e-be65-4f97-bb4a-213c62f0c801/ABSK0223_CMA_rm.isoforms.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/ABSK0226_KMR_rm.isoforms.csv,target=/var/lib/cwl/stgcd820c5e-5fd0-4924-9f29-5b39fbe1941a/ABSK0226_KMR_rm.isoforms.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/ABSK0230_KMR_rm.isoforms.csv,target=/var/lib/cwl/stge9c5d760-e156-458f-9797-da231993e02d/ABSK0230_KMR_rm.isoforms.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/ABSK0227_KMA_rm.isoforms.csv,target=/var/lib/cwl/stg8657e26d-d5e7-4d05-9bcf-059ccc378852/ABSK0227_KMA_rm.isoforms.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/ABSK231238_rm.isoforms.csv,target=/var/lib/cwl/stgbea2b889-7c2f-44de-84f7-174bfe47501a/ABSK231238_rm.isoforms.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/metadata.csv,target=/var/lib/cwl/stge1727421-d21e-40d5-9e79-aedd5d511e88/metadata.csv,readonly \
-    --workdir=/WEAEDe \
+    --mount=type=bind,source=/private/tmp/docker_tmpd1p76tny,target=/SLVrWt \
+    --mount=type=bind,source=/private/tmp/docker_tmpqt7akn04,target=/tmp \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/ABSK0218_CMR_rm.isoforms.csv,target=/var/lib/cwl/stgff9d00e2-d68a-4fcf-a4e0-9d239ff89ac3/ABSK0218_CMR_rm.isoforms.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/ABSK0222_CMR_rm.isoforms.csv,target=/var/lib/cwl/stgdf089d3f-5f27-4771-bbcc-00907627fb8c/ABSK0222_CMR_rm.isoforms.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/ABSK0219_CMA_rm.isoforms.csv,target=/var/lib/cwl/stg5107fd91-dde2-470f-b691-1598e44ede08/ABSK0219_CMA_rm.isoforms.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/ABSK0223_CMA_rm.isoforms.csv,target=/var/lib/cwl/stg9322ee80-d21d-43f6-8b99-94e6df79a8fb/ABSK0223_CMA_rm.isoforms.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/ABSK0226_KMR_rm.isoforms.csv,target=/var/lib/cwl/stg965c8817-6cdd-4dd2-8aaa-536b9ae7bc77/ABSK0226_KMR_rm.isoforms.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/ABSK0230_KMR_rm.isoforms.csv,target=/var/lib/cwl/stgeefff787-8ac5-414b-a029-c07e450ad19c/ABSK0230_KMR_rm.isoforms.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/ABSK0227_KMA_rm.isoforms.csv,target=/var/lib/cwl/stg54091b01-e60e-4007-b7f5-d2fd80d608b3/ABSK0227_KMA_rm.isoforms.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/ABSK231238_rm.isoforms.csv,target=/var/lib/cwl/stg1b31a086-6a51-4c15-993f-9718b91cc160/ABSK231238_rm.isoforms.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/metadata.csv,target=/var/lib/cwl/stge36b5bb5-1af5-46c4-b45e-307119aaa1f9/metadata.csv,readonly \
+    --workdir=/SLVrWt \
     --read-only=true \
     --log-driver=none \
     --user=504:20 \
     --rm \
-    --cidfile=/private/tmp/docker_tmp0w5ga_f0/20250625201508-668153.cid \
+    --cidfile=/private/tmp/docker_tmpwibr4olv/20250627042553-000130.cid \
     --env=TMPDIR=/tmp \
-    --env=HOME=/WEAEDe \
+    --env=HOME=/SLVrWt \
     biowardrobe2/scidap-deseq:v0.0.62 \
     /usr/bin/Rscript \
     /usr/local/bin/run_deseq_lrt_step_1.R \
@@ -41,14 +41,14 @@
     ABSK0227_KMA_rm \
     ABSK231238_rm \
     --input \
-    /var/lib/cwl/stgbcb0e5e0-370a-4854-b73e-669e2fdfb9d9/ABSK0218_CMR_rm.isoforms.csv \
-    /var/lib/cwl/stg9f3ed45c-2d34-421d-b173-19b4b635af3d/ABSK0222_CMR_rm.isoforms.csv \
-    /var/lib/cwl/stg980ba68a-099b-41c0-8f34-8df52c9f1eb1/ABSK0219_CMA_rm.isoforms.csv \
-    /var/lib/cwl/stg89402f2e-be65-4f97-bb4a-213c62f0c801/ABSK0223_CMA_rm.isoforms.csv \
-    /var/lib/cwl/stgcd820c5e-5fd0-4924-9f29-5b39fbe1941a/ABSK0226_KMR_rm.isoforms.csv \
-    /var/lib/cwl/stge9c5d760-e156-458f-9797-da231993e02d/ABSK0230_KMR_rm.isoforms.csv \
-    /var/lib/cwl/stg8657e26d-d5e7-4d05-9bcf-059ccc378852/ABSK0227_KMA_rm.isoforms.csv \
-    /var/lib/cwl/stgbea2b889-7c2f-44de-84f7-174bfe47501a/ABSK231238_rm.isoforms.csv \
+    /var/lib/cwl/stgff9d00e2-d68a-4fcf-a4e0-9d239ff89ac3/ABSK0218_CMR_rm.isoforms.csv \
+    /var/lib/cwl/stgdf089d3f-5f27-4771-bbcc-00907627fb8c/ABSK0222_CMR_rm.isoforms.csv \
+    /var/lib/cwl/stg5107fd91-dde2-470f-b691-1598e44ede08/ABSK0219_CMA_rm.isoforms.csv \
+    /var/lib/cwl/stg9322ee80-d21d-43f6-8b99-94e6df79a8fb/ABSK0223_CMA_rm.isoforms.csv \
+    /var/lib/cwl/stg965c8817-6cdd-4dd2-8aaa-536b9ae7bc77/ABSK0226_KMR_rm.isoforms.csv \
+    /var/lib/cwl/stgeefff787-8ac5-414b-a029-c07e450ad19c/ABSK0230_KMR_rm.isoforms.csv \
+    /var/lib/cwl/stg54091b01-e60e-4007-b7f5-d2fd80d608b3/ABSK0227_KMA_rm.isoforms.csv \
+    /var/lib/cwl/stg1b31a086-6a51-4c15-993f-9718b91cc160/ABSK231238_rm.isoforms.csv \
     --fdr \
     0.1 \
     --k \
@@ -60,7 +60,7 @@
     --lrt_only_mode \
     FALSE \
     --meta \
-    /var/lib/cwl/stge1727421-d21e-40d5-9e79-aedd5d511e88/metadata.csv \
+    /var/lib/cwl/stge36b5bb5-1af5-46c4-b45e-307119aaa1f9/metadata.csv \
     --output \
     ./deseq_lrt_step_1 \
     --reduced \
@@ -72,4 +72,75 @@
     --threads \
     4 \
     --use_lfc_thresh \
-    TRUE > /private/tmp/docker_tmpes_l8l8f/deseq_lrt_step_1_stdout.log 2> /private/tmp/docker_tmpes_l8l8f/deseq_lrt_step_1_stderr.log
+    TRUE > /private/tmp/docker_tmpd1p76tny/deseq_lrt_step_1_stdout.log 2> /private/tmp/docker_tmpd1p76tny/deseq_lrt_step_1_stderr.log
+[1;30mINFO[0m [job deseq-lrt-step-1.cwl] Max memory used: 10348MiB
+[1;30mINFO[0m [job deseq-lrt-step-1.cwl] completed success
+{
+    "alignment_stats_barchart": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/comprehensive_test/alignment_stats_barchart.png",
+        "basename": "alignment_stats_barchart.png",
+        "class": "File",
+        "checksum": "sha1$14f5b5ce71a4414048f57d0adae57253e4dd7cf0",
+        "size": 126191,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/comprehensive_test/alignment_stats_barchart.png"
+    },
+    "contrasts_table": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_contrasts_table.tsv",
+        "basename": "deseq_lrt_step_1_contrasts_table.tsv",
+        "class": "File",
+        "checksum": "sha1$83da6a57407dd8dbb89c18898688710261b751c7",
+        "size": 247,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_contrasts_table.tsv"
+    },
+    "counts_all_gct": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_counts_all.gct",
+        "basename": "deseq_lrt_step_1_counts_all.gct",
+        "class": "File",
+        "checksum": "sha1$f85cd7e07ca23199b72247aae775f0188dfc9c3c",
+        "size": 74040,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_counts_all.gct"
+    },
+    "counts_filtered_gct": null,
+    "dsq_obj_data": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_contrasts.rds",
+        "basename": "deseq_lrt_step_1_contrasts.rds",
+        "class": "File",
+        "checksum": "sha1$f51584c1064d38dfc0f9760fc6484d07516b91a0",
+        "size": 18755941,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_contrasts.rds"
+    },
+    "lrt_diff_expr": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_gene_exp_table.tsv",
+        "basename": "deseq_lrt_step_1_gene_exp_table.tsv",
+        "class": "File",
+        "checksum": "sha1$556e9eca7034321715e272fe0b9d7fe2c7e70fac",
+        "size": 66824,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_gene_exp_table.tsv"
+    },
+    "lrt_summary_md": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_lrt_result.md",
+        "basename": "deseq_lrt_step_1_lrt_result.md",
+        "class": "File",
+        "checksum": "sha1$d74608baf4844ac5449e810622a58b47c8045df3",
+        "size": 362,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_lrt_result.md"
+    },
+    "mds_plots_corrected_html": null,
+    "mds_plots_html": null,
+    "stderr_log": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_stderr.log",
+        "basename": "deseq_lrt_step_1_stderr.log",
+        "class": "File",
+        "checksum": "sha1$1aecebbe636af7733cea715f4ba282117d8d7c45",
+        "size": 8574,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_stderr.log"
+    },
+    "stdout_log": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_stdout.log",
+        "basename": "deseq_lrt_step_1_stdout.log",
+        "class": "File",
+        "checksum": "sha1$0cc98d2672f619f76904530020577e06bd9091d6",
+        "size": 5053,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_stdout.log"
+    }
+}[1;30mINFO[0m Final process status is success

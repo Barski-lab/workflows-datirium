@@ -124,43 +124,43 @@ The following object is masked from 'package:IRanges':
     reduce
 
 Loading expression data from files...
-Loading file 1 of 8 : /var/lib/cwl/stg19806a53-5a19-4226-809d-503db5badb37/ABSK0218_CMR_rm.isoforms.csv
+Loading file 1 of 8 : /var/lib/cwl/stg430dbfbd-4d95-44bb-950a-589235ce0127/ABSK0218_CMR_rm.isoforms.csv
   Loaded 47285 rows and 8 columns
   TEST MODE: Subsampling 5000 genes out of 47285 for memory efficiency
   Subsampled to 5000 rows
   Saved 6 annotation columns from first file
-Loading file 2 of 8 : /var/lib/cwl/stg1c581ddb-a681-4a25-8457-b5baf41e3510/ABSK0222_CMR_rm.isoforms.csv
+Loading file 2 of 8 : /var/lib/cwl/stg81042717-5019-44ef-b4ae-d3d2a81694ca/ABSK0222_CMR_rm.isoforms.csv
   Loaded 47285 rows and 8 columns
   TEST MODE: Subsampling 5000 genes out of 47285 for memory efficiency
   Subsampled to 5000 rows
-Loading file 3 of 8 : /var/lib/cwl/stgf46ed0fa-b4ce-4576-95f9-1053b4392514/ABSK0219_CMA_rm.isoforms.csv
+Loading file 3 of 8 : /var/lib/cwl/stgaae42494-e6ac-47e1-8da3-5f612b0ffbea/ABSK0219_CMA_rm.isoforms.csv
   Loaded 47285 rows and 8 columns
   TEST MODE: Subsampling 5000 genes out of 47285 for memory efficiency
   Subsampled to 5000 rows
-Loading file 4 of 8 : /var/lib/cwl/stg5c16b944-0390-4980-a620-d094374c6899/ABSK0223_CMA_rm.isoforms.csv
+Loading file 4 of 8 : /var/lib/cwl/stg2171302a-a5a1-41d8-bf31-dca40fc4ece1/ABSK0223_CMA_rm.isoforms.csv
   Loaded 47285 rows and 8 columns
   TEST MODE: Subsampling 5000 genes out of 47285 for memory efficiency
   Subsampled to 5000 rows
-Loading file 5 of 8 : /var/lib/cwl/stg6fb1156c-88ff-496f-bb06-87f28f69ff16/ABSK0226_KMR_rm.isoforms.csv
+Loading file 5 of 8 : /var/lib/cwl/stga42c7585-17a9-4605-8950-61e82e010472/ABSK0226_KMR_rm.isoforms.csv
   Loaded 47285 rows and 8 columns
   TEST MODE: Subsampling 5000 genes out of 47285 for memory efficiency
   Subsampled to 5000 rows
-Loading file 6 of 8 : /var/lib/cwl/stgc612294a-406f-4a34-9182-39e22c2330a9/ABSK0230_KMR_rm.isoforms.csv
+Loading file 6 of 8 : /var/lib/cwl/stg8b0c1865-418b-40e3-a734-822cd823bc4a/ABSK0230_KMR_rm.isoforms.csv
   Loaded 47285 rows and 8 columns
   TEST MODE: Subsampling 5000 genes out of 47285 for memory efficiency
   Subsampled to 5000 rows
-Loading file 7 of 8 : /var/lib/cwl/stg931a7dad-93c8-41a6-83c4-29a4bcdeef71/ABSK0227_KMA_rm.isoforms.csv
+Loading file 7 of 8 : /var/lib/cwl/stgbfae0666-2642-419a-a3c7-76683f89cf0c/ABSK0227_KMA_rm.isoforms.csv
   Loaded 47285 rows and 8 columns
   TEST MODE: Subsampling 5000 genes out of 47285 for memory efficiency
   Subsampled to 5000 rows
-Loading file 8 of 8 : /var/lib/cwl/stg01feade4-05d3-4d2d-aac3-3afa05f6e690/ABSK231238_rm.isoforms.csv
+Loading file 8 of 8 : /var/lib/cwl/stg94e80cfc-b4c2-4a0c-8d90-b50a474190e7/ABSK231238_rm.isoforms.csv
   Loaded 47285 rows and 8 columns
   TEST MODE: Subsampling 5000 genes out of 47285 for memory efficiency
   Subsampled to 5000 rows
 Merging data from all input files...
 Found 54471 NA values in merged data - replacing with zeros
 Final merged data has 7155458 rows and 22 columns
-Loading metadata from /var/lib/cwl/stg09d1e816-fb0f-4bee-9c4d-1c516f17dced/metadata.csv
+Loading metadata from /var/lib/cwl/stg52462b7b-cdca-4f75-b79b-b0a5233abb6a/metadata.csv
 Loaded metadata with 8 samples and 2 variables
 Performing quality control and filtering...
 Initial gene count: 7155458

@@ -1,35 +1,35 @@
 [1;30mINFO[0m /opt/homebrew/Caskroom/mambaforge/base/bin/cwltool 3.1.20250110105449
 [1;30mINFO[0m Resolved '../tools/atac-lrt-step-1.cwl' to 'file:///Users/pavb5f/Documents/barskilab-workflows/tools/atac-lrt-step-1.cwl'
-[1;30mINFO[0m [job atac-lrt-step-1.cwl] /private/tmp/docker_tmp507n7uj7$ docker \
+[1;30mINFO[0m [job atac-lrt-step-1.cwl] /private/tmp/docker_tmphz3m6xd9$ docker \
     run \
     -i \
-    --mount=type=bind,source=/private/tmp/docker_tmp507n7uj7,target=/AWoPyu \
-    --mount=type=bind,source=/private/tmp/docker_tmpprqxwp78,target=/tmp \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample1.bam,target=/var/lib/cwl/stg50fd0449-92f7-4bac-ae50-9e3a5cb2f94a/sample1.bam,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample2.bam,target=/var/lib/cwl/stgeb5d6708-8d16-4bf1-8928-d983af856a9d/sample2.bam,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample3.bam,target=/var/lib/cwl/stg0848c079-02ed-437c-b2f9-913019d8d5c3/sample3.bam,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample4.bam,target=/var/lib/cwl/stg0cb05139-7022-43d6-850f-98d955294120/sample4.bam,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/atac_metadata.csv,target=/var/lib/cwl/stgffe9b46a-1e51-4f1f-bd86-db2381cad58f/atac_metadata.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample1_peaks.csv,target=/var/lib/cwl/stgcce48756-8fb7-442b-9ffd-016e9c0baab7/sample1_peaks.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample2_peaks.csv,target=/var/lib/cwl/stg04e7c5cb-645b-4f9a-ab6c-2fa89034c795/sample2_peaks.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample3_peaks.csv,target=/var/lib/cwl/stgbbd41ae0-9582-4773-bb8b-6d72b10cd14c/sample3_peaks.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample4_peaks.csv,target=/var/lib/cwl/stgc6f6722a-51f1-4cbd-80e0-f03045fdd18f/sample4_peaks.csv,readonly \
-    --workdir=/AWoPyu \
+    --mount=type=bind,source=/private/tmp/docker_tmphz3m6xd9,target=/XCJtPt \
+    --mount=type=bind,source=/private/tmp/docker_tmpax4mfjmc,target=/tmp \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample1.bam,target=/var/lib/cwl/stg10402c0b-d288-489c-9a4c-24203980effe/sample1.bam,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample2.bam,target=/var/lib/cwl/stg81e33a75-206b-4e15-b58c-bb0a67ce3cb2/sample2.bam,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample3.bam,target=/var/lib/cwl/stg2758dc4a-c59d-4da9-b16e-81ec6fa428d3/sample3.bam,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample4.bam,target=/var/lib/cwl/stg6ccc98e4-9fac-4401-a1d0-572655d1ace9/sample4.bam,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/atac_metadata.csv,target=/var/lib/cwl/stg05bc6fae-3d02-4a0c-85f8-9de2ff60e642/atac_metadata.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample1_peaks.csv,target=/var/lib/cwl/stg71c29bd7-e5cd-4c0a-b20c-f33ff87b0184/sample1_peaks.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample2_peaks.csv,target=/var/lib/cwl/stg899e0e0f-4ac5-4c41-87d8-44eae02a29f2/sample2_peaks.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample3_peaks.csv,target=/var/lib/cwl/stg19c705a9-f737-4f6f-9882-a1d461dfc10a/sample3_peaks.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample4_peaks.csv,target=/var/lib/cwl/stgeff532b6-9306-44c0-934c-9a0f41d156db/sample4_peaks.csv,readonly \
+    --workdir=/XCJtPt \
     --read-only=true \
     --log-driver=none \
     --user=504:20 \
     --rm \
-    --cidfile=/private/tmp/docker_tmptxp4yts4/20250624024211-163213.cid \
+    --cidfile=/private/tmp/docker_tmpr2sdky1y/20250627042909-517236.cid \
     --env=TMPDIR=/tmp \
-    --env=HOME=/AWoPyu \
+    --env=HOME=/XCJtPt \
     biowardrobe2/scidap-atac:v0.0.67 \
     /usr/bin/Rscript \
     /usr/local/bin/run_atac_lrt_step_1.R \
     --bamfiles \
-    /var/lib/cwl/stg50fd0449-92f7-4bac-ae50-9e3a5cb2f94a/sample1.bam \
-    /var/lib/cwl/stgeb5d6708-8d16-4bf1-8928-d983af856a9d/sample2.bam \
-    /var/lib/cwl/stg0848c079-02ed-437c-b2f9-913019d8d5c3/sample3.bam \
-    /var/lib/cwl/stg0cb05139-7022-43d6-850f-98d955294120/sample4.bam \
+    /var/lib/cwl/stg10402c0b-d288-489c-9a4c-24203980effe/sample1.bam \
+    /var/lib/cwl/stg81e33a75-206b-4e15-b58c-bb0a67ce3cb2/sample2.bam \
+    /var/lib/cwl/stg2758dc4a-c59d-4da9-b16e-81ec6fa428d3/sample3.bam \
+    /var/lib/cwl/stg6ccc98e4-9fac-4401-a1d0-572655d1ace9/sample4.bam \
     --batchcorrection \
     combatseq \
     --cluster \
@@ -46,7 +46,7 @@
     0.59 \
     --lrt_only_mode \
     --meta \
-    /var/lib/cwl/stgffe9b46a-1e51-4f1f-bd86-db2381cad58f/atac_metadata.csv \
+    /var/lib/cwl/stg05bc6fae-3d02-4a0c-85f8-9de2ff60e642/atac_metadata.csv \
     --output \
     ./deseq_lrt_step_1 \
     --name \
@@ -60,14 +60,14 @@
     zscore \
     --test_mode \
     --input_files \
-    /var/lib/cwl/stgcce48756-8fb7-442b-9ffd-016e9c0baab7/sample1_peaks.csv \
-    /var/lib/cwl/stg04e7c5cb-645b-4f9a-ab6c-2fa89034c795/sample2_peaks.csv \
-    /var/lib/cwl/stgbbd41ae0-9582-4773-bb8b-6d72b10cd14c/sample3_peaks.csv \
-    /var/lib/cwl/stgc6f6722a-51f1-4cbd-80e0-f03045fdd18f/sample4_peaks.csv \
+    /var/lib/cwl/stg71c29bd7-e5cd-4c0a-b20c-f33ff87b0184/sample1_peaks.csv \
+    /var/lib/cwl/stg899e0e0f-4ac5-4c41-87d8-44eae02a29f2/sample2_peaks.csv \
+    /var/lib/cwl/stg19c705a9-f737-4f6f-9882-a1d461dfc10a/sample3_peaks.csv \
+    /var/lib/cwl/stgeff532b6-9306-44c0-934c-9a0f41d156db/sample4_peaks.csv \
     --threads \
     4 \
-    --use_lfc_thresh > /private/tmp/docker_tmp507n7uj7/deseq_lrt_step_1_stdout.log 2> /private/tmp/docker_tmp507n7uj7/deseq_lrt_step_1_stderr.log
-[1;30mINFO[0m [job atac-lrt-step-1.cwl] Max memory used: 1990MiB
+    --use_lfc_thresh > /private/tmp/docker_tmphz3m6xd9/deseq_lrt_step_1_stdout.log 2> /private/tmp/docker_tmphz3m6xd9/deseq_lrt_step_1_stderr.log
+[1;30mINFO[0m [job atac-lrt-step-1.cwl] Max memory used: 1980MiB
 [1;30mINFO[0m [job atac-lrt-step-1.cwl] completed success
 {
     "alignment_stats_barchart": null,
@@ -83,7 +83,7 @@
         "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_stderr.log",
         "basename": "deseq_lrt_step_1_stderr.log",
         "class": "File",
-        "checksum": "sha1$a22ca68c837eff0a314a3a4f3ad52d1f00e1faec",
+        "checksum": "sha1$5094446be1d39b95b21ad78daf700d4065c1bcc4",
         "size": 3551,
         "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_stderr.log"
     },
@@ -91,7 +91,7 @@
         "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_stdout.log",
         "basename": "deseq_lrt_step_1_stdout.log",
         "class": "File",
-        "checksum": "sha1$f1f2d849aab641cf94631bf2ac78cbcc6fdb9673",
+        "checksum": "sha1$90a4cc5397aa5f96bffa80a652132e813ca76c63",
         "size": 103299,
         "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_1/outputs/comprehensive_test/deseq_lrt_step_1_stdout.log"
     }
