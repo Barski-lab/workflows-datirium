@@ -28,4 +28,5 @@ kmax_hopach: 5
 # Output preferences
 generate_heatmap: true
 generate_volcano: true
-generate_ma_plot: true 
+generate_ma_plot: true
+output_prefix: "atac_lrt_step2" 

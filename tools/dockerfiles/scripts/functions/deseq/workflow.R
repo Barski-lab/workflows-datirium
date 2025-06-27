@@ -160,26 +160,46 @@ run_workflow <- function(args) {
       batch_data <- NULL
     }
     
-    # Run DESeq2 analysis
-    deseq_results <- run_deseq2_analysis(
-      count_data = count_data,
-      col_data = column_data,
-      design = design,
-      batch_correction = args$batchcorrection,
-      batch_data = batch_data,
-      condition_names = c(condition1 = args$uname, condition2 = args$tname),
-      args = args
-    )
+    # Try DESeq2 analysis with fallback to EdgeR
+    deseq_results <- tryCatch({
+      run_deseq2_analysis(
+        count_data = count_data,
+        col_data = column_data,
+        design = design,
+        batch_correction = args$batchcorrection,
+        batch_data = batch_data,
+        condition_names = c(condition1 = args$uname, condition2 = args$tname),
+        args = args
+      )
+    }, error = function(e) {
+      log_message(paste("DESeq2 analysis failed:", e$message))
+      log_message("Falling back to EdgeR analysis")
+      
+      # Fall back to EdgeR analysis
+      run_edger_analysis(
+        count_data = count_data,
+        col_data = column_data,
+        condition_names = c(condition1 = args$uname, condition2 = args$tname),
+        args = args
+      )
+    })
     
-    # Generate summary markdown
+    # Generate summary markdown (adapt title based on analysis method used)
+    analysis_title <- if (!is.null(deseq_results$method) && deseq_results$method == "EdgeR") {
+      "EdgeR Analysis Summary (DESeq2 fallback)"
+    } else {
+      "DESeq2 Analysis Summary"
+    }
+    
     summary_file <- generate_deseq_summary(
       deseq_results$res,
       get_output_filename(args$output, "summary", "md"),
-      title = "DESeq2 Analysis Summary",
+      title = analysis_title,
       parameters = list(
         "Condition 1" = args$uname,
         "Condition 2" = args$tname,
-        "Batch correction" = args$batchcorrection
+        "Batch correction" = args$batchcorrection,
+        "Analysis Method" = if (!is.null(deseq_results$method)) deseq_results$method else "DESeq2"
       )
     )
     

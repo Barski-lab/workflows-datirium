@@ -12,7 +12,6 @@ This file provides guidance to Claude Code when working with this CWL bioinforma
 - **Modern R practices**: Use tidyverse, explicit `package::function()` calls, conflicted package for namespace management
 - **Advanced CLI tools**: Use efficient terminal tools for file manipulation and navigation
 
-
 ## Repository Structure
 
 **CWL Bioinformatics Workflows** for ChIP-Seq, ATAC-Seq, RNA-Seq analysis:
@@ -79,7 +78,7 @@ tools/dockerfiles/scripts/functions/
 ### Critical Rules
 - **File creation**: Only create files in `my_local_test_data/` directory
 - **Testing**: Always run `quick_test.sh` before finalizing changes
-- **Docker**: Use specific images - `biowardrobe2/scidap-deseq:v0.0.62` (DESeq2), `biowardrobe2/scidap-atac:v0.0.67` (ATAC)
+- **Docker**: Use latest fixed images - `biowardrobe2/scidap-deseq:v0.0.66-fixed`, `biowardrobe2/scidap-atac:v0.0.68-fixed`
 - **Paths**: Use relative paths to core_data/ in CWL input YAML files
 - **Path validation**: Before testing, check input YAML files for correct relative paths (../../core_data/ not ../core_data/)
 - **Test data completeness**: Verify core_data/ has all required files: *.csv, *.bam, contrasts_table_example.csv, diffbind_results.rds
@@ -91,10 +90,33 @@ tools/dockerfiles/scripts/functions/
 - **Always use lintr and other (like styler from R, cwltool --valid from cwltool) tools before git push to make sure scripts doesn't contain errors.**
 
 ### Common Error Prevention
-- **Missing output files**: If workflows fail with "Did not find output file with glob pattern", check R script output generation functions
-- **Path resolution**: DESeq LRT Step 2 requires relative paths like "../../deseq_lrt_step_1/outputs/quick_test/" 
+- **Missing output files**: Common issue is missing `*summary.md` files for pairwise workflows - ensure `generate_deseq_summary()` is called in workflow functions
+- **CWL output collection**: Use proper glob patterns and verify output file naming matches CWL expectations
 - **Docker platform**: Use `unset DOCKER_DEFAULT_PLATFORM` for native ARM64 performance (~3x faster)
 - **Test file creation**: Use Write tool for complex files, simple echo for basic files
+- **Output verification**: Use `verify_outputs()` function with correct workflow type ("deseq", "lrt_step1", "lrt_step2")
+
+## RECENT CRITICAL FIXES (2025-06-27)
+
+### Docker Images with Fixed Output Generation
+- **DESeq workflows**: `biowardrobe2/scidap-deseq:v0.0.66-fixed` 
+- **ATAC workflows**: `biowardrobe2/scidap-atac:v0.0.68-fixed`
+- **Key fix**: Added `generate_deseq_summary()` calls to both DESeq2 and EdgeR workflows
+- **Verification**: Updated workflow types in main entry scripts
+
+### CWL Tools Updated (2025-06-27)
+All CWL tools now reference fixed Docker images:
+- `deseq-pairwise.cwl` → v0.0.66-fixed
+- `deseq-lrt-step-1.cwl` → v0.0.66-fixed  
+- `deseq-lrt-step-2.cwl` → v0.0.66-fixed
+- `atac-lrt-step-2.cwl` → v0.0.68-fixed
+- `atac-pairwise.cwl` → v0.0.68-fixed
+
+### Workflow Status (Last Updated: 2025-06-27)
+✅ **Working**: DESeq LRT Step 1, DESeq LRT Step 2
+🔧 **Fixed (pending verification)**: DESeq Pairwise, ATAC Pairwise, ATAC LRT Step 2
+- **Root cause resolved**: Missing `*summary.md` output files in pairwise workflows
+- **Technical solution**: Enhanced R workflow functions with proper summary generation
 
 ### Docker and Dockerfile Management
 - For all dockerfiles located at "barskilab-workflows/tools/dockerfiles":
@@ -194,7 +216,7 @@ find . -name "test.log" -exec grep -l "Did not find output file" {} \;
 **Missing Output Files:**
 - R scripts not generating required summary.md or .gct files
 - **Pattern**: "Did not find output file with glob pattern"
-- **Fix**: Check R function output generation logic
+- **Fix**: Ensure `generate_deseq_summary()` is called in workflow functions and verify output file naming
 
 **Docker Platform Issues:**
 - DOCKER_DEFAULT_PLATFORM causing 3x slower emulated execution

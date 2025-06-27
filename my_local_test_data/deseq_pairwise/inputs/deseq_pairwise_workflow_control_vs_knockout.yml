@@ -57,4 +57,7 @@ batchcorrection: "none"
 
 # Clustering parameters
 # cluster_method: null  # Omit to disable clustering
-threads: 4 
+threads: 4
+
+# Output parameters
+output_prefix: "deseq_pairwise" 

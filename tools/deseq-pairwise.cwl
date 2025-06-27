@@ -8,7 +8,7 @@ requirements:
 
 hints:
 - class: DockerRequirement
-  dockerPull: "biowardrobe2/scidap-deseq:v0.0.66-fixed"
+  dockerPull: "biowardrobe2/scidap-deseq:v0.0.67-fallback"
 
 
 inputs:
