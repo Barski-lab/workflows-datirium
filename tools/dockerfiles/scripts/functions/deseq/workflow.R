@@ -381,11 +381,20 @@ export_data <- function(deseq_results, norm_counts, expression_data, args) {
   )
   
   # Export normalized counts in GCT format
-  count_files <- export_normalized_counts(
-    norm_counts, 
-    args$output, 
-    threshold = args$rpkm_cutoff
-  )
+  # Since norm_counts is already a matrix from EdgeR, write directly to GCT
+  all_counts_path <- get_output_filename(args$output, "counts_all", "gct")
+  write_gct_file(norm_counts, all_counts_path)
+  
+  count_files <- list(all_counts = all_counts_path)
+  
+  # Apply threshold filtering if specified
+  if (!is.null(args$rpkm_cutoff)) {
+    row_means <- rowMeans(norm_counts)
+    filtered_counts <- norm_counts[row_means >= args$rpkm_cutoff, ]
+    filtered_counts_path <- get_output_filename(args$output, "counts_filtered", "gct")
+    write_gct_file(filtered_counts, filtered_counts_path)
+    count_files$filtered_counts <- filtered_counts_path
+  }
   
   # Create CLS file for GSEA
   sample_classes <- rep(c(args$uname, args$tname), c(length(args$untreated), length(args$treated)))
