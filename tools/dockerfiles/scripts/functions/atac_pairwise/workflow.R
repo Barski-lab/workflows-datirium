@@ -232,6 +232,21 @@ run_workflow <- function(args) {
   write_gct_file(normCounts, paste0(args$output, "_normalized_counts.gct"))
   log_message("Exported normalized ATAC-seq counts to GCT format", "INFO")
   
+  # Generate summary markdown
+  log_message("Generating analysis summary", "INFO")
+  summary_file <- generate_deseq_summary(
+    pairwise_results,
+    get_output_filename(args$output, "summary", "md"),
+    title = "ATAC-seq Pairwise Analysis Summary",
+    parameters = list(
+      "Condition 1" = args$uname,
+      "Condition 2" = args$tname,
+      "Batch correction" = args$batchcorrection,
+      "Analysis Method" = "ATAC-seq Pairwise"
+    )
+  )
+  log_message(paste("Generated analysis summary:", summary_file), "INFO")
+  
   # Create visualizations
   create_pairwise_visualizations(dds, pairwise_results, args)
   
