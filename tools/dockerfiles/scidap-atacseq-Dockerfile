@@ -2,7 +2,7 @@
 # Dockerfile - ATAC-seq Analysis Container
 #
 # Software:         BioWardrobe ATAC-seq script with DiffBind
-# Software Version: v0.0.68-fixed
+# Software Version: v0.0.72
 # Description:      Dockerized version of ATAC-seq scripts from BioWardrobe
 # Website:          https://github.com/Barski-lab/workflows
 # Base Image:       Built from scidap-deseq + ATAC-specific packages
@@ -90,7 +90,7 @@
 # BASE IMAGE SELECTION
 #############################################
 # Incremental build from previous version
-FROM biowardrobe2/scidap-deseq:v0.0.66-fixed
+FROM biowardrobe2/scidap-deseq:v0.0.65
 LABEL maintainer="pavlvalera3301@gmail.com"
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -128,7 +128,7 @@ RUN chmod +x /usr/local/bin/run_atac*.R && \
 # For full build from scidap-deseq base, use this instead:
 # FROM biowardrobe2/scidap-deseq:v0.0.53
 
-# Uncomment for ATAC-specific package installation on top of scidap-deseq:
-# RUN Rscript -e "if (!require(\"BiocManager\", quietly = TRUE)) install.packages(\"BiocManager\"); \
-#     BiocManager::install(c(\"DiffBind\", \"ChIPseeker\", \"GenomicFeatures\", \"rtracklayer\", \"Rsamtools\"), update = FALSE, ask = FALSE); \
-#     install.packages(c(\"VennDiagram\", \"UpSetR\", \"corrplot\"));"
+# Install ATAC-specific packages on top of scidap-deseq:
+RUN Rscript -e "if (!require(\"BiocManager\", quietly = TRUE)) install.packages(\"BiocManager\"); \
+    BiocManager::install(c(\"DiffBind\", \"ChIPseeker\", \"GenomicFeatures\", \"rtracklayer\", \"Rsamtools\"), update = FALSE, ask = FALSE); \
+    install.packages(c(\"VennDiagram\", \"UpSetR\", \"corrplot\"));"
