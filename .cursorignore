@@ -1,6 +1,6 @@
-# Cost-efficient context exclusions for Cursor
+# Cursor Context Management - Focus on Essential Files
 
-# Large data files - exclude unless debugging data issues
+# Large binary data files (exclude to save context)
 *.bam
 *.sam
 *.fastq
@@ -17,120 +17,40 @@
 *.vcf
 *.gtf
 
-# Test data files (but allow metadata and small config files)
-my_local_test_data/*.csv
-!my_local_test_data/metadata.csv
-!my_local_test_data/batch_file.csv
-!my_local_test_data/example_contrast.tsv
-
-# Build and temporary files
+# System and temporary files
 __pycache__/
 *.pyc
 *.pyo
-build/
-dist/
-*.egg-info/
-.tox/
-node_modules/
-*.log
-logs/
 .DS_Store
 ._.DS_Store
 *~
 *.sw?
-
-# Git and version control
 .git/
-.gitmodules
+node_modules/
+*.log
 
-# Docker and build artifacts
-Dockerfile.built
-docker-compose.yml
-.dockerignore
+# Large test outputs (but keep small result files for debugging)
+my_local_test_data/**/outputs/**/*.html
+my_local_test_data/**/outputs/**/*.rds
+my_local_test_data/**/outputs/**/*.gct
+my_local_test_data/**/outputs/**/*.pdf
+my_local_test_data/**/outputs/**/*.png
 
-# IDE and editor files
-.vscode*/
-.idea/
-*.sublime-*
+# Allow critical test and coordination files
+!my_local_test_data/**/test.log
+!my_local_test_data/workflow-coordination.md
+!my_local_test_data/comprehensive_test.sh
+!my_local_test_data/quick_test.sh
 
-# Documentation and non-code files (exclude unless specifically needed)
-*.md
-!CWL_WORKFLOW_TESTING_SPEC.md
-!README.md
-*.pdf
-*.png
-*.jpg
-*.jpeg
-*.svg
+# Keep essential files visible:
+# - All CWL workflow files
+# - All R scripts and functions  
+# - Configuration and input YAML files
+# - Coordination and documentation files
+# - Small test data files (CSV, TSV)
+# - Error logs and debugging files
 
-# Test outputs and results (exclude unless debugging)
-test_results/
-output/
-results/
-tmp/
-temp/
-
-# Large reference files and databases
-*.index
-*.bt2
-*.fai
-*.refmap
-
-# Exclude non-target workflows to focus context
-workflows/*.cwl
-!workflows/deseq-lrt-step-1-test.cwl
-!workflows/deseq-lrt-step-2-test.cwl
-!workflows/deseq.cwl
-!workflows/atac-lrt-step-*-test.cwl
-!workflows/deseq-lrt-step-1-test-input.yml
-!workflows/deseq-lrt-step-2-test-input.yml
-
-# Exclude non-DESeq tools
-tools/*.cwl
-!tools/deseq*.cwl
-!tools/group-isoforms*.cwl
-!tools/morpheus-heatmap.cwl
-!tools/atac*.cwl
-
-# Exclude unrelated dockerfiles
-tools/dockerfiles/*-Dockerfile
-!tools/dockerfiles/scidap-deseq-Dockerfile
-
-# Exclude unrelated scripts but keep DESeq and common functions
-tools/dockerfiles/scripts/*.R
-tools/dockerfiles/scripts/*.py
-tools/dockerfiles/scripts/*.sh
-!tools/dockerfiles/scripts/run_deseq*.R
-!tools/dockerfiles/scripts/functions/
-
-# Metadata and descriptions (usually not needed for debugging)
-metadata/
-descriptions/
+# Exclude only truly large or irrelevant files
+metadata/descriptions/
 devel/
-
-# Test frameworks (exclude unless fixing tests)
-tests/
-!tests/data/
-run_test*.sh
-!tests/run_all.sh
-!tests/README.md
-
-# CI/CD files (exclude unless fixing build pipeline)
-.github/
-.travis.yml
-
-# Other project files (not related to main task)
 ../SCAP_scRNA/
-
-# Large artifacts from DESeq test outputs
-my_local_test_data/**/outputs/**
-my_local_test_data/**/*.rds
-
-# Exclude tests readme
-!TESTS_README.md
-
-# Test harness runtime logs
-test_logs/
-
-# Exclude obsolete debug directory
-my_local_test_data/lrt_step_2_debug/ 
