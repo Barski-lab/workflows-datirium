@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code when working with this CWL bioinformatics workflows repository.
 
 # UPDATE YOURSELF PROMPTLY
-- If you notice any GAME-CHANGER (really efficient) way of optimize your work (through special commands / tools / approach / anything) - update that memory file to include it and to ease your next hours of work. Imaging you are saving a ton of time and so you will use it much better. 
+- If you notice any GAME-CHANGER (really efficient) way of optimize your work (through special commands / tools / approach / anything) - update that memory file to include it and to ease your next hours of work. Imagining you are saving a ton of time and so you will use it much better. 
 - Use those tips to even more enhance it: https://cursorintro.com/best-practices
 
 ## Key Principles
@@ -187,6 +187,16 @@ unset DOCKER_DEFAULT_PLATFORM                              # Ensure native ARM64
 4. Update CWL tool definition in `tools/`
 5. Test with `quick_test.sh`
 
+### CRITICAL Docker + CWL Integration Pattern ⚠️
+**Issue**: Local Docker builds create different tags than expected by CWL
+**Pattern**: Always verify actual Docker image tags vs CWL references
+**Solution**: 
+1. Check actual image: `docker images | grep [image]`
+2. Verify CWL references: `grep dockerPull tools/*.cwl`
+3. Ensure exact match to avoid Docker Hub pull attempts
+4. Use sed carefully: `sed -i '' 's/old-tag/new-tag/g' tools/*.cwl`
+**Memory**: CWL will try to pull from Docker Hub if tag doesn't exist locally!
+
 ### When asked to "debug specific errors"
 
 1. Use `cwltool --debug` for CWL issues
@@ -260,3 +270,20 @@ echo "header1,header2" > simple_file.csv
 - **Critique proposed approaches to identify potential inefficiencies or errors**
 - **Focus on creating modular, reusable code with clear documentation**
 - **Prioritize code quality, readability, and maintainability over rapid development**
+
+## TESTING DIRECTORY MANAGEMENT
+- Always check out testing directory after your actions or files added by another session to be reasonable. 
+- Keep it clean and manageable. 
+- Provide a reason and explain each file to be kept as really needed or remove it otherwise. 
+- Use reasoning and critique before doing that.
+
+## Development Guidelines for Systematic Improvement
+- **Always start with critique and analyse using reasoning the last changes and overall flow.**
+- **Make sure you understand what exactly you are doing now and why.**
+- **Only then proceed with implementation.**
+- **Sometimes you create a lot of redundant files - if they are temporarily clean then up after that.**
+- **Start with one clear goal (like create a step-by-step plan, or follow it with point 2 etc).**
+- **If you found some invaluable pattern which is slowing down your progress or understanding of my request and you can "shortcut it" - update your memory file IMMEDIATELY to save your and my time.**
+
+## Docker and Build Management
+- **Before creating script or build docker - ALWAYS make sure it is not created / updated yet. Plus, ALWAYS verify that you are using the latest docker version. If you do some changes in files that are going to be the part of the next version of the docker - IMMEDIATELY rebuild it with a new one and push.**

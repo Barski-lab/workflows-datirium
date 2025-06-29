@@ -1,17 +1,25 @@
 #!/usr/bin/env Rscript
+#
+# Main entry point for ATAC-seq LRT Step 2 Analysis
+#
 
-# Main runner script for ATAC-seq LRT Step 2 Analysis
-
-# Source the workflow functions
+# Source required function files
+source("/usr/local/bin/functions/common/error_handling.R")
+source("/usr/local/bin/functions/common/output_utils.R")
 source("/usr/local/bin/functions/atac_lrt_step_2/workflow.R")
 
-# Run the main workflow
+# Set up error handling
+options(error = function(e) handle_error(e, "ATAC-seq LRT Step 2"))
+
+# Run the workflow
 tryCatch({
-  initialize_environment()
-  main_with_memory_management()
+    # Initialize the environment and load required packages
+    initialize_environment()
+    
+    # Execute the main workflow with memory management
+    results <- main_with_memory_management()
+    
+    message("ATAC-seq LRT Step 2 analysis completed successfully.")
 }, error = function(e) {
-  cat("ERROR: ATAC-seq LRT Step 2 analysis failed\n")
-  cat("Error message:", conditionMessage(e), "\n")
-  traceback()
-  quit(status = 1)
-})
+    handle_error(e, "ATAC-seq LRT Step 2")
+}) 
