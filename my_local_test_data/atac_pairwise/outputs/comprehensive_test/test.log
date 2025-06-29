@@ -1,23 +1,440 @@
 [1;30mINFO[0m /opt/homebrew/Caskroom/mambaforge/base/bin/cwltool 3.1.20250110105449
 [1;30mINFO[0m Resolved '../tools/atac-pairwise.cwl' to 'file:///Users/pavb5f/Documents/barskilab-workflows/tools/atac-pairwise.cwl'
-[1;30mINFO[0m [job atac-pairwise.cwl] /private/tmp/docker_tmp8_xmwn99$ docker \
+[1;30mDEBUG[0m [32m[job atac-pairwise.cwl] initializing from file:///Users/pavb5f/Documents/barskilab-workflows/tools/atac-pairwise.cwl[0m
+[1;30mDEBUG[0m [32m[job atac-pairwise.cwl] {
+    "untreated_files": [
+        {
+            "class": "File",
+            "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample1_peaks.csv",
+            "size": 491,
+            "basename": "sample1_peaks.csv",
+            "nameroot": "sample1_peaks",
+            "nameext": ".csv"
+        },
+        {
+            "class": "File",
+            "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample2_peaks.csv",
+            "size": 490,
+            "basename": "sample2_peaks.csv",
+            "nameroot": "sample2_peaks",
+            "nameext": ".csv"
+        }
+    ],
+    "treated_files": [
+        {
+            "class": "File",
+            "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample3_peaks.csv",
+            "size": 491,
+            "basename": "sample3_peaks.csv",
+            "nameroot": "sample3_peaks",
+            "nameext": ".csv"
+        },
+        {
+            "class": "File",
+            "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample4_peaks.csv",
+            "size": 491,
+            "basename": "sample4_peaks.csv",
+            "nameroot": "sample4_peaks",
+            "nameext": ".csv"
+        }
+    ],
+    "untreated_name": "Rest",
+    "treated_name": "Act",
+    "untreated_sample_names": [
+        "sample1",
+        "sample2"
+    ],
+    "treated_sample_names": [
+        "sample3",
+        "sample4"
+    ],
+    "fdr": 0.05,
+    "lfcthreshold": 0.5,
+    "use_lfc_thresh": true,
+    "regulation": "both",
+    "threads": 1,
+    "test_mode": true,
+    "cluster_method": "row",
+    "scaling_type": "zscore",
+    "k_hopach": 3,
+    "kmax_hopach": 5,
+    "output_prefix": "atac_pairwise_test",
+    "batchcorrection": "none",
+    "rpkm_cutoff": null,
+    "batch_file": null,
+    "column_distance": null,
+    "row_distance": null
+}[0m
+[1;30mDEBUG[0m [32m[job atac-pairwise.cwl] path mappings is {
+    "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample3_peaks.csv": [
+        "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample3_peaks.csv",
+        "/var/lib/cwl/stg6ae97ccd-e80e-466b-bf73-0253ca8ea230/sample3_peaks.csv",
+        "File",
+        true
+    ],
+    "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample4_peaks.csv": [
+        "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample4_peaks.csv",
+        "/var/lib/cwl/stg798cb5d9-b5bf-4c6d-a0ba-76a6ac2aa32b/sample4_peaks.csv",
+        "File",
+        true
+    ],
+    "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample1_peaks.csv": [
+        "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample1_peaks.csv",
+        "/var/lib/cwl/stg4596a120-ad9e-406f-8e10-ce9a05ce5e35/sample1_peaks.csv",
+        "File",
+        true
+    ],
+    "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample2_peaks.csv": [
+        "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample2_peaks.csv",
+        "/var/lib/cwl/stg13914c00-4bd7-411e-9b6c-5447170f5752/sample2_peaks.csv",
+        "File",
+        true
+    ]
+}[0m
+[1;30mDEBUG[0m [32m[job atac-pairwise.cwl] command line bindings is [
+    {
+        "position": [
+            -1000000,
+            0
+        ],
+        "datum": "run_atac_pairwise.R"
+    },
+    {
+        "prefix": "--batchcorrection",
+        "position": [
+            0,
+            "batchcorrection"
+        ],
+        "datum": "none"
+    },
+    {
+        "prefix": "--cluster",
+        "position": [
+            0,
+            "cluster_method"
+        ],
+        "datum": "row"
+    },
+    {
+        "prefix": "--fdr",
+        "position": [
+            0,
+            "fdr"
+        ],
+        "datum": 0.05
+    },
+    {
+        "prefix": "--k",
+        "position": [
+            0,
+            "k_hopach"
+        ],
+        "datum": 3
+    },
+    {
+        "prefix": "--kmax",
+        "position": [
+            0,
+            "kmax_hopach"
+        ],
+        "datum": 5
+    },
+    {
+        "prefix": "--lfcthreshold",
+        "position": [
+            0,
+            "lfcthreshold"
+        ],
+        "datum": 0.5
+    },
+    {
+        "prefix": "-o",
+        "position": [
+            0,
+            "output_prefix"
+        ],
+        "datum": "atac_pairwise_test"
+    },
+    {
+        "prefix": "--regulation",
+        "position": [
+            0,
+            "regulation"
+        ],
+        "datum": "both"
+    },
+    {
+        "prefix": "--scaling_type",
+        "position": [
+            0,
+            "scaling_type"
+        ],
+        "datum": "zscore"
+    },
+    {
+        "prefix": "--test_mode",
+        "position": [
+            0,
+            "test_mode"
+        ],
+        "datum": true
+    },
+    {
+        "prefix": "-p",
+        "position": [
+            0,
+            "threads"
+        ],
+        "datum": 1
+    },
+    {
+        "prefix": "-t",
+        "position": [
+            0,
+            "treated_files"
+        ],
+        "datum": [
+            {
+                "class": "File",
+                "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample3_peaks.csv",
+                "size": 491,
+                "basename": "sample3_peaks.csv",
+                "nameroot": "sample3_peaks",
+                "nameext": ".csv",
+                "path": "/var/lib/cwl/stg6ae97ccd-e80e-466b-bf73-0253ca8ea230/sample3_peaks.csv",
+                "dirname": "/var/lib/cwl/stg6ae97ccd-e80e-466b-bf73-0253ca8ea230"
+            },
+            {
+                "class": "File",
+                "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample4_peaks.csv",
+                "size": 491,
+                "basename": "sample4_peaks.csv",
+                "nameroot": "sample4_peaks",
+                "nameext": ".csv",
+                "path": "/var/lib/cwl/stg798cb5d9-b5bf-4c6d-a0ba-76a6ac2aa32b/sample4_peaks.csv",
+                "dirname": "/var/lib/cwl/stg798cb5d9-b5bf-4c6d-a0ba-76a6ac2aa32b"
+            }
+        ]
+    },
+    {
+        "position": [
+            0,
+            "treated_files",
+            0,
+            0,
+            "treated_files",
+            "treated_files"
+        ],
+        "datum": {
+            "class": "File",
+            "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample3_peaks.csv",
+            "size": 491,
+            "basename": "sample3_peaks.csv",
+            "nameroot": "sample3_peaks",
+            "nameext": ".csv",
+            "path": "/var/lib/cwl/stg6ae97ccd-e80e-466b-bf73-0253ca8ea230/sample3_peaks.csv",
+            "dirname": "/var/lib/cwl/stg6ae97ccd-e80e-466b-bf73-0253ca8ea230"
+        }
+    },
+    {
+        "position": [
+            0,
+            "treated_files",
+            1,
+            0,
+            "treated_files",
+            "treated_files"
+        ],
+        "datum": {
+            "class": "File",
+            "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample4_peaks.csv",
+            "size": 491,
+            "basename": "sample4_peaks.csv",
+            "nameroot": "sample4_peaks",
+            "nameext": ".csv",
+            "path": "/var/lib/cwl/stg798cb5d9-b5bf-4c6d-a0ba-76a6ac2aa32b/sample4_peaks.csv",
+            "dirname": "/var/lib/cwl/stg798cb5d9-b5bf-4c6d-a0ba-76a6ac2aa32b"
+        }
+    },
+    {
+        "prefix": "-tn",
+        "position": [
+            0,
+            "treated_name"
+        ],
+        "datum": "Act"
+    },
+    {
+        "prefix": "-ta",
+        "position": [
+            0,
+            "treated_sample_names"
+        ],
+        "datum": [
+            "sample3",
+            "sample4"
+        ]
+    },
+    {
+        "position": [
+            0,
+            "treated_sample_names",
+            0,
+            0,
+            "treated_sample_names",
+            "treated_sample_names"
+        ],
+        "datum": "sample3"
+    },
+    {
+        "position": [
+            0,
+            "treated_sample_names",
+            1,
+            0,
+            "treated_sample_names",
+            "treated_sample_names"
+        ],
+        "datum": "sample4"
+    },
+    {
+        "prefix": "-u",
+        "position": [
+            0,
+            "untreated_files"
+        ],
+        "datum": [
+            {
+                "class": "File",
+                "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample1_peaks.csv",
+                "size": 491,
+                "basename": "sample1_peaks.csv",
+                "nameroot": "sample1_peaks",
+                "nameext": ".csv",
+                "path": "/var/lib/cwl/stg4596a120-ad9e-406f-8e10-ce9a05ce5e35/sample1_peaks.csv",
+                "dirname": "/var/lib/cwl/stg4596a120-ad9e-406f-8e10-ce9a05ce5e35"
+            },
+            {
+                "class": "File",
+                "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample2_peaks.csv",
+                "size": 490,
+                "basename": "sample2_peaks.csv",
+                "nameroot": "sample2_peaks",
+                "nameext": ".csv",
+                "path": "/var/lib/cwl/stg13914c00-4bd7-411e-9b6c-5447170f5752/sample2_peaks.csv",
+                "dirname": "/var/lib/cwl/stg13914c00-4bd7-411e-9b6c-5447170f5752"
+            }
+        ]
+    },
+    {
+        "position": [
+            0,
+            "untreated_files",
+            0,
+            0,
+            "untreated_files",
+            "untreated_files"
+        ],
+        "datum": {
+            "class": "File",
+            "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample1_peaks.csv",
+            "size": 491,
+            "basename": "sample1_peaks.csv",
+            "nameroot": "sample1_peaks",
+            "nameext": ".csv",
+            "path": "/var/lib/cwl/stg4596a120-ad9e-406f-8e10-ce9a05ce5e35/sample1_peaks.csv",
+            "dirname": "/var/lib/cwl/stg4596a120-ad9e-406f-8e10-ce9a05ce5e35"
+        }
+    },
+    {
+        "position": [
+            0,
+            "untreated_files",
+            1,
+            0,
+            "untreated_files",
+            "untreated_files"
+        ],
+        "datum": {
+            "class": "File",
+            "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample2_peaks.csv",
+            "size": 490,
+            "basename": "sample2_peaks.csv",
+            "nameroot": "sample2_peaks",
+            "nameext": ".csv",
+            "path": "/var/lib/cwl/stg13914c00-4bd7-411e-9b6c-5447170f5752/sample2_peaks.csv",
+            "dirname": "/var/lib/cwl/stg13914c00-4bd7-411e-9b6c-5447170f5752"
+        }
+    },
+    {
+        "prefix": "-un",
+        "position": [
+            0,
+            "untreated_name"
+        ],
+        "datum": "Rest"
+    },
+    {
+        "prefix": "-ua",
+        "position": [
+            0,
+            "untreated_sample_names"
+        ],
+        "datum": [
+            "sample1",
+            "sample2"
+        ]
+    },
+    {
+        "position": [
+            0,
+            "untreated_sample_names",
+            0,
+            0,
+            "untreated_sample_names",
+            "untreated_sample_names"
+        ],
+        "datum": "sample1"
+    },
+    {
+        "position": [
+            0,
+            "untreated_sample_names",
+            1,
+            0,
+            "untreated_sample_names",
+            "untreated_sample_names"
+        ],
+        "datum": "sample2"
+    },
+    {
+        "prefix": "--use_lfc_thresh",
+        "position": [
+            0,
+            "use_lfc_thresh"
+        ],
+        "datum": true
+    }
+][0m
+[1;30mDEBUG[0m [32m[job atac-pairwise.cwl] initial work dir {}[0m
+[1;30mINFO[0m [job atac-pairwise.cwl] /private/tmp/docker_tmpv4ybmnpl$ docker \
     run \
     -i \
-    --mount=type=bind,source=/private/tmp/docker_tmp8_xmwn99,target=/QUBCsa \
-    --mount=type=bind,source=/private/tmp/docker_tmpr5in2g3t,target=/tmp \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample3_peaks.csv,target=/var/lib/cwl/stg879644b3-6b63-4dec-8ab1-d8b850a59e59/sample3_peaks.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample4_peaks.csv,target=/var/lib/cwl/stg694304f5-c442-4abc-982c-47e11be5c50e/sample4_peaks.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample1_peaks.csv,target=/var/lib/cwl/stga6852970-1fbb-4389-962e-4f92cb86e70c/sample1_peaks.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample2_peaks.csv,target=/var/lib/cwl/stgc689c41f-8050-4481-88b4-ced43af3f86b/sample2_peaks.csv,readonly \
-    --workdir=/QUBCsa \
+    --mount=type=bind,source=/private/tmp/docker_tmpv4ybmnpl,target=/QJBCfr \
+    --mount=type=bind,source=/private/tmp/docker_tmpd_cvvzxr,target=/tmp \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample3_peaks.csv,target=/var/lib/cwl/stg6ae97ccd-e80e-466b-bf73-0253ca8ea230/sample3_peaks.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample4_peaks.csv,target=/var/lib/cwl/stg798cb5d9-b5bf-4c6d-a0ba-76a6ac2aa32b/sample4_peaks.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample1_peaks.csv,target=/var/lib/cwl/stg4596a120-ad9e-406f-8e10-ce9a05ce5e35/sample1_peaks.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/sample2_peaks.csv,target=/var/lib/cwl/stg13914c00-4bd7-411e-9b6c-5447170f5752/sample2_peaks.csv,readonly \
+    --workdir=/QJBCfr \
     --read-only=true \
     --log-driver=none \
     --user=504:20 \
     --rm \
-    --cidfile=/private/tmp/docker_tmpr1m3iiaj/20250627042942-576924.cid \
+    --cidfile=/private/tmp/docker_tmpsujf2h5k/20250628223153-815144.cid \
     --env=TMPDIR=/tmp \
-    --env=HOME=/QUBCsa \
-    biowardrobe2/scidap-atac:v0.0.67 \
+    --env=HOME=/QJBCfr \
+    biowardrobe2/scidap-atac:v0.0.73-fixed \
     run_atac_pairwise.R \
     --batchcorrection \
     none \
@@ -41,25 +458,357 @@
     -p \
     1 \
     -t \
-    /var/lib/cwl/stg879644b3-6b63-4dec-8ab1-d8b850a59e59/sample3_peaks.csv \
-    /var/lib/cwl/stg694304f5-c442-4abc-982c-47e11be5c50e/sample4_peaks.csv \
+    /var/lib/cwl/stg6ae97ccd-e80e-466b-bf73-0253ca8ea230/sample3_peaks.csv \
+    /var/lib/cwl/stg798cb5d9-b5bf-4c6d-a0ba-76a6ac2aa32b/sample4_peaks.csv \
     -tn \
     Act \
     -ta \
     sample3 \
     sample4 \
     -u \
-    /var/lib/cwl/stga6852970-1fbb-4389-962e-4f92cb86e70c/sample1_peaks.csv \
-    /var/lib/cwl/stgc689c41f-8050-4481-88b4-ced43af3f86b/sample2_peaks.csv \
+    /var/lib/cwl/stg4596a120-ad9e-406f-8e10-ce9a05ce5e35/sample1_peaks.csv \
+    /var/lib/cwl/stg13914c00-4bd7-411e-9b6c-5447170f5752/sample2_peaks.csv \
     -un \
     Rest \
     -ua \
     sample1 \
     sample2 \
-    --use_lfc_thresh > /private/tmp/docker_tmp8_xmwn99/deseq_stdout.log 2> /private/tmp/docker_tmp8_xmwn99/deseq_stderr.log
-[1;30mINFO[0m [job atac-pairwise.cwl] Max memory used: 2062MiB
-[1;30mWARNING[0m [33m[job atac-pairwise.cwl] exited with status: 1[0m
-[1;30mERROR[0m [31m[job atac-pairwise.cwl] Job error:
-("Error collecting output for parameter 'deseq_summary_md': ../tools/atac-pairwise.cwl:260:7: Did not find output file with glob pattern: ['*summary.md'].", {})[0m
-[1;30mWARNING[0m [33m[job atac-pairwise.cwl] completed permanentFail[0m
-{}[1;30mWARNING[0m [33mFinal process status is permanentFail[0m
+    --use_lfc_thresh > /private/tmp/docker_tmpv4ybmnpl/deseq_stdout.log 2> /private/tmp/docker_tmpv4ybmnpl/deseq_stderr.log
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line  [K
+: could not convert string to float: ' \n'[0m
+[1;30mDEBUG[0m [32mdocker stats parsing error in line [J: could not convert string to float: ''[0m
+[1;30mINFO[0m [job atac-pairwise.cwl] Max memory used: 2264MiB
+[1;30mINFO[0m [job atac-pairwise.cwl] completed success
+[1;30mDEBUG[0m [32m[job atac-pairwise.cwl] outputs {
+    "deseq_summary_md": {
+        "location": "file:///private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_summary.md",
+        "basename": "atac_pairwise_test_summary.md",
+        "nameroot": "atac_pairwise_test_summary",
+        "nameext": ".md",
+        "class": "File",
+        "checksum": "sha1$133e07560407027d659726252db7a3231d388ac3",
+        "size": 491,
+        "http://commonwl.org/cwltool#generation": 0
+    },
+    "diff_expr_file": {
+        "location": "file:///private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_report.tsv",
+        "basename": "atac_pairwise_test_report.tsv",
+        "nameroot": "atac_pairwise_test_report",
+        "nameext": ".tsv",
+        "class": "File",
+        "checksum": "sha1$c3d1782a7afd1433d3ef8cf0ee8f217481607c66",
+        "size": 15402,
+        "http://commonwl.org/cwltool#generation": 0
+    },
+    "gene_expr_heatmap": {
+        "location": "file:///private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_expression_heatmap.png",
+        "basename": "atac_pairwise_test_expression_heatmap.png",
+        "nameroot": "atac_pairwise_test_expression_heatmap",
+        "nameext": ".png",
+        "class": "File",
+        "checksum": "sha1$4caece539b039b16e16206ea2478f8c5ffb2ca05",
+        "size": 8,
+        "http://commonwl.org/cwltool#generation": 0
+    },
+    "gene_expr_heatmap_pdf": {
+        "location": "file:///private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_expression_heatmap.pdf",
+        "basename": "atac_pairwise_test_expression_heatmap.pdf",
+        "nameroot": "atac_pairwise_test_expression_heatmap",
+        "nameext": ".pdf",
+        "class": "File",
+        "checksum": "sha1$95607b02d48a786cb786897d727114fc79814b1e",
+        "size": 9,
+        "http://commonwl.org/cwltool#generation": 0
+    },
+    "mds_plot_html": {
+        "location": "file:///private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_mds_plot.html",
+        "basename": "atac_pairwise_test_mds_plot.html",
+        "nameroot": "atac_pairwise_test_mds_plot",
+        "nameext": ".html",
+        "class": "File",
+        "checksum": "sha1$aae3d62794f480c0c60689901f535451dfc258b4",
+        "size": 193,
+        "http://commonwl.org/cwltool#generation": 0
+    },
+    "phenotypes_file": {
+        "location": "file:///private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_phenotypes.cls",
+        "basename": "atac_pairwise_test_phenotypes.cls",
+        "nameroot": "atac_pairwise_test_phenotypes",
+        "nameext": ".cls",
+        "class": "File",
+        "checksum": "sha1$bf69589d08c8c563cb2e54371448af8d67096f08",
+        "size": 35,
+        "http://commonwl.org/cwltool#generation": 0
+    },
+    "plot_lfc_vs_mean": {
+        "location": "file:///private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_ma_plot.png",
+        "basename": "atac_pairwise_test_ma_plot.png",
+        "nameroot": "atac_pairwise_test_ma_plot",
+        "nameext": ".png",
+        "class": "File",
+        "checksum": "sha1$4caece539b039b16e16206ea2478f8c5ffb2ca05",
+        "size": 8,
+        "http://commonwl.org/cwltool#generation": 0
+    },
+    "plot_lfc_vs_mean_pdf": {
+        "location": "file:///private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_ma_plot.pdf",
+        "basename": "atac_pairwise_test_ma_plot.pdf",
+        "nameroot": "atac_pairwise_test_ma_plot",
+        "nameext": ".pdf",
+        "class": "File",
+        "checksum": "sha1$95607b02d48a786cb786897d727114fc79814b1e",
+        "size": 9,
+        "http://commonwl.org/cwltool#generation": 0
+    },
+    "plot_pca": {
+        "location": "file:///private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_pca_plot.png",
+        "basename": "atac_pairwise_test_pca_plot.png",
+        "nameroot": "atac_pairwise_test_pca_plot",
+        "nameext": ".png",
+        "class": "File",
+        "checksum": "sha1$4caece539b039b16e16206ea2478f8c5ffb2ca05",
+        "size": 8,
+        "http://commonwl.org/cwltool#generation": 0
+    },
+    "plot_pca_pdf": {
+        "location": "file:///private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_pca_plot.pdf",
+        "basename": "atac_pairwise_test_pca_plot.pdf",
+        "nameroot": "atac_pairwise_test_pca_plot",
+        "nameext": ".pdf",
+        "class": "File",
+        "checksum": "sha1$95607b02d48a786cb786897d727114fc79814b1e",
+        "size": 9,
+        "http://commonwl.org/cwltool#generation": 0
+    },
+    "read_counts_file_all": {
+        "location": "file:///private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_counts_all.gct",
+        "basename": "atac_pairwise_test_counts_all.gct",
+        "nameroot": "atac_pairwise_test_counts_all",
+        "nameext": ".gct",
+        "class": "File",
+        "checksum": "sha1$a40446255b51dc77dc6383c8fabe4bd5092caded",
+        "size": 23954,
+        "http://commonwl.org/cwltool#generation": 0
+    },
+    "read_counts_file_filtered": {
+        "location": "file:///private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_counts_filtered.gct",
+        "basename": "atac_pairwise_test_counts_filtered.gct",
+        "nameroot": "atac_pairwise_test_counts_filtered",
+        "nameext": ".gct",
+        "class": "File",
+        "checksum": "sha1$a40446255b51dc77dc6383c8fabe4bd5092caded",
+        "size": 23954,
+        "http://commonwl.org/cwltool#generation": 0
+    },
+    "stderr_log": {
+        "location": "file:///private/tmp/docker_tmpv4ybmnpl/deseq_stderr.log",
+        "basename": "deseq_stderr.log",
+        "nameroot": "deseq_stderr",
+        "nameext": ".log",
+        "class": "File",
+        "checksum": "sha1$4bf1b23d8158b950d3d81f1947b29a4cbe118886",
+        "size": 3369,
+        "http://commonwl.org/cwltool#generation": 0
+    },
+    "stdout_log": {
+        "location": "file:///private/tmp/docker_tmpv4ybmnpl/deseq_stdout.log",
+        "basename": "deseq_stdout.log",
+        "nameroot": "deseq_stdout",
+        "nameext": ".log",
+        "class": "File",
+        "checksum": "sha1$00e0beb4cad71e8d5d0b548f27cbf3fc993b7e76",
+        "size": 3070,
+        "http://commonwl.org/cwltool#generation": 0
+    }
+}[0m
+[1;30mDEBUG[0m [32m[job atac-pairwise.cwl] Removing input staging directory /private/tmp/docker_tmpdj20uzyr[0m
+[1;30mDEBUG[0m [32m[job atac-pairwise.cwl] Removing temporary directory /private/tmp/docker_tmpd_cvvzxr[0m
+[1;30mDEBUG[0m [32mMoving /private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_summary.md to /Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_summary.md[0m
+[1;30mDEBUG[0m [32mMoving /private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_report.tsv to /Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_report.tsv[0m
+[1;30mDEBUG[0m [32mMoving /private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_expression_heatmap.png to /Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_expression_heatmap.png[0m
+[1;30mDEBUG[0m [32mMoving /private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_expression_heatmap.pdf to /Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_expression_heatmap.pdf[0m
+[1;30mDEBUG[0m [32mMoving /private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_mds_plot.html to /Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_mds_plot.html[0m
+[1;30mDEBUG[0m [32mMoving /private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_phenotypes.cls to /Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_phenotypes.cls[0m
+[1;30mDEBUG[0m [32mMoving /private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_ma_plot.png to /Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_ma_plot.png[0m
+[1;30mDEBUG[0m [32mMoving /private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_ma_plot.pdf to /Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_ma_plot.pdf[0m
+[1;30mDEBUG[0m [32mMoving /private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_pca_plot.png to /Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_pca_plot.png[0m
+[1;30mDEBUG[0m [32mMoving /private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_pca_plot.pdf to /Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_pca_plot.pdf[0m
+[1;30mDEBUG[0m [32mMoving /private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_counts_all.gct to /Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_counts_all.gct[0m
+[1;30mDEBUG[0m [32mMoving /private/tmp/docker_tmpv4ybmnpl/atac_pairwise_test_counts_filtered.gct to /Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_counts_filtered.gct[0m
+[1;30mDEBUG[0m [32mMoving /private/tmp/docker_tmpv4ybmnpl/deseq_stderr.log to /Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_stderr.log[0m
+[1;30mDEBUG[0m [32mMoving /private/tmp/docker_tmpv4ybmnpl/deseq_stdout.log to /Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_stdout.log[0m
+[1;30mDEBUG[0m [32mRemoving intermediate output directory /private/tmp/docker_tmpv4ybmnpl[0m
+{
+    "deseq_summary_md": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_summary.md",
+        "basename": "atac_pairwise_test_summary.md",
+        "class": "File",
+        "checksum": "sha1$133e07560407027d659726252db7a3231d388ac3",
+        "size": 491,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_summary.md"
+    },
+    "diff_expr_file": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_report.tsv",
+        "basename": "atac_pairwise_test_report.tsv",
+        "class": "File",
+        "checksum": "sha1$c3d1782a7afd1433d3ef8cf0ee8f217481607c66",
+        "size": 15402,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_report.tsv"
+    },
+    "gene_expr_heatmap": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_expression_heatmap.png",
+        "basename": "atac_pairwise_test_expression_heatmap.png",
+        "class": "File",
+        "checksum": "sha1$4caece539b039b16e16206ea2478f8c5ffb2ca05",
+        "size": 8,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_expression_heatmap.png"
+    },
+    "gene_expr_heatmap_pdf": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_expression_heatmap.pdf",
+        "basename": "atac_pairwise_test_expression_heatmap.pdf",
+        "class": "File",
+        "checksum": "sha1$95607b02d48a786cb786897d727114fc79814b1e",
+        "size": 9,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_expression_heatmap.pdf"
+    },
+    "mds_plot_html": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_mds_plot.html",
+        "basename": "atac_pairwise_test_mds_plot.html",
+        "class": "File",
+        "checksum": "sha1$aae3d62794f480c0c60689901f535451dfc258b4",
+        "size": 193,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_mds_plot.html"
+    },
+    "phenotypes_file": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_phenotypes.cls",
+        "basename": "atac_pairwise_test_phenotypes.cls",
+        "class": "File",
+        "checksum": "sha1$bf69589d08c8c563cb2e54371448af8d67096f08",
+        "size": 35,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_phenotypes.cls"
+    },
+    "plot_lfc_vs_mean": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_ma_plot.png",
+        "basename": "atac_pairwise_test_ma_plot.png",
+        "class": "File",
+        "checksum": "sha1$4caece539b039b16e16206ea2478f8c5ffb2ca05",
+        "size": 8,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_ma_plot.png"
+    },
+    "plot_lfc_vs_mean_pdf": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_ma_plot.pdf",
+        "basename": "atac_pairwise_test_ma_plot.pdf",
+        "class": "File",
+        "checksum": "sha1$95607b02d48a786cb786897d727114fc79814b1e",
+        "size": 9,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_ma_plot.pdf"
+    },
+    "plot_pca": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_pca_plot.png",
+        "basename": "atac_pairwise_test_pca_plot.png",
+        "class": "File",
+        "checksum": "sha1$4caece539b039b16e16206ea2478f8c5ffb2ca05",
+        "size": 8,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_pca_plot.png"
+    },
+    "plot_pca_pdf": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_pca_plot.pdf",
+        "basename": "atac_pairwise_test_pca_plot.pdf",
+        "class": "File",
+        "checksum": "sha1$95607b02d48a786cb786897d727114fc79814b1e",
+        "size": 9,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_pca_plot.pdf"
+    },
+    "read_counts_file_all": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_counts_all.gct",
+        "basename": "atac_pairwise_test_counts_all.gct",
+        "class": "File",
+        "checksum": "sha1$a40446255b51dc77dc6383c8fabe4bd5092caded",
+        "size": 23954,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_counts_all.gct"
+    },
+    "read_counts_file_filtered": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_counts_filtered.gct",
+        "basename": "atac_pairwise_test_counts_filtered.gct",
+        "class": "File",
+        "checksum": "sha1$a40446255b51dc77dc6383c8fabe4bd5092caded",
+        "size": 23954,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_pairwise_test_counts_filtered.gct"
+    },
+    "stderr_log": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_stderr.log",
+        "basename": "deseq_stderr.log",
+        "class": "File",
+        "checksum": "sha1$4bf1b23d8158b950d3d81f1947b29a4cbe118886",
+        "size": 3369,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_stderr.log"
+    },
+    "stdout_log": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_stdout.log",
+        "basename": "deseq_stdout.log",
+        "class": "File",
+        "checksum": "sha1$00e0beb4cad71e8d5d0b548f27cbf3fc993b7e76",
+        "size": 3070,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_stdout.log"
+    }
+}[1;30mINFO[0m Final process status is success

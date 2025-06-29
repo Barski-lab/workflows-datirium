@@ -25,16 +25,16 @@ Loading required packages:
   - Loading cmapR ... done
 Setting up parallel processing with 4 threads
 Environment initialized successfully
-DESeq2 LRT Step 1 analysis started at:  2025-06-27 13:25:22 
+DESeq2 LRT Step 1 analysis started at:  2025-06-29 01:46:13 
 Parsing command line arguments...
 WARNING: Skipping unknown argument: FALSE 
 WARNING: Skipping unknown argument: TRUE 
 WARNING: Skipping unknown argument: TRUE 
 Command line arguments parsed successfully
 Parsed parameters:
-  input:/var/lib/cwl/stgbf472d84-bcac-499a-9dcb-87f676c552f9/ABSK0218_CMR_rm.isoforms.csv, /var/lib/cwl/stga54924f1-9c0e-44c4-a153-d36d4c85ab9c/ABSK0222_CMR_rm.isoforms.csv, /var/lib/cwl/stge518cb04-ca24-4db3-a8d9-fa450c966acc/ABSK0219_CMA_rm.isoforms.csv...
+  input:/var/lib/cwl/stg6de5da1a-392a-413f-abd6-41091280481a/ABSK0218_CMR_rm.isoforms.csv, /var/lib/cwl/stg815361ce-f53f-4d0b-932f-5f0e801d287d/ABSK0222_CMR_rm.isoforms.csv, /var/lib/cwl/stg4bc62007-32dc-4af0-994f-45a7de5218ed/ABSK0219_CMA_rm.isoforms.csv...
   name:ABSK0218_CMR_rm, ABSK0222_CMR_rm, ABSK0219_CMA_rm...
-  meta:/var/lib/cwl/stg15a15abd-0263-430f-8faf-45e76092dc81/metadata.csv
+  meta:/var/lib/cwl/stge3c4f363-4071-4122-b458-b4f881e6e303/metadata.csv
   design:~ treatment + cond + treatment:cond
   reduced:~ treatment + cond
   batchcorrection:none
@@ -81,22 +81,22 @@ Generating main effect contrasts (memory efficient version)...
 Available coefficients: Intercept, treatment_KO_vs_C, cond_Rest_vs_Act, treatmentKO.condRest 
 Processing factor: treatment 
 Processing factor: cond 
-Main effect contrasts generation completed in 1.16 seconds
+Main effect contrasts generation completed in 1.07 seconds
 Generated 2 main effect contrasts
 Generating interaction effect contrasts (memory efficient version)...
 Found interaction terms: treatmentKO.condRest 
 Processing interaction: treatmentKO.condRest 
-Interaction effect contrasts generation completed in 0.52 seconds
+Interaction effect contrasts generation completed in 0.53 seconds
 Generated 1 interaction effect contrasts
 Total contrasts generated: 3 
 Saving contrasts to: ./deseq_lrt_step_1_contrasts.rds 
 Creating contrasts summary table...
-Total contrasts generation completed in 17.63 seconds
+Total contrasts generation completed in 17.85 seconds
 Memory used after generation: 1.78 GB
 Exporting results...
 Exported contrasts table to: ./deseq_lrt_step_1_contrasts_table.tsv 
-[2025-06-27 13:26:54] INFO: Exporting DESeq2 LRT Step 1 results 
-[2025-06-27 13:27:25] INFO: Results exported successfully 
+[2025-06-29 01:47:36] INFO: Exporting DESeq2 LRT Step 1 results 
+[2025-06-29 01:48:06] INFO: Results exported successfully 
 Verifying outputs...
   ✓ Output verified: deseq_lrt_step_1_contrasts_table.tsv 
   ✓ Output verified: deseq_lrt_step_1_contrasts.rds 
@@ -106,5 +106,5 @@ Verifying outputs...
   ✗ Missing expected output: deseq_lrt_step_1_counts_filtered.gct 
   ✓ Output verified: deseq_lrt_step_1_lrt_result.md 
 WARNING: 2 expected output files are missing
-DESeq2 LRT Step 1 analysis completed at:  2025-06-27 13:27:25 
-Total execution time:  2.06  minutes
+DESeq2 LRT Step 1 analysis completed at:  2025-06-29 01:48:06 
+Total execution time:  1.89  minutes

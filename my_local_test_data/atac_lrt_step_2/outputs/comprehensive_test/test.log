@@ -1,21 +1,21 @@
 [1;30mINFO[0m /opt/homebrew/Caskroom/mambaforge/base/bin/cwltool 3.1.20250110105449
 [1;30mINFO[0m Resolved '../tools/atac-lrt-step-2.cwl' to 'file:///Users/pavb5f/Documents/barskilab-workflows/tools/atac-lrt-step-2.cwl'
-[1;30mINFO[0m [job atac-lrt-step-2.cwl] /private/tmp/docker_tmps26q01ab$ docker \
+[1;30mINFO[0m [job atac-lrt-step-2.cwl] /private/tmp/docker_tmpbv8d3l1_$ docker \
     run \
     -i \
-    --mount=type=bind,source=/private/tmp/docker_tmps26q01ab,target=/zdJhQB \
-    --mount=type=bind,source=/private/tmp/docker_tmpnb7vcmsj,target=/tmp \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/contrasts_table_example.csv,target=/var/lib/cwl/stg6b7a804f-15aa-4803-8c60-5494899fc74e/contrasts_table_example.csv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/diffbind_results.rds,target=/var/lib/cwl/stg9977e5d9-35c0-4194-a199-a19ab572fee9/diffbind_results.rds,readonly \
-    --workdir=/zdJhQB \
+    --mount=type=bind,source=/private/tmp/docker_tmpbv8d3l1_,target=/FmyMPR \
+    --mount=type=bind,source=/private/tmp/docker_tmpk6z6payq,target=/tmp \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/core_data/contrasts_table_example.csv,target=/var/lib/cwl/stg576659d2-db8e-4749-b68d-04e2049961ab/contrasts_table_example.csv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_1/outputs/comprehensive_test/atac_lrt_step_1_contrasts.rds,target=/var/lib/cwl/stg41ea549b-3ecf-4d69-a3ae-657773a7efad/atac_lrt_step_1_contrasts.rds,readonly \
+    --workdir=/FmyMPR \
     --read-only=true \
     --log-driver=none \
     --user=504:20 \
     --rm \
-    --cidfile=/private/tmp/docker_tmpdu4v2zvg/20250627042925-627670.cid \
+    --cidfile=/private/tmp/docker_tmp7s09yrss/20250628210819-882477.cid \
     --env=TMPDIR=/tmp \
-    --env=HOME=/zdJhQB \
-    biowardrobe2/scidap-atac:v0.0.67 \
+    --env=HOME=/FmyMPR \
+    biowardrobe2/scidap-atac:v0.0.72 \
     /usr/bin/Rscript \
     /usr/local/bin/run_atac_lrt_step_2.R \
     --batchcorrection \
@@ -25,9 +25,9 @@
     --contrast_indices \
     1 \
     --contrast_df \
-    /var/lib/cwl/stg6b7a804f-15aa-4803-8c60-5494899fc74e/contrasts_table_example.csv \
+    /var/lib/cwl/stg576659d2-db8e-4749-b68d-04e2049961ab/contrasts_table_example.csv \
     --atac_obj_data \
-    /var/lib/cwl/stg9977e5d9-35c0-4194-a199-a19ab572fee9/diffbind_results.rds \
+    /var/lib/cwl/stg41ea549b-3ecf-4d69-a3ae-657773a7efad/atac_lrt_step_1_contrasts.rds \
     --fdr \
     0.1 \
     --k \
@@ -37,7 +37,7 @@
     --lfcthreshold \
     0.5 \
     --output \
-    deseq-lrt-step-2 \
+    atac_lrt_step2 \
     --regulation \
     both \
     --scaling_type \
@@ -45,10 +45,49 @@
     --test_mode \
     --threads \
     4 \
-    --use_lfc_thresh > /private/tmp/docker_tmps26q01ab/deseq_lrt_step_2_stdout.log 2> /private/tmp/docker_tmps26q01ab/deseq_lrt_step_2_stderr.log
-[1;30mINFO[0m [job atac-lrt-step-2.cwl] Max memory used: 1989MiB
-[1;30mWARNING[0m [33m[job atac-lrt-step-2.cwl] exited with status: 1[0m
-[1;30mERROR[0m [31m[job atac-lrt-step-2.cwl] Job error:
-("Error collecting output for parameter 'counts_all_gct': ../tools/atac-lrt-step-2.cwl:204:7: Did not find output file with glob pattern: ['counts_all.gct'].", {})[0m
-[1;30mWARNING[0m [33m[job atac-lrt-step-2.cwl] completed permanentFail[0m
-{}[1;30mWARNING[0m [33mFinal process status is permanentFail[0m
+    --use_lfc_thresh > /private/tmp/docker_tmpbv8d3l1_/deseq_lrt_step_2_stdout.log 2> /private/tmp/docker_tmpbv8d3l1_/deseq_lrt_step_2_stderr.log
+[1;30mINFO[0m [job atac-lrt-step-2.cwl] Max memory used: 2052MiB
+[1;30mINFO[0m [job atac-lrt-step-2.cwl] completed success
+{
+    "counts_all_gct": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_2/outputs/comprehensive_test/counts_all.gct",
+        "basename": "counts_all.gct",
+        "class": "File",
+        "checksum": "sha1$033eb62e44cb321fdb94cf1780ee9c4962fcc3d4",
+        "size": 79501,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_2/outputs/comprehensive_test/counts_all.gct"
+    },
+    "counts_filtered_gct": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_2/outputs/comprehensive_test/counts_filtered.gct",
+        "basename": "counts_filtered.gct",
+        "class": "File",
+        "checksum": "sha1$033eb62e44cb321fdb94cf1780ee9c4962fcc3d4",
+        "size": 79501,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_2/outputs/comprehensive_test/counts_filtered.gct"
+    },
+    "diff_expr_files": [],
+    "mds_plots_html": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_2/outputs/comprehensive_test/mds_plot.html",
+        "basename": "mds_plot.html",
+        "class": "File",
+        "checksum": "sha1$13ec3656e1985d3f8e41c7f8a4480ce8df0ceca6",
+        "size": 3867639,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_2/outputs/comprehensive_test/mds_plot.html"
+    },
+    "stderr_log": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_2/outputs/comprehensive_test/deseq_lrt_step_2_stderr.log",
+        "basename": "deseq_lrt_step_2_stderr.log",
+        "class": "File",
+        "checksum": "sha1$b439bf92d478aed439c58f4d247443a7e3414740",
+        "size": 3094,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_2/outputs/comprehensive_test/deseq_lrt_step_2_stderr.log"
+    },
+    "stdout_log": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_2/outputs/comprehensive_test/deseq_lrt_step_2_stdout.log",
+        "basename": "deseq_lrt_step_2_stdout.log",
+        "class": "File",
+        "checksum": "sha1$75f067c9080217874eb7b11d66277f5534ded8d3",
+        "size": 5336,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/atac_lrt_step_2/outputs/comprehensive_test/deseq_lrt_step_2_stdout.log"
+    }
+}[1;30mINFO[0m Final process status is success
