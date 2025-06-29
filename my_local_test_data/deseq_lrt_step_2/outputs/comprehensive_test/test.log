@@ -1,21 +1,21 @@
 [1;30mINFO[0m /opt/homebrew/Caskroom/mambaforge/base/bin/cwltool 3.1.20250110105449
 [1;30mINFO[0m Resolved '../tools/deseq-lrt-step-2.cwl' to 'file:///Users/pavb5f/Documents/barskilab-workflows/tools/deseq-lrt-step-2.cwl'
-[1;30mINFO[0m [job deseq-lrt-step-2.cwl] /private/tmp/docker_tmpd7yldqae$ docker \
+[1;30mINFO[0m [job deseq-lrt-step-2.cwl] /private/tmp/docker_tmpbk7baero$ docker \
     run \
     -i \
-    --mount=type=bind,source=/private/tmp/docker_tmpd7yldqae,target=/nVblnG \
-    --mount=type=bind,source=/private/tmp/docker_tmpkrl3d0t8,target=/tmp \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/quick_test/deseq_lrt_step_1_contrasts_table.tsv,target=/var/lib/cwl/stg14c0ac3b-129f-4bf4-8901-a1ecf7b1e281/deseq_lrt_step_1_contrasts_table.tsv,readonly \
-    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/quick_test/deseq_lrt_step_1_contrasts.rds,target=/var/lib/cwl/stge9855066-b25a-4d66-840c-8290a6b58379/deseq_lrt_step_1_contrasts.rds,readonly \
-    --workdir=/nVblnG \
+    --mount=type=bind,source=/private/tmp/docker_tmpbk7baero,target=/iAjKkt \
+    --mount=type=bind,source=/private/tmp/docker_tmpwt7f9ii7,target=/tmp \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/quick_test/deseq_lrt_step_1_contrasts_table.tsv,target=/var/lib/cwl/stgc9816cb1-0acb-43ce-a1c3-8bd6263cd76b/deseq_lrt_step_1_contrasts_table.tsv,readonly \
+    --mount=type=bind,source=/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_1/outputs/quick_test/deseq_lrt_step_1_contrasts.rds,target=/var/lib/cwl/stg67da0d12-8db1-417b-b845-f76179dab1f9/deseq_lrt_step_1_contrasts.rds,readonly \
+    --workdir=/iAjKkt \
     --read-only=true \
     --log-driver=none \
     --user=504:20 \
     --rm \
-    --cidfile=/private/tmp/docker_tmpf5qrygk5/20250628220528-454117.cid \
+    --cidfile=/private/tmp/docker_tmp7c756y_3/20250629153441-813783.cid \
     --env=TMPDIR=/tmp \
-    --env=HOME=/nVblnG \
-    biowardrobe2/scidap-deseq:v0.0.69 \
+    --env=HOME=/iAjKkt \
+    biowardrobe2/scidap-deseq:v0.0.70 \
     /usr/bin/Rscript \
     /usr/local/bin/run_deseq_lrt_step_2.R \
     --batchcorrection \
@@ -25,9 +25,9 @@
     --contrast_indices \
     1 \
     --contrast_df \
-    /var/lib/cwl/stg14c0ac3b-129f-4bf4-8901-a1ecf7b1e281/deseq_lrt_step_1_contrasts_table.tsv \
+    /var/lib/cwl/stgc9816cb1-0acb-43ce-a1c3-8bd6263cd76b/deseq_lrt_step_1_contrasts_table.tsv \
     --dsq_obj_data \
-    /var/lib/cwl/stge9855066-b25a-4d66-840c-8290a6b58379/deseq_lrt_step_1_contrasts.rds \
+    /var/lib/cwl/stg67da0d12-8db1-417b-b845-f76179dab1f9/deseq_lrt_step_1_contrasts.rds \
     --fdr \
     0.1 \
     --k \
@@ -47,4 +47,58 @@
     --threads \
     2 \
     --use_lfc_thresh \
-    TRUE > /private/tmp/docker_tmpd7yldqae/deseq_lrt_step_2_stdout.log 2> /private/tmp/docker_tmpd7yldqae/deseq_lrt_step_2_stderr.log
+    TRUE > /private/tmp/docker_tmpbk7baero/deseq_lrt_step_2_stdout.log 2> /private/tmp/docker_tmpbk7baero/deseq_lrt_step_2_stderr.log
+[1;30mINFO[0m [job deseq-lrt-step-2.cwl] Max memory used: 4600MiB
+[1;30mINFO[0m [job deseq-lrt-step-2.cwl] completed success
+{
+    "counts_all_gct": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_2/outputs/comprehensive_test/counts_all.gct",
+        "basename": "counts_all.gct",
+        "class": "File",
+        "checksum": "sha1$f85cd7e07ca23199b72247aae775f0188dfc9c3c",
+        "size": 74040,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_2/outputs/comprehensive_test/counts_all.gct"
+    },
+    "counts_filtered_gct": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_2/outputs/comprehensive_test/counts_filtered.gct",
+        "basename": "counts_filtered.gct",
+        "class": "File",
+        "checksum": "sha1$f85cd7e07ca23199b72247aae775f0188dfc9c3c",
+        "size": 74040,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_2/outputs/comprehensive_test/counts_filtered.gct"
+    },
+    "diff_expr_files": [
+        {
+            "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_2/outputs/comprehensive_test/deseq-lrt-step-2_gene_exp_table.tsv",
+            "basename": "deseq-lrt-step-2_gene_exp_table.tsv",
+            "class": "File",
+            "checksum": "sha1$3b52e54c13f49dfd1534aae5955752094faf184c",
+            "size": 50448,
+            "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_2/outputs/comprehensive_test/deseq-lrt-step-2_gene_exp_table.tsv"
+        }
+    ],
+    "mds_plots_html": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_2/outputs/comprehensive_test/mds_plot.html",
+        "basename": "mds_plot.html",
+        "class": "File",
+        "checksum": "sha1$1b8f446f08eeb6720b5944e3582dc18b3fd93557",
+        "size": 3869230,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_2/outputs/comprehensive_test/mds_plot.html"
+    },
+    "stderr_log": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_2/outputs/comprehensive_test/deseq_lrt_step_2_stderr.log",
+        "basename": "deseq_lrt_step_2_stderr.log",
+        "class": "File",
+        "checksum": "sha1$47c3bf25a9d96b9dc150ad63efe406bc35db9cfe",
+        "size": 3971,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_2/outputs/comprehensive_test/deseq_lrt_step_2_stderr.log"
+    },
+    "stdout_log": {
+        "location": "file:///Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_2/outputs/comprehensive_test/deseq_lrt_step_2_stdout.log",
+        "basename": "deseq_lrt_step_2_stdout.log",
+        "class": "File",
+        "checksum": "sha1$1422247503c2479575347950a56184bc02d3dc2b",
+        "size": 4029,
+        "path": "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_step_2/outputs/comprehensive_test/deseq_lrt_step_2_stdout.log"
+    }
+}[1;30mINFO[0m Final process status is success

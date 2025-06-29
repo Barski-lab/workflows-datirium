@@ -1,5 +1,6 @@
+WARNING: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested
 Starting DESeq2 LRT Step 2 Analysis
-Working directory:/zgWqaS
+Working directory:/iAjKkt
 Looking for workflow file at:/usr/local/bin/functions/deseq2_lrt_step_2/workflow.R
 Found workflow file. Sourcing:/usr/local/bin/functions/deseq2_lrt_step_2/workflow.R
 Loading utilities from Docker path: /usr/local/bin/functions/common/utilities.R

@@ -25,16 +25,16 @@ Loading required packages:
   - Loading cmapR ... done
 Setting up parallel processing with 4 threads
 Environment initialized successfully
-DESeq2 LRT Step 1 analysis started at:  2025-06-29 02:03:34 
+DESeq2 LRT Step 1 analysis started at:  2025-06-29 19:32:32 
 Parsing command line arguments...
 WARNING: Skipping unknown argument: FALSE 
 WARNING: Skipping unknown argument: TRUE 
 WARNING: Skipping unknown argument: TRUE 
 Command line arguments parsed successfully
 Parsed parameters:
-  input:/var/lib/cwl/stg86325cb6-53d4-40f5-b3a8-465e83c8917c/ABSK0218_CMR_rm.isoforms.csv, /var/lib/cwl/stg47fdeb33-e412-44b7-8de6-e6b17397fdfe/ABSK0222_CMR_rm.isoforms.csv, /var/lib/cwl/stg9b05697f-e76b-4e48-8411-07a6de6c0e20/ABSK0219_CMA_rm.isoforms.csv...
+  input:/var/lib/cwl/stg641fb149-d4d6-4695-b850-1733c01c6b23/ABSK0218_CMR_rm.isoforms.csv, /var/lib/cwl/stga12a96ec-f151-43c3-b1d6-27e01452e11b/ABSK0222_CMR_rm.isoforms.csv, /var/lib/cwl/stgb3fd4d9b-ca20-48f0-8dbf-a07ecc4dca7a/ABSK0219_CMA_rm.isoforms.csv...
   name:ABSK0218_CMR_rm, ABSK0222_CMR_rm, ABSK0219_CMA_rm...
-  meta:/var/lib/cwl/stg31937d32-229e-445c-ad61-d954cb2df605/metadata.csv
+  meta:/var/lib/cwl/stga562afa9-5c92-451b-a6e2-ce714f1acf69/metadata.csv
   design:~ treatment + cond + treatment:cond
   reduced:~ treatment + cond
   batchcorrection:none
@@ -81,7 +81,7 @@ Generating main effect contrasts (memory efficient version)...
 Available coefficients: Intercept, treatment_KO_vs_C, cond_Rest_vs_Act, treatmentKO.condRest 
 Processing factor: treatment 
 Processing factor: cond 
-Main effect contrasts generation completed in 1.06 seconds
+Main effect contrasts generation completed in 1.09 seconds
 Generated 2 main effect contrasts
 Generating interaction effect contrasts (memory efficient version)...
 Found interaction terms: treatmentKO.condRest 
@@ -91,12 +91,12 @@ Generated 1 interaction effect contrasts
 Total contrasts generated: 3 
 Saving contrasts to: ./deseq_lrt_step_1_contrasts.rds 
 Creating contrasts summary table...
-Total contrasts generation completed in 17.87 seconds
+Total contrasts generation completed in 19.49 seconds
 Memory used after generation: 1.78 GB
 Exporting results...
 Exported contrasts table to: ./deseq_lrt_step_1_contrasts_table.tsv 
-[2025-06-29 02:04:55] INFO: Exporting DESeq2 LRT Step 1 results 
-[2025-06-29 02:05:26] INFO: Results exported successfully 
+[2025-06-29 19:34:07] INFO: Exporting DESeq2 LRT Step 1 results 
+[2025-06-29 19:34:39] INFO: Results exported successfully 
 Verifying outputs...
   ✓ Output verified: deseq_lrt_step_1_contrasts_table.tsv 
   ✓ Output verified: deseq_lrt_step_1_contrasts.rds 
@@ -106,5 +106,5 @@ Verifying outputs...
   ✗ Missing expected output: deseq_lrt_step_1_counts_filtered.gct 
   ✓ Output verified: deseq_lrt_step_1_lrt_result.md 
 WARNING: 2 expected output files are missing
-DESeq2 LRT Step 1 analysis completed at:  2025-06-29 02:05:26 
-Total execution time:  1.87  minutes
+DESeq2 LRT Step 1 analysis completed at:  2025-06-29 19:34:39 
+Total execution time:  2.11  minutes
