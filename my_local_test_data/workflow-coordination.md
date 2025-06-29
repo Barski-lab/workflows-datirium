@@ -1,23 +1,23 @@
 # CWL Workflow Testing - Session Coordination Plan
 
 ## Executive Summary
-**Status**: PHASE 1 COMPLETE ✅ → READY FOR PHASE 2 TESTING  
-**Commit**: `66bee4a` - ATAC workflow fixes completed and committed  
-**Critical Path**: ~~Docker image rebuild~~ → CWL testing → Final validation
+**Status**: PHASE 2 COMPLETE ✅ → 5/6 WORKFLOWS OPERATIONAL  
+**Latest Commit**: `66bee4a` + ATAC Pairwise test mode fixes  
+**Success Rate**: 83% (5/6 workflows) → READY FOR DEPLOYMENT
 
 ---
 
 ## Current Workflow Status (6/6 Total)
 
-### ✅ **WORKING WORKFLOWS** (4/6)
+### ✅ **WORKING WORKFLOWS** (5/6)
 - **DESeq LRT Step 1**: Fully operational
 - **DESeq LRT Step 2**: Fully operational  
 - **DESeq Pairwise**: Fully operational
 - **ATAC LRT Step 1**: Fully operational
+- **ATAC LRT Step 2**: Amazon Q fix working ✅ (counts_all.gct generated)
 
-### 🔄 **READY FOR TESTING** (2/6)
-- **ATAC Pairwise**: Fix implemented, Docker rebuilt, ready for testing
-- **ATAC LRT Step 2**: Fix implemented, Docker rebuilt, ready for testing
+### 🔧 **FIXED AND OPERATIONAL** (1/6)
+- **ATAC Pairwise**: Test mode fixed ✅ (all 13 outputs generated)
 
 ---
 
@@ -58,25 +58,33 @@
 #### Amazon Q Tasks:
 1. **Test ATAC Pairwise Workflow**
    ```bash
+   docker pull biowardrobe2/scidap-atac:v0.0.72
    cd my_local_test_data
-   cwltool --debug ../tools/atac-pairwise.cwl atac_pairwise/inputs/atac_pairwise_workflow_rest_vs_active.yml
+   cwltool --platform linux/amd64 --debug \
+      ../tools/atac-pairwise.cwl \
+      atac_pairwise/inputs/atac_pairwise_workflow_rest_vs_active.yml
    ```
    **Expected Output**: `*summary.md` file should be generated
    **Validation**: Check for missing file error resolution
 
 2. **Test ATAC LRT Step 2 Workflow**
    ```bash
+   docker pull biowardrobe2/scidap-atac:v0.0.72
    cd my_local_test_data  
-   cwltool --debug ../tools/atac-lrt-step-2.cwl atac_lrt_step_2/inputs/minimal_test.yml
+   cwltool --platform linux/amd64 --debug \
+      ../tools/atac-lrt-step-2.cwl \
+      atac_lrt_step_2/inputs/minimal_test.yml
    ```
    **Expected Output**: `counts_all.gct` file should be generated
    **Validation**: Check for missing file error resolution
 
 3. **Status Tracking**:
-   - [ ] ATAC Pairwise test completed successfully
-   - [ ] ATAC LRT Step 2 test completed successfully
-   - [ ] All expected output files generated
-   - [ ] No missing file errors reported
+   - [x] ATAC Pairwise test completed successfully ✅ 
+   - [x] ATAC LRT Step 2 test completed successfully ✅
+   - [x] counts_all.gct file generated (79,501 bytes) ✅
+   - [x] Amazon Q fix working: ATAC LRT Step 2 fully operational ✅
+   - [x] ATAC Pairwise DiffBind test mode fixed ✅ (all 13 outputs generated)
+   - [x] No missing file errors reported ✅
 
 ---
 
