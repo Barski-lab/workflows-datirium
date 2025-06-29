@@ -316,7 +316,7 @@ outputs:
     type: stderr
 
 
-baseCommand: [run_deseq_pairwise.R]
+baseCommand: ["/usr/bin/Rscript", "/usr/local/bin/run_deseq_pairwise.R"]
 stdout: deseq_stdout.log
 stderr: deseq_stderr.log
 
