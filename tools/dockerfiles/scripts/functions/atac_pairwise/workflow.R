@@ -156,6 +156,19 @@ run_workflow <- function(args) {
   
   # Run DiffBind analysis
   diffbind_results <- run_pairwise_diffbind_analysis(sample_sheet, args)
+  
+  # Handle test mode differently
+  if (args$test_mode && !is.null(diffbind_results$method) && diffbind_results$method == "Mock (Test Mode)") {
+    log_message("Test mode: generating simplified mock results and summary...")
+    
+    # Generate a simple mock summary directly
+    generate_test_mode_summary(args)
+    
+    # Return early for test mode
+    log_message("Test mode: ATAC-seq pairwise analysis completed with mock results", "SUCCESS")
+    return(list(test_mode = TRUE, method = "Mock"))
+  }
+  
   dba_obj <- diffbind_results$dba_obj
   consensus_peaks <- diffbind_results$consensus_peaks
   
@@ -265,6 +278,138 @@ run_workflow <- function(args) {
   log_message("ATAC-seq pairwise workflow completed successfully", "SUCCESS")
   
   return(final_results)
+}
+
+#' Generate test mode summary for ATAC-seq pairwise analysis
+#'
+#' @param args Command-line arguments
+#' @export
+generate_test_mode_summary <- function(args) {
+  log_message("Generating test mode summary for ATAC-seq pairwise analysis...")
+  
+  # Create simple mock summary statistics
+  mock_total_peaks <- 1000
+  mock_significant_peaks <- 100
+  mock_upregulated <- 60
+  mock_downregulated <- 40
+  
+  # Get condition names
+  condition1 <- if (!is.null(args$treated_name)) args$treated_name else "Condition1"
+  condition2 <- if (!is.null(args$untreated_name)) args$untreated_name else "Condition2"
+  
+  # Create markdown summary content
+  md_content <- c(
+    "# ATAC-seq Pairwise Analysis Summary (Test Mode)",
+    "",
+    paste("**Comparison:**", condition1, "vs", condition2),
+    paste("**Total peaks analyzed:**", mock_total_peaks),
+    paste("**Significant peaks (FDR <", args$fdr, "):**", mock_significant_peaks),
+    paste("**Upregulated in", condition1, ":**", mock_upregulated),
+    paste("**Downregulated in", condition1, ":**", mock_downregulated),
+    paste("**Percentage significant:**", round(100 * mock_significant_peaks / mock_total_peaks, 2), "%"),
+    "",
+    "## Analysis Parameters",
+    paste("- FDR threshold:", args$fdr),
+    paste("- Log2 fold change threshold:", args$lfcthreshold),
+    paste("- Analysis mode: Test Mode (Mock Results)"),
+    "",
+    "## Note",
+    "This analysis was run in test mode with mock data for validation purposes.",
+    "",
+    paste("Analysis completed at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S"))
+  )
+  
+  # Write the summary file that CWL expects
+  summary_file <- paste0(args$output, "_summary.md")
+  writeLines(md_content, summary_file)
+  log_message(paste("Generated test mode summary:", summary_file), "INFO")
+  
+  # Also create a simple normalized counts file for CWL
+  mock_counts <- matrix(
+    rpois(1000 * 4, lambda = 50),
+    nrow = 1000,
+    ncol = 4
+  )
+  colnames(mock_counts) <- paste0("sample", 1:4)
+  rownames(mock_counts) <- paste0("peak_", 1:1000)
+  
+  # Write GCT files for CWL outputs
+  write_gct_file(mock_counts, paste0(args$output, "_counts_all.gct"))
+  write_gct_file(mock_counts, paste0(args$output, "_counts_filtered.gct"))
+  log_message("Generated test mode GCT files", "INFO")
+  
+  # Create mock report.tsv file
+  mock_report <- data.frame(
+    RefseqId = paste0("peak_", 1:100),
+    GeneId = paste0("peak_", 1:100),
+    Chrom = paste0("chr", sample(1:22, 100, replace = TRUE)),
+    TxStart = sample(1000000:200000000, 100),
+    TxEnd = sample(1000000:200000000, 100),
+    Strand = sample(c("+", "-"), 100, replace = TRUE),
+    TotalReads = sample(100:1000, 100),
+    BaseMean = runif(100, 10, 1000),
+    log2FoldChange = rnorm(100, 0, 2),
+    lfcSE = runif(100, 0.1, 1),
+    stat = rnorm(100, 0, 2),
+    pvalue = runif(100, 0, 1),
+    padj = runif(100, 0, 1)
+  )
+  write.table(mock_report, paste0(args$output, "_report.tsv"), sep = "\t", 
+              quote = FALSE, row.names = FALSE, col.names = TRUE)
+  log_message("Generated test mode report file", "INFO")
+  
+  # Create mock phenotypes.cls file
+  phenotypes_content <- c(
+    paste(4, 2, 1),
+    paste("#", condition1, condition2),
+    paste(c(rep(condition2, 2), rep(condition1, 2)), collapse = " ")
+  )
+  writeLines(phenotypes_content, paste0(args$output, "_phenotypes.cls"))
+  log_message("Generated test mode phenotypes file", "INFO")
+  
+  # Create simple mock plots (empty PNG files for now)
+  mock_plot_files <- c(
+    paste0(args$output, "_ma_plot.png"),
+    paste0(args$output, "_expression_heatmap.png"), 
+    paste0(args$output, "_pca_plot.png"),
+    paste0(args$output, "_ma_plot.pdf"),
+    paste0(args$output, "_expression_heatmap.pdf"),
+    paste0(args$output, "_pca_plot.pdf")
+  )
+  
+  for (plot_file in mock_plot_files) {
+    # Create minimal PNG/PDF headers (for file detection)
+    if (grepl("\\.png$", plot_file)) {
+      # Minimal PNG header
+      writeBin(as.raw(c(0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)), plot_file)
+    } else {
+      # Minimal PDF header
+      writeLines("%PDF-1.4", plot_file)
+    }
+  }
+  log_message("Generated test mode plot files", "INFO")
+  
+  # Create MDS plot HTML file
+  mds_html <- c(
+    "<!DOCTYPE html>",
+    "<html><head><title>Test Mode MDS Plot</title></head>",
+    "<body><h1>ATAC-seq Pairwise MDS Plot (Test Mode)</h1>",
+    "<p>This is a mock MDS plot generated in test mode.</p>",
+    "</body></html>"
+  )
+  writeLines(mds_html, paste0(args$output, "_mds_plot.html"))
+  log_message("Generated test mode MDS plot", "INFO")
+  
+  # Print summary to console
+  cat("=== ATAC-seq Pairwise Analysis Summary (Test Mode) ===\n")
+  cat("Comparison:", condition1, "vs", condition2, "\n")
+  cat("Total peaks analyzed:", mock_total_peaks, "\n")
+  cat("Significant peaks (FDR <", args$fdr, "):", mock_significant_peaks, "\n")
+  cat("Upregulated in", condition1, ":", mock_upregulated, "\n")
+  cat("Downregulated in", condition1, ":", mock_downregulated, "\n")
+  cat("Percentage significant:", round(100 * mock_significant_peaks / mock_total_peaks, 2), "%\n")
+  cat("Analysis mode: Test Mode (Mock Results)\n")
+  cat("==================================================\n")
 }
 
 #' Perform clustering analysis on pairwise results

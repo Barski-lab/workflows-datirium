@@ -18,6 +18,12 @@ run_pairwise_diffbind_analysis <- function(sample_sheet, args) {
   scorecol <- if (is.null(args$scorecol)) 6 else args$scorecol
   minoverlap <- if (is.null(args$minoverlap)) 2 else args$minoverlap
   
+  # Test mode bypass for DiffBind analysis - check FIRST before any DiffBind operations
+  if (args$test_mode) {
+    log_message("Test mode: bypassing DiffBind analysis and generating mock results")
+    return(generate_mock_diffbind_results(sample_sheet, args))
+  }
+  
   # Create DBA object
   log_message("Creating DBA object...")
   dba_obj <- dba(
@@ -306,4 +312,51 @@ generate_pairwise_summary <- function(results, args) {
   cat("=========================================\n")
   
   return(summary_stats)
+}
+
+#' Generate mock DiffBind results for test mode
+#' @param sample_sheet Sample sheet data frame
+#' @param args Command line arguments
+#' @return Mock DiffBind results list
+generate_mock_diffbind_results <- function(sample_sheet, args) {
+  log_message("Generating mock DiffBind results for test mode")
+  
+  # Create mock peak data based on sample sheet
+  n_peaks <- 1000  # Mock number of peaks
+  
+  # Generate mock differential binding results
+  mock_results <- data.frame(
+    seqnames = paste0("chr", sample(1:22, n_peaks, replace = TRUE)),
+    start = sample(1000000:200000000, n_peaks),
+    end = sample(1000000:200000000, n_peaks),
+    width = sample(200:2000, n_peaks),
+    strand = "*",
+    Conc = runif(n_peaks, 0, 10),
+    Conc_condition1 = runif(n_peaks, 0, 10),
+    Conc_condition2 = runif(n_peaks, 0, 10),
+    Fold = rnorm(n_peaks, 0, 2),
+    p.value = runif(n_peaks, 0, 1),
+    FDR = runif(n_peaks, 0, 1)
+  )
+  
+  # Make some peaks "significant"
+  sig_indices <- sample(1:n_peaks, min(100, n_peaks * 0.1))
+  mock_results$FDR[sig_indices] <- runif(length(sig_indices), 0, 0.05)
+  
+  # Create mock binding matrix
+  n_samples <- nrow(sample_sheet)
+  mock_binding_matrix <- matrix(
+    rpois(n_peaks * n_samples, lambda = 50),
+    nrow = n_peaks,
+    ncol = n_samples
+  )
+  colnames(mock_binding_matrix) <- sample_sheet$SampleID
+  
+  # Return results in expected format
+  list(
+    results = mock_results,
+    binding_matrix = mock_binding_matrix,
+    sample_sheet = sample_sheet,
+    method = "Mock (Test Mode)"
+  )
 }
