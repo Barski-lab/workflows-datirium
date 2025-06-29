@@ -37,11 +37,18 @@ my_local_test_data/**/outputs/**/*.pdf
 my_local_test_data/**/outputs/**/*.png
 
 # Allow critical test and coordination files
-!my_local_test_data/**/test.log
+!my_local_test_data/*.log
 !my_local_test_data/workflow-coordination.md
 !my_local_test_data/comprehensive_test.sh
 !my_local_test_data/quick_test.sh
 !my_local_test_data/archive/
+
+# Exclude test output artifacts (DESeq, etc.)
+my_local_test_data/**/test_out/**/*.html
+my_local_test_data/**/test_out/**/*.rds
+my_local_test_data/**/test_out/**/*.gct
+my_local_test_data/**/test_out/**/*.pdf
+my_local_test_data/**/test_out/**/*.png
 
 # Keep essential files visible:
 # - All CWL workflow files
