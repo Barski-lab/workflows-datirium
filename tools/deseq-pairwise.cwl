@@ -8,24 +8,20 @@ requirements:
 
 hints:
 - class: DockerRequirement
-  dockerPull: "biowardrobe2/scidap-deseq:v0.0.66-fixed"
+  dockerPull: "biowardrobe2/scidap-deseq:v0.0.70"
 
 
 inputs:
 
   untreated_files:
-    type:
-      - File
-      - File[]
+    type: File[]
     inputBinding:
       prefix: "-u"
     doc: |
       Untreated input CSV/TSV files
 
   treated_files:
-    type:
-      - File
-      - File[]
+    type: File[]
     inputBinding:
       prefix: "-t"
     doc: |
