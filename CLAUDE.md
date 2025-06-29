@@ -287,3 +287,79 @@ echo "header1,header2" > simple_file.csv
 
 ## Docker and Build Management
 - **Before creating script or build docker - ALWAYS make sure it is not created / updated yet. Plus, ALWAYS verify that you are using the latest docker version. If you do some changes in files that are going to be the part of the next version of the docker - IMMEDIATELY rebuild it with a new one and push.**
+
+## GOLDEN PATTERNS FOR MAXIMUM EFFICIENCY ⭐
+
+### Current Production Docker Images (2025-06-29) ✅
+- **DESeq workflows**: `biowardrobe2/scidap-deseq:v0.0.70` (STABLE)
+- **ATAC workflows**: `biowardrobe2/scidap-atac:v0.0.73` (STABLE)
+- **Status**: All 6 workflows operational (100% success rate)
+
+### Docker Tag Management Protocol 🏷️
+1. **NEVER use -fixed, -test, or other suffixes in production**
+2. **Always retag properly**: `docker tag old-tag:suffix new-tag:clean-version`
+3. **Push clean tags**: `docker push biowardrobe2/scidap-[type]:v0.0.XX`
+4. **Update CWL immediately**: `sed -i '' 's/old-tag/new-tag/g' tools/*.cwl`
+5. **Clean up**: Remove outdated/suffixed tags with `docker rmi`
+
+### Comprehensive Test Execution Strategy 🧪
+```bash
+# GOLDEN COMMAND SEQUENCE - Always use this pattern:
+cd /Users/pavb5f/Documents/barskilab-workflows/my_local_test_data
+./comprehensive_test.sh 2>&1 | tail -20  # Quick status
+# OR for full analysis:
+./comprehensive_test.sh > test_results.log 2>&1 && grep -A 10 "COMPREHENSIVE TEST SUMMARY" test_results.log
+```
+
+### File Cleanup Excellence Pattern 🧹
+```bash
+# GOLDEN CLEANUP SEQUENCE - Removes redundancy efficiently:
+find . -type f \( -name "*.log" -o -name "*.rds" -o -name "*.gct" -o -name "*.html" -o -name "*.png" -o -name "*.pdf" \) | grep -v "core_data" | grep -v "inputs" | grep -v "outputs" | wc -l
+# Then remove files NOT in proper outputs/ directories
+rm -rf *_test_out/  # Remove redundant test directories
+rm -f *.log *.rds *.tsv  # Remove loose files in root
+```
+
+### Multi-Session Coordination Protocol 🤝
+- **ALWAYS check workflow-coordination.md status before starting**
+- **Update coordination file immediately after major achievements**
+- **Use TodoWrite tool for ALL multi-step tasks to track progress**
+- **Mark todos completed IMMEDIATELY after finishing each task**
+
+### Git Commit Excellence Pattern 📝
+```bash
+# GOLDEN COMMIT PATTERN - Always use this structure:
+git add -A  # Stage all changes including deletions
+git commit -m "$(cat <<'EOF'
+[type]: [concise description]
+
+- [Specific change 1 with why]
+- [Specific change 2 with why]
+- [Impact/status statement]
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+EOF
+)"
+```
+
+### CWL-Docker Integration Bulletproof Pattern 🛡️
+1. **Check actual local images**: `docker images | grep scidap`
+2. **Check CWL references**: `grep dockerPull tools/*.cwl`
+3. **CRITICAL**: Ensure EXACT tag match to prevent Docker Hub pulls
+4. **Batch update CWL files**: `sed -i '' 's/old-version/new-version/g' tools/[type]-*.cwl`
+5. **Verify updates**: `grep dockerPull tools/[type]-*.cwl`
+
+### Performance Optimization Shortcuts ⚡
+- **ARM64 native speed**: `unset DOCKER_DEFAULT_PLATFORM` (3x faster)
+- **Parallel operations**: Use multiple tool calls in single response
+- **Efficient search**: Use Task tool for broad searches, direct tools for specific targets
+- **Memory management**: Clean Docker regularly with `docker system prune -f`
+
+### Error Diagnosis Lightning Speed ⚡
+```bash
+# GOLDEN ERROR PATTERN - Find issues instantly:
+find . -name "test.log" -exec grep -l "FAILED\|ERROR\|Did not find output" {} \;
+find . -name "*stderr.log" -path "*/outputs/*" -exec tail -5 {} \; -print
+```
