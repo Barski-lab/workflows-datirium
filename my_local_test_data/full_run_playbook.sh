@@ -31,8 +31,6 @@ do
   cp "$f" "$full"
   # Remove the test_mode line
   sed -i '' '/^[[:space:]]*test_mode:/d' "$full"
-  # Ensure required 'alias_trigger' key present (rename existing 'alias')
-  sed -i '' 's/^alias:/alias_trigger:/' "$full"
   # Ensure metadata file path line followed by required format field
   sed -i '' -E 's|(path:[[:space:]].*metadata\.csv.*)|\1\
   format: "http://edamontology.org/format_2330"|' "$full"
@@ -48,6 +46,11 @@ do
       sed -i '' -E 's|path:[[:space:]].*_contrasts_table\.tsv.*|  path: "${ATAC_CONTRASTS}"|' "$full"
       ;;
   esac
+
+  # Ensure required 'alias_trigger' key only for Step-2 YAMLs
+  if [[ "$full" == *"step_2"* ]]; then
+    sed -i '' 's/^alias:/alias_trigger:/' "$full"
+  fi
 done
 echo "YAML duplication + placeholder insertion complete."
 
