@@ -27,14 +27,13 @@ __pycache__/
 *.sw?
 .git/
 node_modules/
-*.log
 
 # Large test outputs (but keep small result files for debugging)
-my_local_test_data/**/outputs/**/*.html
-my_local_test_data/**/outputs/**/*.rds
-my_local_test_data/**/outputs/**/*.gct
-my_local_test_data/**/outputs/**/*.pdf
-my_local_test_data/**/outputs/**/*.png
+!my_local_test_data/**/outputs/**/*.html
+!my_local_test_data/**/outputs/**/*.rds
+!my_local_test_data/**/outputs/**/*.gct
+!my_local_test_data/**/outputs/**/*.pdf
+!my_local_test_data/**/outputs/**/*.png
 
 # Allow critical test and coordination files
 !my_local_test_data/*.log

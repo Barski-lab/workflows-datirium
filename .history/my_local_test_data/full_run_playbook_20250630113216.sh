@@ -76,7 +76,7 @@ mkdir -p \
 # (Uncomment --platform if you actually need x86-64 emulation)
 # export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
-/usr/bin/time -l cwltool --debug --leave-container \
+/usr/bin/time -l cwltool --debug \
   --outdir deseq_lrt_step_1/outputs/full_run \
   ../workflows/deseq-lrt-step-1.cwl \
   deseq_lrt_step_1/inputs/deseq_lrt_s1_workflow_standard_full.yml \

@@ -31,6 +31,8 @@ do
   cp "$f" "$full"
   # Remove the test_mode line
   sed -i '' '/^[[:space:]]*test_mode:/d' "$full"
+  # Ensure required 'alias_trigger' key present (rename existing 'alias')
+  sed -i '' 's/^alias:/alias_trigger:/' "$full"
   # Ensure metadata file path line followed by required format field
   sed -i '' -E 's|(path:[[:space:]].*metadata\.csv.*)|\1\
   format: "http://edamontology.org/format_2330"|' "$full"
@@ -46,11 +48,6 @@ do
       sed -i '' -E 's|path:[[:space:]].*_contrasts_table\.tsv.*|  path: "${ATAC_CONTRASTS}"|' "$full"
       ;;
   esac
-
-  # Ensure required 'alias_trigger' key only for Step-2 YAMLs
-  if [[ "$full" == *"step_2"* ]]; then
-    sed -i '' 's/^alias:/alias_trigger:/' "$full"
-  fi
 done
 echo "YAML duplication + placeholder insertion complete."
 
@@ -76,7 +73,7 @@ mkdir -p \
 # (Uncomment --platform if you actually need x86-64 emulation)
 # export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
-/usr/bin/time -l cwltool --debug --leave-container \
+/usr/bin/time -l cwltool --debug \
   --outdir deseq_lrt_step_1/outputs/full_run \
   ../workflows/deseq-lrt-step-1.cwl \
   deseq_lrt_step_1/inputs/deseq_lrt_s1_workflow_standard_full.yml \

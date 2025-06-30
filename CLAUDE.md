@@ -288,10 +288,42 @@ echo "header1,header2" > simple_file.csv
 ## Docker and Build Management
 - **Before creating script or build docker - ALWAYS make sure it is not created / updated yet. Plus, ALWAYS verify that you are using the latest docker version. If you do some changes in files that are going to be the part of the next version of the docker - IMMEDIATELY rebuild it with a new one and push.**
 
+## CRITICAL CWL-TO-R INTEGRATION PATTERN 🚨
+
+### DESeq Pairwise Argument Mapping (2025-06-30)
+**Issue**: CWL parameter names MUST exactly match R CLI parser expectations
+**Solution**: Always verify CWL `inputBinding.prefix` matches R `parser$add_argument()` names
+
+| CWL Parameter | CWL Prefix | R Parser Expects | Status |
+|---------------|------------|------------------|---------|
+| `cluster_method` | `--cluster_method` | `--cluster_method` | ✅ Fixed |
+| `row_distance` | `--row_distance` | `--row_distance` | ✅ Fixed |
+| `column_distance` | `--column_distance` | `--column_distance` | ✅ Fixed |
+
+**CRITICAL**: Never use shortened argument names in CWL if R expects full names!
+- ❌ `--cluster` → R expects `--cluster_method`
+- ❌ `--rowdist` → R expects `--row_distance`
+- ❌ `--columndist` → R expects `--column_distance`
+
+### CWL Input Validation Pattern 🔍
+```bash
+# GOLDEN VALIDATION SEQUENCE
+cwltool --validate tools/[tool].cwl                    # 1. Syntax check
+grep "inputBinding" tools/[tool].cwl | grep prefix     # 2. Extract CWL args
+grep "add_argument" scripts/functions/*/cli_args.R     # 3. Check R parser
+# Ensure EXACT match between CWL prefix and R argument names!
+```
+
+### DESeq LRT Input Requirements (2025-06-30)
+**CRITICAL**: DESeq LRT Step 1 requires specific input format:
+- ✅ `alias_trigger` (not `alias`) - for Step 1 workflows
+- ✅ `metadata_file.format: "http://edamontology.org/format_2330"` - required format field
+- ✅ All expression files need `format: "http://edamontology.org/format_3752"`
+
 ## GOLDEN PATTERNS FOR MAXIMUM EFFICIENCY ⭐
 
-### Current Production Docker Images (2025-06-29) ✅
-- **DESeq workflows**: `biowardrobe2/scidap-deseq:v0.0.70` (STABLE)
+### Current Production Docker Images (2025-06-30) ✅
+- **DESeq workflows**: `biowardrobe2/scidap-deseq:v0.0.72` (STABLE)
 - **ATAC workflows**: `biowardrobe2/scidap-atac:v0.0.73` (STABLE)
 - **Status**: All 6 workflows operational (100% success rate)
 
@@ -362,4 +394,27 @@ EOF
 # GOLDEN ERROR PATTERN - Find issues instantly:
 find . -name "test.log" -exec grep -l "FAILED\|ERROR\|Did not find output" {} \;
 find . -name "*stderr.log" -path "*/outputs/*" -exec tail -5 {} \; -print
+
+# CWL-R ARGUMENT MISMATCH DETECTION:
+grep "prefix.*--" tools/[tool].cwl | grep -v "#"      # Extract CWL arguments
+grep "add_argument.*--" scripts/functions/*/cli_args.R # Extract R arguments
+# Compare lists - they MUST match exactly!
 ```
+
+### Docker Version Consistency Check ⚡
+```bash
+# GOLDEN DOCKER VERSION AUDIT - Check all tools at once:
+grep -r "dockerPull.*scidap-deseq" tools/ | grep -v "#"
+grep -r "dockerPull.*scidap-atac" tools/ | grep -v "#"
+# All DESeq tools MUST use same version (currently v0.0.72)
+# All ATAC tools MUST use same version (currently v0.0.73)
+```
+
+## COMPACT EFFICIENCY PATTERNS 🚀
+
+### Workflow Efficiency: Compact CLI Operations
+- **Use `/compact` mode for maximum efficiency in CLI and workflow management**
+- Automatically reduces verbosity and optimization overhead
+- Enables fastest possible execution paths
+- Minimizes intermediate file generation
+- Prioritizes memory and computational efficiency

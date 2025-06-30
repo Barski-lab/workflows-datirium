@@ -355,6 +355,11 @@ inputs:
     'sd:layout':
       advanced: true
 
+  override_cli:
+    type: File
+    doc: "Patched cli_args.R override"
+
+
 outputs:
 
   diff_expr_file:
@@ -611,6 +616,7 @@ steps:
       use_lfc_thresh: use_lfc_thresh
       regulation: regulation
       batchcorrection: batchcorrection
+      override_cli: override_cli
       test_mode: test_mode
     out:
       - diff_expr_file

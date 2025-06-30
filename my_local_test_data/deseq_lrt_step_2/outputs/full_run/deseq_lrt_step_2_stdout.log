@@ -1,0 +1,73 @@
+[2025-06-30 16:03:26] INFO: All required libraries loaded successfully 
+[2025-06-30 16:03:26] INFO: Environment initialized for DESeq2 LRT Step 2 analysis 
+[2025-06-30 16:03:31] INFO: Starting DESeq2 LRT Step 2 workflow 
+[2025-06-30 16:03:31] INFO: Loading DESeq2 object data from /var/lib/cwl/stg62341d1f-8eb2-4af1-9cd1-7cc274d00aaf/deseq_lrt_step1_basic_test_contrasts.rds 
+[2025-06-30 16:03:31] INFO: Loading contrast data from /var/lib/cwl/stg02cc25ef-597f-4413-9a1c-1f9fffc9bbbc/deseq_lrt_step1_basic_test_contrasts_table.tsv 
+[2025-06-30 16:03:31] INFO: Processing contrast indices: 1, 2 
+[2025-06-30 16:03:31] INFO: Available step1_data elements: dds, lrt_res, contrasts, normCounts, design_formula, reduced_formula 
+[2025-06-30 16:03:31] WARNING: expDataDf is NULL - will need to create from DESeq2 object 
+[2025-06-30 16:03:31] INFO: Created expDataDf with dimensions: 500 x 2 
+[2025-06-30 16:03:31] INFO: Verifying consistency between Step 1 and Step 2 
+[2025-06-30 16:03:31] WARNING: The following factors from contrast file are not in column data: cond_Rest 
+[2025-06-30 16:03:31] INFO: Step 1 and Step 2 consistency verified 
+[2025-06-30 16:03:31] INFO: Available factors in DESeq2 dataset: treatment, cond 
+[2025-06-30 16:03:31] WARNING: No factors list found in step 1 data - using factor information from DESeq2 dataset 
+[2025-06-30 16:03:31] INFO: Extracted normalized counts with dimensions: 500 x 8 
+[2025-06-30 16:03:31] INFO: No batch correction applied to normalized counts 
+[2025-06-30 16:03:31] INFO: Creating MDS plot for sample visualization 
+[2025-06-30 16:03:31] INFO: Creating MDS plot 
+[2025-06-30 16:03:32] INFO: Processing contrast 1 of 2 : treatment_KO_vs_C 
+[2025-06-30 16:03:32] INFO: Processing contrast: treatment_KO_vs_C 
+[2025-06-30 16:03:32] INFO: Effect type: main 
+[2025-06-30 16:03:32] INFO: Setting altHypothesis to greaterAbs 
+[2025-06-30 16:03:32] INFO: Single-factor contrast for treatment 
+[2025-06-30 16:03:32] INFO: Rebuilding DESeq dataset with updated reference levels 
+[2025-06-30 16:03:32] INFO: Re-leveled factor treatment with reference level C 
+[2025-06-30 16:03:32] INFO: Running DESeq with Wald test 
+[2025-06-30 16:03:34] INFO: Extracting results for contrast: treatment_KO_vs_C 
+[2025-06-30 16:03:34] INFO: DESeq2 results for main effect contrast obtained successfully 
+[2025-06-30 16:03:34] INFO: Adding DESeq2 results for contrast: treatment_KO_vs_C 
+[2025-06-30 16:03:34] INFO: DESeq2 results dimensions: 500 x 6 
+[2025-06-30 16:03:34] INFO: Available columns: baseMean, log2FoldChange, lfcSE, stat, pvalue, padj 
+[2025-06-30 16:03:34] INFO: Target columns: baseMean, log2FoldChange, pvalue, padj 
+[2025-06-30 16:03:34] INFO: DESeq2 results prepared for merging 
+[2025-06-30 16:03:34] INFO: Final res_df dimensions: 500 x 4 
+[2025-06-30 16:03:34] INFO: Final res_df columns: baseMean, treatment_KO_vs_C_LFC, treatment_KO_vs_C_pvalue, treatment_KO_vs_C_FDR 
+[2025-06-30 16:03:34] INFO: Expression data dimensions: 500 x 2 
+[2025-06-30 16:03:34] INFO: Expression data row names (first 3): Lck, Rab14, Ino80b 
+[2025-06-30 16:03:34] INFO: Results row names (first 3): Lck, Rab14, Ino80b 
+[2025-06-30 16:03:34] INFO: Successfully merged DESeq2 results for contrast treatment_KO_vs_C 
+[2025-06-30 16:03:34] INFO: Added results for contrast treatment_KO_vs_C to expression data 
+[2025-06-30 16:03:35] INFO: Processing contrast 2 of 2 : cond_Rest_vs_Act 
+[2025-06-30 16:03:35] INFO: Processing contrast: cond_Rest_vs_Act 
+[2025-06-30 16:03:35] INFO: Effect type: main 
+[2025-06-30 16:03:35] INFO: Setting altHypothesis to greaterAbs 
+[2025-06-30 16:03:35] INFO: Single-factor contrast for cond 
+[2025-06-30 16:03:35] INFO: Rebuilding DESeq dataset with updated reference levels 
+[2025-06-30 16:03:35] INFO: Re-leveled factor cond with reference level Act 
+[2025-06-30 16:03:35] INFO: Running DESeq with Wald test 
+[2025-06-30 16:03:36] INFO: Extracting results for contrast: cond_Rest_vs_Act 
+[2025-06-30 16:03:37] INFO: DESeq2 results for main effect contrast obtained successfully 
+[2025-06-30 16:03:37] INFO: Adding DESeq2 results for contrast: cond_Rest_vs_Act 
+[2025-06-30 16:03:37] INFO: DESeq2 results dimensions: 500 x 6 
+[2025-06-30 16:03:37] INFO: Available columns: baseMean, log2FoldChange, lfcSE, stat, pvalue, padj 
+[2025-06-30 16:03:37] INFO: Target columns: baseMean, log2FoldChange, pvalue, padj 
+[2025-06-30 16:03:37] INFO: DESeq2 results prepared for merging 
+[2025-06-30 16:03:37] INFO: Final res_df dimensions: 500 x 4 
+[2025-06-30 16:03:37] INFO: Final res_df columns: baseMean, cond_Rest_vs_Act_LFC, cond_Rest_vs_Act_pvalue, cond_Rest_vs_Act_FDR 
+[2025-06-30 16:03:37] INFO: Expression data dimensions: 500 x 6 
+[2025-06-30 16:03:37] INFO: Expression data row names (first 3): Lck, Rab14, Ino80b 
+[2025-06-30 16:03:37] INFO: Results row names (first 3): Lck, Rab14, Ino80b 
+[2025-06-30 16:03:37] INFO: Successfully merged DESeq2 results for contrast cond_Rest_vs_Act 
+[2025-06-30 16:03:37] INFO: Added results for contrast cond_Rest_vs_Act to expression data 
+[2025-06-30 16:03:37] INFO: Saving results to deseq-lrt-step-2_deseq2_step2_results.rds 
+[2025-06-30 16:03:37] INFO: Exporting reports and visualizations 
+[2025-06-30 16:03:37] INFO: Exported gene expression table to deseq-lrt-step-2_gene_exp_table.tsv 
+[2025-06-30 16:03:37] INFO: Exported normalized counts to counts_all.gct 
+[2025-06-30 16:03:37] INFO: Exported normalized counts to counts_filtered.gct 
+[2025-06-30 16:03:38] INFO: Created interactive MDS plot at mds_plot.html 
+[2025-06-30 16:03:38] INFO: Created MA plot for treatment_KO_vs_C 
+[2025-06-30 16:03:39] INFO: Created volcano plot for treatment_KO_vs_C 
+[2025-06-30 16:03:39] INFO: Created MA plot for cond_Rest_vs_Act 
+[2025-06-30 16:03:39] INFO: Created volcano plot for cond_Rest_vs_Act 
+[2025-06-30 16:03:39] INFO: DESeq2 LRT Step 2 workflow completed successfully 
