@@ -62,24 +62,28 @@ fi
 
 # 2.  Create output directories  --------------------------------------------------
 mkdir -p \
-  deseq_lrt_s1_full_out deseq_lrt_s2_full_out deseq_pairwise/outputs/full_run \
-  atac_lrt_s1_full_out atac_lrt_s2_full_out atac_pairwise_full_out
+  deseq_lrt_step_1/outputs/full_run \
+  deseq_lrt_step_2/outputs/full_run \
+  deseq_pairwise/outputs/full_run \
+  atac_lrt_step_1/outputs/full_run \
+  atac_lrt_step_2/outputs/full_run \
+  atac_pairwise/outputs/full_run
 
 # 3.  Run Step-1 + pairwise workflows  -------------------------------------------
 # (Uncomment --platform if you actually need x86-64 emulation)
 # export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
 /usr/bin/time -l cwltool --debug \
-  --outdir deseq_lrt_s1_full_out \
+  --outdir deseq_lrt_step_1/outputs/full_run \
   ../workflows/deseq-lrt-step-1.cwl \
   deseq_lrt_step_1/inputs/deseq_lrt_s1_workflow_standard_full.yml \
-  | tee deseq_lrt_s1_full_out/run.log
+  | tee deseq_lrt_step_1/outputs/full_run/run.log
 
-/usr/bin/time -l cwltool --debug \
-  --outdir atac_lrt_s1_full_out \
+/usr/bin/time -l cwltool --debug --leave-container \
+  --outdir atac_lrt_step_1/outputs/full_run \
   ../workflows/atac-lrt-step-1-test.cwl \
   atac_lrt_step_1/inputs/atac_lrt_s1_workflow_interaction_full.yml \
-  | tee atac_lrt_s1_full_out/run.log
+  | tee atac_lrt_step_1/outputs/full_run/run.log
 
 /usr/bin/time -l cwltool --debug --leave-container \
   --outdir deseq_pairwise/outputs/full_run \
@@ -87,17 +91,17 @@ mkdir -p \
   deseq_pairwise/inputs/deseq_pairwise_workflow_CMR_vs_KMR_full.yml \
   | tee deseq_pairwise/outputs/full_run/run.log
 
-/usr/bin/time -l cwltool --debug \
-  --outdir atac_pairwise_full_out \
+/usr/bin/time -l cwltool --debug --leave-container \
+  --outdir atac_pairwise/outputs/full_run \
   ../workflows/atac-pairwise.cwl \
   atac_pairwise/inputs/atac_pairwise_workflow_rest_vs_active_full.yml \
-  | tee atac_pairwise_full_out/run.log
+  | tee atac_pairwise/outputs/full_run/run.log
 
 # 4.  Resolve real Step-1 artefact paths  ----------------------------------------
-export DESEQ_OBJ=$(find deseq_lrt_s1_full_out -name '*_contrasts.rds' | head -n1)
-export DESEQ_CONTRASTS=$(find deseq_lrt_s1_full_out -name '*_contrasts_table.tsv' | head -n1)
-export ATAC_OBJ=$(find atac_lrt_s1_full_out -name '*_atac_obj.rds' | head -n1)
-export ATAC_CONTRASTS=$(find atac_lrt_s1_full_out -name '*_contrasts_table.tsv' | head -n1)
+export DESEQ_OBJ=$(find deseq_lrt_step_1/outputs/full_run -name '*_contrasts.rds' | head -n1)
+export DESEQ_CONTRASTS=$(find deseq_lrt_step_1/outputs/full_run -name '*_contrasts_table.tsv' | head -n1)
+export ATAC_OBJ=$(find atac_lrt_step_1/outputs/full_run -name '*_atac_obj.rds' | head -n1)
+export ATAC_CONTRASTS=$(find atac_lrt_step_1/outputs/full_run -name '*_contrasts_table.tsv' | head -n1)
 
 echo "Resolved artefacts:
   DESEQ_OBJ        = $DESEQ_OBJ
@@ -113,16 +117,16 @@ envsubst < atac_lrt_step_2/inputs/minimal_full.yml \
   > atac_lrt_step_2/inputs/atac_lrt_s2_workflow_full_patched.yml
 
 # 6.  Run Step-2 workflows  -------------------------------------------------------
-/usr/bin/time -l cwltool --debug \
-  --outdir deseq_lrt_s2_full_out \
+/usr/bin/time -l cwltool --debug --leave-container \
+  --outdir deseq_lrt_step_2/outputs/full_run \
   ../workflows/deseq-lrt-step-2.cwl \
   deseq_lrt_step_2/inputs/deseq_lrt_s2_workflow_dual_contrast_full_patched.yml \
-  | tee deseq_lrt_s2_full_out/run.log
+  | tee deseq_lrt_step_2/outputs/full_run/run.log
 
-/usr/bin/time -l cwltool --debug \
-  --outdir atac_lrt_s2_full_out \
+/usr/bin/time -l cwltool --debug --leave-container \
+  --outdir atac_lrt_step_2/outputs/full_run \
   ../workflows/atac-lrt-step-2-test.cwl \
   atac_lrt_step_2/inputs/atac_lrt_s2_workflow_full_patched.yml \
-  | tee atac_lrt_s2_full_out/run.log
+  | tee atac_lrt_step_2/outputs/full_run/run.log
 
 echo "=== FULL-SCALE WORKFLOW SESSION END $(date) ===" 
