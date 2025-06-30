@@ -1,0 +1,57 @@
+Starting DESeq/DESeq2 Analysis
+Working directory:/RaLCzy
+Looking for workflow file at:/usr/local/bin/functions/deseq/workflow.R
+Found workflow file. Sourcing:/usr/local/bin/functions/deseq/workflow.R
+Loading utilities from Docker path: /usr/local/bin/functions/common/utilities.R
+Checking Docker path: /usr/local/bin/functions/common/constants.R
+Sourcing from Docker path: /usr/local/bin/functions/common/constants.R
+Checking Docker path: /usr/local/bin/functions/common/error_handling.R
+Sourcing from Docker path: /usr/local/bin/functions/common/error_handling.R
+Checking Docker path: /usr/local/bin/functions/common/logging.R
+Sourcing from Docker path: /usr/local/bin/functions/common/logging.R
+Checking Docker path: /usr/local/bin/functions/common/visualization.R
+Sourcing from Docker path: /usr/local/bin/functions/common/visualization.R
+Checking Docker path: /usr/local/bin/functions/common/clustering.R
+Sourcing from Docker path: /usr/local/bin/functions/common/clustering.R
+Checking Docker path: /usr/local/bin/functions/common/export_functions.R
+Sourcing from Docker path: /usr/local/bin/functions/common/export_functions.R
+Checking Docker path: /usr/local/bin/functions/common/output_utils.R
+Sourcing from Docker path: /usr/local/bin/functions/common/output_utils.R
+Checking Docker path: /usr/local/bin/functions/deseq/cli_args.R
+Sourcing from Docker path: /usr/local/bin/functions/deseq/cli_args.R
+Checking Docker path: /usr/local/bin/functions/deseq/data_processing.R
+Sourcing from Docker path: /usr/local/bin/functions/deseq/data_processing.R
+Checking Docker path: /usr/local/bin/functions/deseq/deseq_analysis.R
+Sourcing from Docker path: /usr/local/bin/functions/deseq/deseq_analysis.R
+Checking Docker path: /usr/local/bin/functions/deseq/edger_analysis.R
+Sourcing from Docker path: /usr/local/bin/functions/deseq/edger_analysis.R
+[conflicted] Will prefer dplyr::filter over any other package.
+[conflicted] Will prefer dplyr::select over any other package.
+[conflicted] Will prefer dplyr::rename over any other package.
+[conflicted] Will prefer dplyr::slice over any other package.
+[conflicted] Will prefer dplyr::summarize over any other package.
+[conflicted] Will prefer dplyr::mutate over any other package.
+[conflicted] Will prefer dplyr::arrange over any other package.
+[conflicted] Will prefer dplyr::distinct over any other package.
+[conflicted] Will prefer dplyr::count over any other package.
+[conflicted] Will prefer dplyr::group_by over any other package.
+[conflicted] Will prefer dplyr::ungroup over any other package.
+[conflicted] Will prefer base::setdiff over any other package.
+R options configured for DESeq2 analysis
+DEBUG: Before assert_args - parsed_args class = list
+DEBUG: Before assert_args - parsed_args type = list
+DEBUG: Before assert_args - is.function(parsed_args) = FALSE
+DEBUG: Before assert_args - is.list(parsed_args) = TRUE
+[Memory] Before loading data: 563.2 MB
+[Memory] After loading data: 573.4 MB
+estimating size factors
+estimating dispersions
+Created markdown summary: ./deseq_summary.md
+Created results TSV file: ./deseq_report.tsv
+Created markdown summary: ./deseq_summary.md
+Created GCT file: ./deseq_counts_all.gct
+Created CLS file: ./deseq_phenotypes.cls
+Saved png plot to ./deseq_ma_plot.png
+Saved pdf plot to ./deseq_ma_plot.pdf
+Error: unable to find an inherited method for function 'plotDispEsts' for signature 'object = "NULL"'
+An unexpected error occurred. Aborting script.
