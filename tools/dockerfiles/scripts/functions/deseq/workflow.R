@@ -162,37 +162,36 @@ run_workflow <- function(args) {
       if (!is.null(args$batchfile) && args$batchcorrection == "model") {
         design <- ~conditions + batch
         log_message("Using design formula with batch effect: ~conditions + batch")
-      batch_data <- args$batchfile$batch
-    } else {
-      design <- ~conditions
-      log_message("Using standard design formula: ~conditions")
-      batch_data <- NULL
-    }
-    
-    # Try DESeq2 analysis with fallback to EdgeR
-    deseq_results <- tryCatch({
-      run_deseq2_analysis(
-        count_data = count_data,
-        col_data = column_data,
-        design = design,
-        batch_correction = args$batchcorrection,
-        batch_data = batch_data,
-        condition_names = c(condition1 = args$uname, condition2 = args$tname),
-        args = args
-      )
-    }, error = function(e) {
-      log_message(paste("DESeq2 analysis failed:", e$message))
-      log_message("Falling back to EdgeR analysis")
+        batch_data <- args$batchfile$batch
+      } else {
+        design <- ~conditions
+        log_message("Using standard design formula: ~conditions")
+        batch_data <- NULL
+      }
       
-      # Fall back to EdgeR analysis
-      run_edger_analysis(
-        count_data = count_data,
-        col_data = column_data,
-        condition_names = c(condition1 = args$uname, condition2 = args$tname),
-        args = args
-      )
-    })
-    
+      # Try DESeq2 analysis with fallback to EdgeR
+      deseq_results <- tryCatch({
+        run_deseq2_analysis(
+          count_data = count_data,
+          col_data = column_data,
+          design = design,
+          batch_correction = args$batchcorrection,
+          batch_data = batch_data,
+          condition_names = c(condition1 = args$uname, condition2 = args$tname),
+          args = args
+        )
+      }, error = function(e) {
+        log_message(paste("DESeq2 analysis failed:", e$message))
+        log_message("Falling back to EdgeR analysis")
+        
+        # Fall back to EdgeR analysis
+        run_edger_analysis(
+          count_data = count_data,
+          col_data = column_data,
+          condition_names = c(condition1 = args$uname, condition2 = args$tname),
+          args = args
+        )
+      })
     } # End of test mode bypass else block
     
     # Generate summary markdown (adapt title based on analysis method used)
@@ -300,7 +299,12 @@ generate_visualizations <- function(deseq_results, args) {
   ma_plot <- function() {
     DESeq2::plotMA(res, main = "MA Plot", ylim = c(-5, 5))
   }
-  save_plot(ma_plot, args$output, "ma_plot")
+  # Save plot using consolidated function, but handle errors gracefully
+  tryCatch({
+    save_plot(ma_plot, args$output, "ma_plot")
+  }, error = function(e) {
+    log_warning(paste("Failed to create MA plot:", e$message))
+  })
   
   # Create dispersion plot
   dispersion_plot <- function() {
@@ -350,8 +354,12 @@ create_summary_plots <- function(dds, res, output_prefix, vst_transform = TRUE,
     DESeq2::plotMA(res, main = "MA Plot", ylim = c(-5, 5), alpha = pval_threshold)
   }
   
-  # Save plot using consolidated function
-  save_plot(ma_plot, output_prefix, "ma_plot")
+  # Save plot using consolidated function, but handle errors gracefully
+  tryCatch({
+    save_plot(ma_plot, output_prefix, "ma_plot")
+  }, error = function(e) {
+    log_warning(paste("Failed to create MA plot:", e$message))
+  })
   
   # Create PCA plot if data is available
   if (!is.null(dds)) {

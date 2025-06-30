@@ -49,11 +49,12 @@ assert_args <- function(parsed_arguments) {
       ), 1))
     }
   } else {
-    # Verify correct number of aliases
+    # Verify correct number of aliases; if mismatched, regenerate from filenames
     if ((length(parsed_arguments$untreated_sample_names) != length(parsed_arguments$untreated_files)) |
         (length(parsed_arguments$treated_sample_names) != length(parsed_arguments$treated_files))) {
-      log_error("Not correct number of inputs provided for files and sample names")
-      quit(save = "no", status = 1, runLast = FALSE)
+      log_warning("Length mismatch between sample alias vectors and file lists; regenerating aliases from file basenames")
+      parsed_arguments$untreated_sample_names <- sapply(parsed_arguments$untreated_files, function(x) sub("\\..*$", "", basename(x)))
+      parsed_arguments$treated_sample_names   <- sapply(parsed_arguments$treated_files,   function(x) sub("\\..*$", "", basename(x)))
     }
   }
 
