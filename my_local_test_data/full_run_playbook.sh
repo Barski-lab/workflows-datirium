@@ -81,7 +81,7 @@ mkdir -p \
   atac_lrt_step_1/inputs/atac_lrt_s1_workflow_interaction_full.yml \
   | tee atac_lrt_s1_full_out/run.log
 
-/usr/bin/time -l cwltool --debug \
+/usr/bin/time -l cwltool --debug --leave-container \
   --outdir deseq_pairwise/outputs/full_run \
   ../workflows/deseq-pairwise.cwl \
   deseq_pairwise/inputs/deseq_pairwise_workflow_CMR_vs_KMR_full.yml \
