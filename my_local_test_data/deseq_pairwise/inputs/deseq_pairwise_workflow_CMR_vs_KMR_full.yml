@@ -1,3 +1,5 @@
+alias: "CMR_vs_KMR_full"
+
 untreated_files:
   - class: File
     path: ../../core_data/ABSK0222_CMR_rm.isoforms.csv

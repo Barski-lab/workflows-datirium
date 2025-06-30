@@ -17,3 +17,5 @@ treated_name: "KMR"
 output_prefix: "deseq_pairwise"
 
 test_mode: true
+
+alias: "CMR_vs_KMR_test"
