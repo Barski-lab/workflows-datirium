@@ -110,10 +110,9 @@ COPY tools/dockerfiles/scripts/functions/ /usr/local/bin/functions/
 #############################################
 # Setting permissions
 RUN chmod +x /usr/local/bin/run_atac*.R && \
-    # Set permissions for function files
     chmod -R +r /usr/local/bin/functions/ && \
-    find /usr/local/bin/functions -name "*.R" -exec chmod +x {} \; && \
-    # Cleaning
+    find /usr/local/bin/functions -name "*.R" -exec chmod +x {} \; 
+    && \
     apt-get clean && \
     apt-get purge && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* && \

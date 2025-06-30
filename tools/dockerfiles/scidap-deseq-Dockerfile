@@ -139,10 +139,8 @@ RUN chmod +x /usr/local/bin/run_deseq_pairwise.R && \
     chmod +x /usr/local/bin/run_deseq_lrt_step_1.R && \
     chmod +x /usr/local/bin/run_deseq_lrt_step_2.R && \
     chmod +x /usr/local/bin/get_gene_n_tss.R && \
-    # Set permissions for function files
     chmod -R +r /usr/local/bin/functions/ && \
     find /usr/local/bin/functions -name "*.R" -exec chmod +x {} \; && \
-    # Cleaning
     apt-get clean && \
     apt-get purge && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* && \
