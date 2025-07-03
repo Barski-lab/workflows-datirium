@@ -374,17 +374,31 @@ run_diffbind_analysis <- function(sample_sheet, args) {
   
   # Create DBA object with comprehensive error handling
   message("Creating DBA object...")
+  
+  # Auto-detect and fix MACS2 .xls file format issues
+  peak_format <- args$peakformat
+  score_col <- args$scorecol
+  
+  # Check if we have .xls files (MACS2 format)
+  if (any(grepl("\\.xls$", sample_sheet$Peaks))) {
+    message("Detected MACS2 .xls peak files - adjusting format parameters...")
+    peak_format <- "macs"  # Use MACS format for .xls files
+    score_col <- 6  # Column 6 is pileup in MACS2 output
+    message("  - Auto-corrected peakFormat to: macs (for .xls files)")
+    message("  - Auto-corrected scoreCol to: 6 (pileup column)")
+  }
+  
   message("DiffBind parameters:")
-  message("  - peakFormat: ", args$peakformat)
+  message("  - peakFormat: ", peak_format)
   message("  - peakCaller: ", args$peakcaller) 
-  message("  - scoreCol: ", args$scorecol)
+  message("  - scoreCol: ", score_col)
   
   dba_obj <- tryCatch({
     dba(
       sampleSheet = sample_sheet,
-      peakFormat = args$peakformat,
+      peakFormat = peak_format,
       peakCaller = args$peakcaller,
-      scoreCol = args$scorecol
+      scoreCol = score_col
     )
   }, error = function(e) {
     message("ERROR in dba() function:")

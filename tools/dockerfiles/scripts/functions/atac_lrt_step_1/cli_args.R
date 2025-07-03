@@ -82,9 +82,9 @@ get_args <- function() {
   parser$add_argument(
     "--peakformat",
     type = "character",
-    default = "csv",
+    default = "macs",
     choices = c("csv", "bed", "narrow", "macs"),
-    help = "Peak file format: csv, bed, narrow, macs (default: csv)"
+    help = "Peak file format: csv, bed, narrow, macs (default: macs for .xls files)"
   )
   parser$add_argument(
     "--peakcaller",
@@ -273,7 +273,7 @@ get_args <- function() {
       
       # Optional single-value arguments with defaults
       optional_args <- list(
-        peakformat = "csv",
+        peakformat = "macs",
         peakcaller = "macs",
         batchcorrection = "none",
         scaling_type = "zscore",
@@ -317,7 +317,7 @@ get_args <- function() {
         design = NULL,
         reduced = NULL,
         minoverlap = 2,
-        peakformat = "csv",
+        peakformat = "macs",
         peakcaller = "macs",
         scorecol = 6,
         batchcorrection = "none",
