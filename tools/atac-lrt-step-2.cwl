@@ -6,7 +6,7 @@ requirements:
 
 hints:
 - class: DockerRequirement
-  dockerPull: "biowardrobe2/scidap-atac:v0.0.73"
+  dockerPull: "biowardrobe2/scidap-atac:v0.0.76"
 
 inputs:
 
@@ -194,17 +194,17 @@ outputs:
       glob: "*_gene_exp_table.tsv"
 
   mds_plots_html:
-    type: File
+    type: File?
     outputBinding:
       glob: "mds_plot.html"
 
   counts_all_gct:
-    type: File
+    type: File?
     outputBinding:
       glob: "counts_all.gct"
 
   counts_filtered_gct:
-    type: File
+    type: File?
     outputBinding:
       glob: "counts_filtered.gct"
 

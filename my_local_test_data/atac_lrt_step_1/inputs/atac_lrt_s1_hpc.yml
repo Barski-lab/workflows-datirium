@@ -1,0 +1,55 @@
+# ATAC LRT Step-1 – FULL RUN (HPC paths)
+# Generated 2025-07-03. Fill in the remaining samples following the template.
+
+# Peak files – order must match BAMs and sample names
+input_files:
+  - class: File
+    path: "/data/barskilab/scidap_server/projects/FsEuKGHXhGcDfTJEK/3krKveeeLa5er72KL/read_1_macs_peaks.xls"
+    format: "http://edamontology.org/format_3752"
+  - class: File
+    path: "/data/barskilab/scidap_server/projects/FsEuKGHXhGcDfTJEK/7Ram8tno8YJZ4C8nM/read_1_macs_peaks.xls"
+    format: "http://edamontology.org/format_3752"
+  # ... add the remaining peak files here ...
+
+# Sample aliases (same order as above)
+name:
+  - "D4N_0H_GFP_new"
+  - "D0N_5H_GFP_new"
+  # ... add the remaining dataset names here ...
+
+# BAM files for DiffBind counting (same order)
+bam_files:
+  - class: File
+    path: "/data/barskilab/scidap_server/projects/FsEuKGHXhGcDfTJEK/3krKveeeLa5er72KL/read_1.bam"
+  - class: File
+    path: "/data/barskilab/scidap_server/projects/FsEuKGHXhGcDfTJEK/7Ram8tno8YJZ4C8nM/read_1.bam"
+  # ... add the remaining BAMs here ...
+
+# Metadata CSV
+data_metadata:
+  class: File
+  path: "/data/barskilab/scidap_server/projects/FsEuKGHXhGcDfTJEK/ijQyjXaysFRsG8ZnE/afos_atac_metadata (2).csv"
+  format: "http://edamontology.org/format_2330"
+
+# Optional annotation resources
+annotation_file:
+  class: File
+  path: "/data/barskilab/scidap_server/projects/7y3eFwpZDyR3TdmXJ/866jbfHDwFRpdPJZc/refgene.tsv"
+chrom_length_file:
+  class: File
+  path: "/data/barskilab/scidap_server/projects/7y3eFwpZDyR3TdmXJ/866jbfHDwFRpdPJZc/hg38_star_genome/chrNameLength.txt"
+
+# Analysis parameters
+threads: 16
+batchcorrection: "none"
+design_formula: "~Tissue+Condition+Factor"
+reduced_formula: "~Tissue+Condition"
+fdr: 0.1
+lfcthreshold: 0.59
+use_lfc_thresh: true
+cluster_method: "none"
+k_hopach: 3
+kmax_hopach: 5
+scaling_type: "zscore"
+
+test_mode: false 
