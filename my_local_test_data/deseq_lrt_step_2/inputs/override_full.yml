@@ -4,5 +4,4 @@ dsq_obj_data:
   class: File
   path: "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_s1_full_out4/deseq_lrt_step1_basic_test_contrasts.rds"
 contrasts_table:
-  class: File
   path: "/Users/pavb5f/Documents/barskilab-workflows/my_local_test_data/deseq_lrt_s1_full_out4/deseq_lrt_step1_basic_test_contrasts_table.tsv"

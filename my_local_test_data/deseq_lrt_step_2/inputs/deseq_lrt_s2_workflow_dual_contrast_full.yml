@@ -12,7 +12,7 @@ batchcorrection: "none"
 cluster_method: "none"
 dsq_obj_data:
   class: File
-  path: "${DESEQ_OBJ}"
+    path: "${DESEQ_OBJ}"
 contrasts_table:
   class: File
-  path: "${DESEQ_CONTRASTS}"
+    path: "${DESEQ_CONTRASTS}"
