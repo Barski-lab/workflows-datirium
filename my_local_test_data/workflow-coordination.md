@@ -55,7 +55,7 @@ cwltool --debug \
 
 ### Current Docker Images
 - **DESeq workflows**: `biowardrobe2/scidap-deseq:v0.0.72` ✅
-- **ATAC workflows**: `biowardrobe2/scidap-atac:v0.0.73` (needs verification)
+- **ATAC workflows**: `biowardrobe2/scidap-atac:v0.0.76` ✅
 
 ---
 
