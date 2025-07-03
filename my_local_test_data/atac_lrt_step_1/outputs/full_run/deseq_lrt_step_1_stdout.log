@@ -1,16 +1,29 @@
-[2025-06-30 17:01:35] INFO: Environment initialized for ATAC-seq LRT Step 1 analysis 
-        Condition Tissue Replicate
-sample1      Rest      N         1
-sample2      Rest      N         2
-sample3       Act      N         1
-'data.frame':	4 obs. of  3 variables:
- $ Condition: chr  "Rest" "Rest" "Act" "Act"
- $ Tissue   : chr  "N" "N" "N" "N"
- $ Replicate: int  1 2 1 2
-'data.frame':	4 obs. of  3 variables:
- $ Condition: chr  "Rest" "Rest" "Act" "Act"
- $ Tissue   : chr  "N" "N" "N" "N"
- $ Replicate: int  1 2 1 2
+[2025-07-03 18:03:43] INFO: Environment initialized for ATAC-seq LRT Step 1 analysis 
+                Tissue Condition  Factor
+D0N_0H_GFP_new       n         1  t0hgfp
+D0N_5H_GFP_new       n         1  t5hgfp
+D0N_5H_AFOS_new      n         1 t5hafos
+'data.frame':	27 obs. of  3 variables:
+ $ Tissue   : chr  "n" "n" "n" "tem" ...
+ $ Condition: int  1 1 1 1 1 1 1 1 1 2 ...
+ $ Factor   : chr  "t0hgfp" "t5hgfp" "t5hafos" "t0hgfp" ...
+        SampleID Tissue Factor Condition Treatment Replicate                                                        bamReads                                                                      Peaks PeakCaller
+1 D4N_0H_GFP_new      n t0hgfp         3   unknown         1 /var/lib/cwl/stgd2772b59-4f95-4e69-910d-2d476aa5f17e/read_1.bam /var/lib/cwl/stgae0839f6-1e3a-45b0-83ed-635f78d6c29c/read_1_macs_peaks.xls       macs
+2 D0N_5H_GFP_new      n t5hgfp         1   unknown         1 /var/lib/cwl/stg9eb581f7-0ff3-48a6-be68-29fdee1717f3/read_1.bam /var/lib/cwl/stgd96d7cf8-b946-4a7e-a5d4-bf1c9cec0696/read_1_macs_peaks.xls       macs
+3 D4N_5H_GFP_new      n t5hgfp         3   unknown         1 /var/lib/cwl/stg91ee52c7-7366-456d-8ae5-e8dfc244ccfc/read_1.bam /var/lib/cwl/stg9ab05074-a038-427b-9f26-6555c579769e/read_1_macs_peaks.xls       macs
+'data.frame':	27 obs. of  9 variables:
+ $ SampleID  : chr  "D4N_0H_GFP_new" "D0N_5H_GFP_new" "D4N_5H_GFP_new" "D4TCM_0H_GFP_new" ...
+ $ Tissue    : Factor w/ 3 levels "n","tcm","tem": 1 1 1 2 2 2 2 3 3 2 ...
+ $ Factor    : Factor w/ 3 levels "t0hgfp","t5hafos",..: 1 3 3 1 3 2 2 3 1 1 ...
+ $ Condition : int  3 1 3 3 1 1 3 1 2 2 ...
+ $ Treatment : chr  "unknown" "unknown" "unknown" "unknown" ...
+ $ Replicate : num  1 1 1 1 1 1 1 1 1 1 ...
+ $ bamReads  : chr  "/var/lib/cwl/stgd2772b59-4f95-4e69-910d-2d476aa5f17e/read_1.bam" "/var/lib/cwl/stg9eb581f7-0ff3-48a6-be68-29fdee1717f3/read_1.bam" "/var/lib/cwl/stg91ee52c7-7366-456d-8ae5-e8dfc244ccfc/read_1.bam" "/var/lib/cwl/stg326babc0-44e4-4c67-b34f-95b0a80a26dd/read_1.bam" ...
+ $ Peaks     : chr  "/var/lib/cwl/stgae0839f6-1e3a-45b0-83ed-635f78d6c29c/read_1_macs_peaks.xls" "/var/lib/cwl/stgd96d7cf8-b946-4a7e-a5d4-bf1c9cec0696/read_1_macs_peaks.xls" "/var/lib/cwl/stg9ab05074-a038-427b-9f26-6555c579769e/read_1_macs_peaks.xls" "/var/lib/cwl/stg52e3db68-9a94-4265-908a-76458e5f9297/read_1_macs_peaks.xls" ...
+ $ PeakCaller: chr  "macs" "macs" "macs" "macs" ...
+NULL
+        SampleID Tissue Factor Condition Treatment Replicate                                                        bamReads                                                                      Peaks PeakCaller
+1 D4N_0H_GFP_new      n t0hgfp         3   unknown         1 /var/lib/cwl/stgd2772b59-4f95-4e69-910d-2d476aa5f17e/read_1.bam /var/lib/cwl/stgae0839f6-1e3a-45b0-83ed-635f78d6c29c/read_1_macs_peaks.xls       macs
 ERROR: ATAC-seq LRT Step 1 analysis failed
-Error message: no 'restart' 'muffleWarning' found 
+Error message: Failed to create DBA object. See error details above. 
 No traceback available 

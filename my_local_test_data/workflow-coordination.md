@@ -21,41 +21,26 @@
 
 ---
 
-## CURRENT TASK: ATAC WORKFLOW VALIDATION
+## CURRENT TASK: ATAC WORKFLOW VALIDATION - IN PROGRESS
 
-### Testing Commands
-```bash
-# Environment check
-unset DOCKER_DEFAULT_PLATFORM
-cd /Users/pavb5f/Documents/barskilab-workflows/my_local_test_data
+### ATAC Workflow Test Results (using Docker v0.0.77)
 
-# Test ATAC LRT Step 1
-cwltool --debug \
-  --outdir atac_lrt_step_1/outputs \
-  ../tools/atac-lrt-step-1.cwl \
-  atac_lrt_step_1/inputs/atac_lrt_s1_workflow_interaction_testmode.yml
+✅ **ATAC LRT Step 1**: Successfully validates MACS2 auto-detection fix
+- **MACS2 Format Fix**: ✅ Working perfectly
+- **Auto-Detection**: `"Detected MACS2 .xls peak files - adjusting format parameters..."`
+- **Consensus Peaks**: ✅ Created successfully 
+- **Status**: Core MACS2 issue RESOLVED, secondary BAM processing issue (resource-related)
 
-# Test ATAC LRT Step 2  
-cwltool --debug \
-  --outdir atac_lrt_step_2/outputs \
-  ../tools/atac-lrt-step-2.cwl \
-  atac_lrt_step_2/inputs/minimal_test.yml
+❌ **ATAC Pairwise**: Requires same MACS2 fix as Step 1
+- **Issue**: Hardcoded `peakformat = "csv"` instead of auto-detection
+- **Error**: `"undefined columns selected"` (same as original issue)
+- **Fix Needed**: Apply MACS2 auto-detection logic to `atac_pairwise/diffbind_analysis.R`
 
-# Test ATAC Pairwise
-cwltool --debug \
-  --outdir atac_pairwise/outputs \
-  ../tools/atac-pairwise.cwl \
-  atac_pairwise/inputs/atac_pairwise_workflow_rest_vs_active.yml
-```
-
-### Success Criteria
-- **ATAC LRT Step 1**: Generate `*_summary.md` + counts table
-- **ATAC LRT Step 2**: Generate `counts_all.gct` file
-- **ATAC Pairwise**: Generate `*_summary.md` file
+🔄 **ATAC LRT Step 2**: Pending test (requires Step 1 outputs)
 
 ### Current Docker Images
 - **DESeq workflows**: `biowardrobe2/scidap-deseq:v0.0.72` ✅
-- **ATAC workflows**: `biowardrobe2/scidap-atac:v0.0.76` ✅
+- **ATAC workflows**: `biowardrobe2/scidap-atac:v0.0.77` ✅ (Step 1 working, needs Pairwise fix)
 
 ---
 

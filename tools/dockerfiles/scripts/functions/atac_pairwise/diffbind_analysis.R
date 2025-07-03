@@ -18,6 +18,21 @@ run_pairwise_diffbind_analysis <- function(sample_sheet, args) {
   scorecol <- if (is.null(args$scorecol)) 6 else args$scorecol
   minoverlap <- if (is.null(args$minoverlap)) 2 else args$minoverlap
   
+  # Auto-detect MACS2 format and adjust parameters
+  peak_files <- c(args$untreated, args$treated)
+  if (any(grepl("\\.xls$", peak_files))) {
+    log_message("Detected MACS2 .xls peak files - adjusting format parameters...")
+    log_message("  - Auto-corrected peakFormat to: macs (for .xls files)")
+    log_message("  - Auto-corrected scoreCol to: 6 (pileup column)")
+    peakformat <- "macs"  # Use MACS format for .xls files
+    scorecol <- 6  # Column 6 is pileup in MACS2 output
+  }
+  
+  log_message("DiffBind parameters:")
+  log_message(paste("  - peakFormat:", peakformat))
+  log_message(paste("  - peakCaller:", peakcaller))
+  log_message(paste("  - scoreCol:", scorecol))
+  
   # Test mode bypass for DiffBind analysis - check FIRST before any DiffBind operations
   if (args$test_mode) {
     log_message("Test mode: bypassing DiffBind analysis and generating mock results")

@@ -1,8 +1,7 @@
-WARNING: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested
 Starting ATAC-seq LRT Step 1 Analysis
-Working directory:/qoymDe
+Working directory:/ksBHzU
 Command line arguments received:
---bamfiles /var/lib/cwl/stg7d543b27-e1a9-4e46-9eec-24e36acfb299/sample1.bam /var/lib/cwl/stgdb4c1c98-cc4f-41a3-930f-469310c2e7f9/sample2.bam /var/lib/cwl/stg358d18a5-7dfc-43ee-a248-c177cbbe9e3a/sample3.bam /var/lib/cwl/stg704108e7-a2de-4c52-96fb-53c6c2dd1a88/sample4.bam --batchcorrection none --cluster none --design ~ treatment + cond + treatment:cond --fdr 0.1 --k 3 --kmax 5 --lfcthreshold 0.59 --lrt_only_mode --meta /var/lib/cwl/stgfa8c33c2-0785-4ccf-9ce2-97aa94afec9d/atac_metadata_nopath.csv --output ./deseq_lrt_step_1 --name sample1 sample2 sample3 sample4 --reduced ~ treatment + cond --scaling_type zscore --input_files /var/lib/cwl/stg868a001f-32fd-4eb9-96f8-2ba8da3d2e53/sample1_peaks.csv /var/lib/cwl/stg507c8e89-57ca-4188-8ebc-dec10f764a27/sample2_peaks.csv /var/lib/cwl/stge53ccb7c-c465-4b85-b2b4-5efd8dda3ba8/sample3_peaks.csv /var/lib/cwl/stgca429fff-e90c-4ef1-8863-3af5cd87c46d/sample4_peaks.csv --threads 1 --use_lfc_thresh
+--bamfiles /var/lib/cwl/stgd2772b59-4f95-4e69-910d-2d476aa5f17e/read_1.bam /var/lib/cwl/stg9eb581f7-0ff3-48a6-be68-29fdee1717f3/read_1.bam /var/lib/cwl/stg91ee52c7-7366-456d-8ae5-e8dfc244ccfc/read_1.bam /var/lib/cwl/stg326babc0-44e4-4c67-b34f-95b0a80a26dd/read_1.bam /var/lib/cwl/stgc739979f-380e-4876-9381-b23175a6a25e/read_1.bam /var/lib/cwl/stgca9829f9-7958-449a-bb1f-dcb2b3d4722b/read_1.bam /var/lib/cwl/stg12f597d8-cf1b-4e81-b89b-4b0759da1989/read_1.bam /var/lib/cwl/stg8ae7a87b-1d79-4abc-86ef-d4d3739e2f97/read_1.bam /var/lib/cwl/stg9a4e9875-997a-4984-bdd1-6b1b92aec75e/read_1.bam /var/lib/cwl/stgb0cb52a2-da4d-491c-b000-8f7326bb91f2/read_1.bam /var/lib/cwl/stg2e3f7780-1d70-4179-9232-cc4c0b81ee16/read_1.bam /var/lib/cwl/stg4bbf114a-d0de-4503-9f25-6d250ed9cb64/read_1.bam /var/lib/cwl/stgf976b010-d1ba-4fdf-a4e4-8fb53d10bb38/read_1.bam /var/lib/cwl/stgfe417077-d033-4c5b-a575-2b867fb42de0/read_1.bam /var/lib/cwl/stg963c8105-778b-46e9-b5b6-d3d3b7457b2a/read_1.bam /var/lib/cwl/stgfc4fb23c-a0b3-4103-ae46-b445458bbcb7/read_1.bam /var/lib/cwl/stg7018b00b-0871-46dd-afff-62b20d86b3a3/read_1.bam /var/lib/cwl/stg2f34c1bc-4b22-4f6a-8422-943edfa6f3c7/read_1.bam /var/lib/cwl/stgec308772-b746-4a0d-8eb6-8a4ed42b4ce8/read_1.bam /var/lib/cwl/stg2b5accde-e6f3-4484-9afc-a8a1d8239c4e/read_1.bam /var/lib/cwl/stg0167e0ac-29e9-47da-8288-f3f6133a85c4/read_1.bam /var/lib/cwl/stge26c7ae1-0808-40b4-9707-925eb24ed9fa/read_1.bam /var/lib/cwl/stg0a56d2e2-3235-46bc-940c-a29fe71ac4a1/read_1.bam /var/lib/cwl/stg0ba543b5-f6a9-48e5-add2-01924927b81c/read_1.bam /var/lib/cwl/stg606c611f-9684-4008-aed0-35eccbe62561/read_1.bam /var/lib/cwl/stg44658bc1-faa5-429e-abd5-e38b7a10c7c8/read_1.bam /var/lib/cwl/stg382fc723-798d-4adc-9d20-9e39631195bd/read_1.bam --batchcorrection none --cluster none --design ~Tissue + Condition + Factor + Tissue:Condition --fdr 0.1 --k 3 --kmax 5 --lfcthreshold 0.59 --meta /var/lib/cwl/stga7e89793-f880-470f-9e37-5be7ff18005c/afos_atac_metadata.csv --output ./deseq_lrt_step_1 --name D4N_0H_GFP_new D0N_5H_GFP_new D4N_5H_GFP_new D4TCM_0H_GFP_new D0TCM_5H_GFP_new D0TCM_5H_AFOS_new D4TCM_5H_AFOS_new D0TEM_5H_GFP_new D2TEM_0H_GFP_new D2TCM_0H_GFP_new D2TCM_5H_GFP_new D4TCM_5H_GFP_new D2N_5H_AFOS_new D2TCM_5H_AFOS_new D2TEM_5H_AFOS_new D4TEM_5H_GFP_new D0N_5H_AFOS_new D4TEM_0H_GFP_new D4TEM_5H_AFOS_new D0TEM_0H_GFP_new D4N_5H_AFOS_new D2N_0H_GFP_new D0N_0H_GFP_new D0TEM_5H_AFOS_new D2N_5H_GFP_new D2TEM_5H_GFP_new D0TCM_0H_GFP_new --reduced ~Tissue + Condition + Factor --scaling_type zscore --input_files /var/lib/cwl/stgae0839f6-1e3a-45b0-83ed-635f78d6c29c/read_1_macs_peaks.xls /var/lib/cwl/stgd96d7cf8-b946-4a7e-a5d4-bf1c9cec0696/read_1_macs_peaks.xls /var/lib/cwl/stg9ab05074-a038-427b-9f26-6555c579769e/read_1_macs_peaks.xls /var/lib/cwl/stg52e3db68-9a94-4265-908a-76458e5f9297/read_1_macs_peaks.xls /var/lib/cwl/stg9bd7736a-c607-442d-8ba4-493def64e854/read_1_macs_peaks.xls /var/lib/cwl/stg26e04a46-4d63-4d18-b829-e735fe31e20f/read_1_macs_peaks.xls /var/lib/cwl/stg1d71282a-4472-431f-b3a1-a84ba4611608/read_1_macs_peaks.xls /var/lib/cwl/stg4f09fcf7-fd92-47cc-be50-ec9b207ab18f/read_1_macs_peaks.xls /var/lib/cwl/stge5d94098-bca5-4007-948e-8ec1f76525c7/read_1_macs_peaks.xls /var/lib/cwl/stgc172c69d-fc92-43dc-8fee-e162f4a7cb5d/read_1_macs_peaks.xls /var/lib/cwl/stge3025d8d-c3bb-41fe-93a9-b7b3e50826f1/read_1_macs_peaks.xls /var/lib/cwl/stg8be64a3f-df29-4c4e-80a2-46bbb7ae8147/read_1_macs_peaks.xls /var/lib/cwl/stg632bc851-bdb0-45ad-9fbf-d866763c336a/read_1_macs_peaks.xls /var/lib/cwl/stg743cff7e-caf3-4c9c-bd08-a91d7f93af7e/read_1_macs_peaks.xls /var/lib/cwl/stg7e25344c-bec4-438d-81db-a0129b707871/read_1_macs_peaks.xls /var/lib/cwl/stg41248304-7934-4cc4-9dd4-52c96a18749c/read_1_macs_peaks.xls /var/lib/cwl/stg2d67cd4b-e83a-4f64-8dc7-d6da8fc455e9/read_1_macs_peaks.xls /var/lib/cwl/stg400b83bd-c582-4b34-a814-5626c5cb6558/read_1_macs_peaks.xls /var/lib/cwl/stgdd67b70d-dc19-4f28-8536-46819d7841ac/read_1_macs_peaks.xls /var/lib/cwl/stgea15ed46-ee00-4b5c-bcfb-dd99641a6ede/read_1_macs_peaks.xls /var/lib/cwl/stgaf290cbe-7bf1-43ea-a096-3c23ecfb0cfc/read_1_macs_peaks.xls /var/lib/cwl/stg06fe9e97-c1e7-49d8-ba95-b15f9a8c8d47/read_1_macs_peaks.xls /var/lib/cwl/stgcc40c1d7-8263-445f-bd03-0580636043d7/read_1_macs_peaks.xls /var/lib/cwl/stge25fb2ad-507b-48fc-8258-16c40f96cef7/read_1_macs_peaks.xls /var/lib/cwl/stg80d338c3-4211-4c07-a741-c8b99f41ec25/read_1_macs_peaks.xls /var/lib/cwl/stg6a0b2193-ee0f-402b-b65a-6840a3fe74ae/read_1_macs_peaks.xls /var/lib/cwl/stg084c1e5b-1512-430d-a453-2fbb42ef889a/read_1_macs_peaks.xls --threads 32 --use_lfc_thresh
 Loading utilities from Docker path: /usr/local/bin/functions/common/utilities.R
 Checking Docker path: /usr/local/bin/functions/common/constants.R
 Sourcing from Docker path: /usr/local/bin/functions/common/constants.R
@@ -44,31 +43,54 @@ Starting ATAC-seq LRT Step 1 workflow...
 Running normal ATAC-seq workflow...
 *** CUSTOM DEBUG: load_and_validate_metadata function called with new debugging ***
 Loading metadata...
-Loaded metadata for 4 samples with 3 covariates
+Loaded metadata for 27 samples with 3 covariates
 === DEBUGGING METADATA BEFORE VALIDATION ===
-Metadata dimensions: 4 x 3
-Column names: Condition, Tissue, Replicate
-Row names: sample1, sample2, sample3, sample4
+Metadata dimensions: 27 x 3
+Column names: Tissue, Condition, Factor
+Row names: D0N_0H_GFP_new, D0N_5H_GFP_new, D0N_5H_AFOS_new, D0TEM_0H_GFP_new, D0TEM_5H_GFP_new, D0TEM_5H_AFOS_new, D0TCM_0H_GFP_new, D0TCM_5H_GFP_new, D0TCM_5H_AFOS_new, D2N_0H_GFP_new, D2N_5H_GFP_new, D2N_5H_AFOS_new, D2TEM_0H_GFP_new, D2TEM_5H_GFP_new, D2TEM_5H_AFOS_new, D2TCM_0H_GFP_new, D2TCM_5H_GFP_new, D2TCM_5H_AFOS_new, D4N_0H_GFP_new, D4N_5H_GFP_new, D4N_5H_AFOS_new, D4TEM_0H_GFP_new, D4TEM_5H_GFP_new, D4TEM_5H_AFOS_new, D4TCM_0H_GFP_new, D4TCM_5H_GFP_new, D4TCM_5H_AFOS_new
 First few rows:
-Design formula: ~ treatment + cond + treatment:cond
-Reduced formula: ~ treatment + cond
+Design formula: ~Tissue + Condition + Factor + Tissue:Condition
+Reduced formula: ~Tissue + Condition + Factor
 ===============================================
 *** CUSTOM DEBUG: About to create design formula ***
-Design formula input: ~ treatment + cond + treatment:cond
-Design formula string: ~ treatment + cond + treatment:cond
+Design formula input: ~Tissue + Condition + Factor + Tissue:Condition
+Design formula string: ~Tissue + Condition + Factor + Tissue:Condition
 *** CUSTOM DEBUG: Design formula created successfully ***
 *** CUSTOM DEBUG: About to call validate_metadata ***
 About to call validate_metadata...
 Input metadata structure:
-Design formula: ~treatment + cond + treatment:cond
+Design formula: ~Tissue + Condition + Factor + Tissue:Condition
 Batch correction: none
 Calling validate_metadata function...
-ERROR in validate_metadata:
-Error class: simpleErrorerrorcondition
-Error message: Design formula variables not found in metadata: treatment, cond
-Error call: validate_metadata(metadata_df, args$batchcorrection, design_formula)
-Metadata structure at time of error:
-Design formula variables: treatment, cond
-Available metadata columns: Condition, Tissue, Replicate
-WARNING in validate_metadata:
-Warning message: Metadata validation failed, using original metadata without validation
+Converted Tissue to factor
+Converted Factor to factor
+validate_metadata completed successfully
+Result structure:
+Result is not NULL, dimensions: 27 x 3
+DEBUG: About to call load_and_validate_atac_data()
+Loading ATAC-seq data...
+Creating DiffBind sample sheet for 27 files with 27 sample names
+=== DEBUGGING SAMPLE SHEET ===
+Sample sheet dimensions: 27 rows x 9 columns
+Column names: SampleID, Tissue, Factor, Condition, Treatment, Replicate, bamReads, Peaks, PeakCaller
+First few rows:
+File accessibility check:
+Row 1: BAM=read_1.bam (TRUE), Peaks=read_1_macs_peaks.xls (TRUE)
+Row 2: BAM=read_1.bam (TRUE), Peaks=read_1_macs_peaks.xls (TRUE)
+Row 3: BAM=read_1.bam (TRUE), Peaks=read_1_macs_peaks.xls (TRUE)
+==============================
+Created DiffBind sample sheet for 27 samples
+DEBUG: load_and_validate_atac_data() completed successfully
+DEBUG: About to call run_diffbind_analysis()
+Running DiffBind analysis pipeline...
+Pre-validating files before DiffBind analysis...
+Creating DBA object...
+DiffBind parameters:
+  - peakFormat: csv
+  - peakCaller: macs
+  - scoreCol: 6
+D4N_0H_GFP_new n t0hgfp 3 unknown 1 macs
+ERROR in dba() function:
+Error message: undefined columns selected
+Sample sheet structure:
+First row of sample sheet:
