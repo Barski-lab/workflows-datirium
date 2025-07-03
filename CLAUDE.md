@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working with this CWL bioinformatics workflows repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with this CWL bioinformatics workflows repository.
 
 ## Repository Structure
 
@@ -19,9 +19,12 @@ This file provides guidance to Claude Code when working with this CWL bioinforma
 ## Essential Commands
 
 ```bash
-# Primary testing (most common task)
+# Primary testing (most common task) - MUST run from my_local_test_data/
 cd my_local_test_data && ./quick_test.sh              # Fast validation (2-3 min)
 cd my_local_test_data && ./comprehensive_test.sh      # Full test suite (10-15 min)
+
+# Platform-specific setup (Apple Silicon)
+export DOCKER_DEFAULT_PLATFORM=linux/amd64           # Required for ARM architecture
 
 # CWL development
 cwltool --validate tools/[workflow-name].cwl          # Syntax validation
@@ -29,23 +32,40 @@ cwltool --debug tools/[workflow-name].cwl inputs.yml  # Debug execution
 
 # Docker management
 docker images | grep -E "(scidap|biowardrobe)"       # List workflow images
+docker stats                                          # Monitor container resource usage
 ```
 
 ## Development Guidelines
+
+### CWL Workflow Architecture
+Each workflow consists of three layers:
+1. **CWL Tool Definition** (`tools/*.cwl`) - Defines interface, Docker image, and I/O
+2. **R Entry Script** (`tools/dockerfiles/scripts/run_*.R`) - Coordinates execution
+3. **Modular R Functions** (`tools/dockerfiles/scripts/functions/`) - Core logic
 
 ### Code Organization
 **R Function Libraries** (primary development area):
 ```
 tools/dockerfiles/scripts/functions/
 ├── common/                    # Shared utilities (logging, visualization)
+│   ├── constants.R           # System-wide constants
+│   ├── utilities.R           # File path resolution, source helpers
+│   ├── output_utils.R        # File output and validation functions
+│   ├── visualization.R       # Plot generation and customization
+│   └── atac_common/          # ATAC-specific shared functions
 ├── deseq2_lrt_step_1/        # DESeq2 LRT step 1 functions
 ├── atac_lrt_step_1/          # ATAC-seq LRT step 1 functions
 └── [workflow_type]/          # Workflow-specific functions
-    ├── workflow.R            # Main orchestration
-    ├── cli_args.R           # Command line parsing
-    ├── data_processing.R    # Data validation/loading
-    └── [analysis].R         # Core analysis functions
+    ├── workflow.R            # Main orchestration and environment setup
+    ├── cli_args.R           # Command line argument parsing and validation
+    ├── data_processing.R    # Data validation, loading, and preprocessing
+    └── [analysis].R         # Core statistical analysis functions
 ```
+
+**Entry Scripts Pattern:**
+- `run_[workflow].R` - Minimal coordination scripts that source workflow functions
+- Handle Docker vs local path resolution for sourcing functions
+- Parse CLI arguments and delegate to workflow functions
 
 ### Development Order
 1. **R functions** (`functions/*/`) - Core logic
@@ -55,9 +75,15 @@ tools/dockerfiles/scripts/functions/
 ### Critical Rules
 - **File creation**: Only create files in `my_local_test_data/` directory
 - **Testing**: Always run `quick_test.sh` before finalizing changes
-- **Docker**: Use specific images - `biowardrobe2/scidap-deseq:v0.0.62` (DESeq2), `biowardrobe2/scidap-atac:v0.0.67` (ATAC)
-- **Paths**: Use relative paths to core_data/ in CWL input YAML files
+- **Test execution**: MUST run test scripts from `my_local_test_data/` directory (scripts validate location)
+- **Docker Images**: 
+  - DESeq2 workflows: `biowardrobe2/scidap-deseq:v0.0.62`
+  - ATAC workflows: `biowardrobe2/scidap-atac:v0.0.67`
+  - Images are pre-built with R scripts; development uses test_mode=true for faster iteration
+- **Paths**: Use relative paths to `core_data/` in CWL input YAML files
 - **Parameters**: Use `--input_files` (not `--input`) for ATAC workflows
+- **R Function Sourcing**: All functions use `source_with_fallback()` for Docker/local path resolution
+- **Test Mode**: All test files use `test_mode: true` for faster development iterations
 
 ## Current Status: 6/6 Workflows Working ✅
 
@@ -111,13 +137,62 @@ tools/dockerfiles/scripts/functions/
 - **Missing constants**: Look for undefined variables in R functions
 - **File path issues**: Ensure relative paths to core_data/ in CWL input files
 - **Docker issues**: Verify image names and versions match exactly
+- **Memory errors**: Large datasets may require resource adjustments
+- **R package conflicts**: Check namespace collisions in workflow functions
 
 **Quick Diagnostics:**
 
 ```bash
-# Check what's failing
+# Check what's failing (from my_local_test_data/)
 cd my_local_test_data && ./quick_test.sh 2>&1 | grep -E "(FAIL|ERROR)"
 
 # Examine specific test logs  
 find my_local_test_data -name "test.log" -exec grep -l "ERROR" {} \;
+
+# Validate CWL syntax for specific workflow
+cwltool --validate ../tools/deseq-lrt-step-1.cwl
+
+# Debug execution with verbose output
+cwltool --debug ../tools/deseq-lrt-step-1.cwl deseq_lrt_step_1/inputs/basic_test.yml
+
+# Check Docker image availability
+docker images | grep -E "biowardrobe2/scidap-(deseq|atac)"
+
+# Memory and resource debugging
+docker stats  # Monitor container resource usage during execution
 ```
+
+**Error Classification for Faster Debugging:**
+- **Quick Failures (< 5s)**: Path/config issues, directory problems
+- **Script Errors (10-30s)**: R function/dependency issues, missing constants
+- **Long Running Failures (> 30s)**: Statistical/resource issues, memory problems
+
+## Key Architectural Patterns
+
+### Function Sourcing Strategy
+All R functions use a fallback pattern for sourcing dependencies:
+```r
+source_with_fallback("functions/common/utilities.R", "/usr/local/bin/functions/common/utilities.R")
+```
+This enables development in both Docker containers and local environments.
+
+### Test Mode Integration
+Most workflows support `test_mode=true` parameter for faster development:
+- Reduces statistical iterations
+- Uses smaller datasets
+- Skips computationally expensive steps
+
+### Input File Naming Convention
+Test YAML files follow descriptive naming: `{workflow_type}_{step}_{scope}_{scenario}_{mode}.yml`
+- Examples: 
+  - `deseq_lrt_s1_workflow_standard_testmode.yml`
+  - `atac_lrt_s1_workflow_interaction_testmode.yml`
+  - `deseq_lrt_s2_workflow_dual_contrast_testmode.yml`
+- All paths are relative to `core_data/` directory
+- Test outputs organized in `quick_test/` and `comprehensive_test/` subdirectories
+
+### Docker Development Strategy
+- **Incremental builds**: New Docker versions extend previous versions for faster builds
+- **Script mounting**: During development, mount local scripts instead of rebuilding containers
+- **Test modes**: Use `test_mode=true` parameter to skip computationally expensive steps
+- **Resource monitoring**: Monitor Docker container memory usage during large dataset processing
