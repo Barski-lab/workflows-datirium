@@ -230,7 +230,7 @@ run_workflow <- function(args) {
   results_list <- list()
   
   for (i in 1:nrow(contrast_df)) {
-    contrast_row <- contrast_df[i, ]
+    contrast_row <- contrast_df[i, , drop = FALSE]
     log_message(paste("DEBUG: contrast_row class:", class(contrast_row)))
     log_message(paste("DEBUG: contrast_row structure:", str(contrast_row)))
     contrast_name <- contrast_row$contrast
@@ -378,7 +378,7 @@ run_workflow <- function(args) {
   }
   
   # Verify output files
-  verify_outputs(args$output, "atac_lrt_step2", fail_on_missing=FALSE)
+  verify_outputs(args$output, "lrt_step2", fail_on_missing=FALSE)
   
   log_message("ATAC-seq LRT Step 2 workflow completed successfully", "SUCCESS")
   

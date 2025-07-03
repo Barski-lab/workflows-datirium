@@ -5,7 +5,7 @@ class: CommandLineTool
 requirements:
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: biowardrobe2/visualization:v0.0.9
+    dockerPull: biowardrobe2/visualization:v0.0.10
 
 inputs:
   diff_expr_file:

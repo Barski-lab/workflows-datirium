@@ -8,24 +8,20 @@ requirements:
 
 hints:
 - class: DockerRequirement
-  dockerPull: "biowardrobe2/scidap-deseq:v0.0.62"
+  dockerPull: "biowardrobe2/scidap-deseq:v0.0.72"
 
 
 inputs:
 
   untreated_files:
-    type:
-      - File
-      - File[]
+    type: File[]
     inputBinding:
       prefix: "-u"
     doc: |
       Untreated input CSV/TSV files
 
   treated_files:
-    type:
-      - File
-      - File[]
+    type: File[]
     inputBinding:
       prefix: "-t"
     doc: |
@@ -74,7 +70,7 @@ inputs:
       - "column"
       - "both"
     inputBinding:
-      prefix: "--cluster"
+      prefix: "--cluster_method"
     doc: |
       Hopach clustering method to be run on normalized read counts for the
       exploratory visualization part of the analysis. Default: do not run
@@ -91,7 +87,7 @@ inputs:
       - "cor"
       - "abscor"
     inputBinding:
-      prefix: "--rowdist"
+      prefix: "--row_distance"
     doc: |
       Distance metric for HOPACH row clustering. Ignored if --cluster is not
       provided. Default: cosangle
@@ -107,7 +103,7 @@ inputs:
       - "cor"
       - "abscor"
     inputBinding:
-      prefix: "--columndist"
+      prefix: "--column_distance"
     doc: |
       Distance metric for HOPACH column clustering. Ignored if --cluster is not
       provided. Default: euclid
@@ -135,7 +131,7 @@ inputs:
     inputBinding:
       prefix: "--use_lfc_thresh"
     default: false
-    doc: "Use lfcthreshold as the null hypothesis value in the results function call. Default: TRUE"
+    doc: "Use lfcthreshold as the null hypothesis value in the results function call. Default: FALSE"
       
   regulation:
     type:
@@ -247,6 +243,7 @@ inputs:
       Default: false
 
 
+
 outputs:
 
   diff_expr_file:
@@ -265,7 +262,7 @@ outputs:
       glob: "*counts_all.gct"
 
   read_counts_file_filtered:
-    type: File
+    type: File?
     outputBinding:
       glob: "*counts_filtered.gct"
 
@@ -320,9 +317,10 @@ outputs:
     type: stderr
 
 
-baseCommand: [run_deseq_pairwise.R]
+baseCommand: ["/usr/bin/Rscript", "/usr/local/bin/run_deseq_pairwise.R"]
 stdout: deseq_stdout.log
 stderr: deseq_stderr.log
+successCodes: [0, 1]
 
 $namespaces:
   s: http://schema.org/

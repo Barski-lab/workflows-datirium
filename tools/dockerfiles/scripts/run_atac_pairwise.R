@@ -38,7 +38,7 @@ if (file.exists(workflow_file)) {
     
     # Verify all required outputs were created
     message("Verifying all required outputs were created...")
-    verify_workflow_outputs("atac_pairwise", output_prefix, fail_on_missing = FALSE)
+    verify_workflow_outputs("deseq", output_prefix, fail_on_missing = FALSE)
   } else {
     message("Warning: Verification file not found, skipping output verification")
   }
@@ -70,7 +70,7 @@ if (file.exists(workflow_file)) {
       
       # Verify all required outputs were created
       message("Verifying all required outputs were created...")
-      verify_workflow_outputs("atac_pairwise", output_prefix, fail_on_missing = FALSE)
+      verify_workflow_outputs("deseq", output_prefix, fail_on_missing = FALSE)
     }
   } else {
     # Last resort - try to find it

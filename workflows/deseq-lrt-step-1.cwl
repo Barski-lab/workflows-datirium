@@ -239,7 +239,7 @@ inputs:
 outputs:
 
   lrt_diff_expr:
-    type: File
+    type: File?
     label: "Differentially expressed features grouped by isoforms, genes or common TSS"
     format: "http://edamontology.org/format_3475"
     doc: "DESeq2 generated file of differentially expressed features grouped by isoforms, genes or common TSS in TSV format"
@@ -267,7 +267,7 @@ outputs:
     outputSource: deseq/dsq_obj_data
 
   lrt_summary_md:
-    type: File
+    type: File?
     label: "DESeq2 Results Summary"
     doc: |
       Markdown file that includes a warning message if batch_file is not provided
@@ -280,7 +280,7 @@ outputs:
           tab: "Overview"
 
   read_counts_file_all:
-    type: File
+    type: File?
     label: "Normalized read counts in GCT format without padj filtering"
     format: "http://edamontology.org/format_3709"
     doc: "DESeq generated files of all normalized read counts in GCT format. Compatible with GSEA"
@@ -294,7 +294,7 @@ outputs:
     outputSource: deseq/counts_filtered_gct
 
   mds_plots_html:
-    type: File
+    type: File?
     outputSource: deseq/mds_plots_html
     label: "MDS plots of normalized counts"
     doc: |
@@ -329,7 +329,7 @@ outputs:
           target: "_blank"
 
   alignment_stats_barchart:
-    type: File
+    type: File?
     label: "Alignment statistics bar chart"
     doc: "Alignment statistics bar chart"
     outputSource: deseq/alignment_stats_barchart

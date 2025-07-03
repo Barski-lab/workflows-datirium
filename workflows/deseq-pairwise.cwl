@@ -355,7 +355,6 @@ inputs:
     'sd:layout':
       advanced: true
 
-
 outputs:
 
   diff_expr_file:
@@ -398,7 +397,7 @@ outputs:
     outputSource: deseq/read_counts_file_all
 
   read_counts_file_filtered:
-    type: File
+    type: File?
     label: "Normalized read counts in GCT format filtered by padj. Compatible with Morpheus heatmap"
     format: "http://edamontology.org/format_3709"
     doc: "DESeq generated file of padjfiltered normalized read counts in GCT format. Compatible with Morpheus heatmap"

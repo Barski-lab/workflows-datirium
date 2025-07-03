@@ -1,0 +1,110 @@
+Sourcing: /usr/local/bin/functions/common/utilities.R 
+Sourcing: /usr/local/bin/functions/common/logging.R 
+Sourcing: /usr/local/bin/functions/common/constants.R 
+Sourcing: /usr/local/bin/functions/common/visualization.R 
+Sourcing: /usr/local/bin/functions/common/clustering.R 
+Sourcing: /usr/local/bin/functions/common/export_functions.R 
+Sourcing: /usr/local/bin/functions/deseq2_lrt_step_1/cli_args.R 
+Sourcing: /usr/local/bin/functions/deseq2_lrt_step_1/data_processing.R 
+Sourcing: /usr/local/bin/functions/deseq2_lrt_step_1/deseq2_analysis.R 
+Sourcing: /usr/local/bin/functions/deseq2_lrt_step_1/contrast_generation.R 
+Loading required packages:
+  - Loading DESeq2 ... done
+  - Loading BiocParallel ... done
+  - Loading argparse ... done
+  - Loading pheatmap ... done
+  - Loading dplyr ... done
+  - Loading tidyr ... done
+  - Loading data.table ... done
+  - Loading ggplot2 ... done
+  - Loading plotly ... done
+  - Loading sva ... done
+  - Loading limma ... done
+  - Loading hopach ... done
+  - Loading rlang ... done
+  - Loading cmapR ... done
+Setting up parallel processing with 4 threads
+Environment initialized successfully
+DESeq2 LRT Step 1 analysis started at:  2025-06-29 19:32:32 
+Parsing command line arguments...
+WARNING: Skipping unknown argument: FALSE 
+WARNING: Skipping unknown argument: TRUE 
+WARNING: Skipping unknown argument: TRUE 
+Command line arguments parsed successfully
+Parsed parameters:
+  input:/var/lib/cwl/stg641fb149-d4d6-4695-b850-1733c01c6b23/ABSK0218_CMR_rm.isoforms.csv, /var/lib/cwl/stga12a96ec-f151-43c3-b1d6-27e01452e11b/ABSK0222_CMR_rm.isoforms.csv, /var/lib/cwl/stgb3fd4d9b-ca20-48f0-8dbf-a07ecc4dca7a/ABSK0219_CMA_rm.isoforms.csv...
+  name:ABSK0218_CMR_rm, ABSK0222_CMR_rm, ABSK0219_CMA_rm...
+  meta:/var/lib/cwl/stga562afa9-5c92-451b-a6e2-ce714f1acf69/metadata.csv
+  design:~ treatment + cond + treatment:cond
+  reduced:~ treatment + cond
+  batchcorrection:none
+  scaling_type:zscore
+  fdr:0.1
+  lfcthreshold:0.59
+  use_lfc_thresh:TRUE
+  rpkm_cutoff:
+  cluster:none
+  rowdist:cosangle
+  columndist:euclid
+  k:3
+  kmax:5
+  output:./deseq_lrt_step_1
+  threads:4
+  lrt_only_mode:TRUE
+  test_mode:TRUE
+Analysis parameters:
+- Input files: ABSK0218_CMR_rm.isoforms.csv, ABSK0222_CMR_rm.isoforms.csv, ABSK0219_CMA_rm.isoforms.csv, ABSK0223_CMA_rm.isoforms.csv, ABSK0226_KMR_rm.isoforms.csv, ABSK0230_KMR_rm.isoforms.csv, ABSK0227_KMA_rm.isoforms.csv, ABSK231238_rm.isoforms.csv 
+- Sample names: ABSK0218_CMR_rm, ABSK0222_CMR_rm, ABSK0219_CMA_rm, ABSK0223_CMA_rm, ABSK0226_KMR_rm, ABSK0230_KMR_rm, ABSK0227_KMA_rm, ABSK231238_rm 
+- Metadata file: metadata.csv 
+- Design formula: ~ treatment + cond + treatment:cond 
+- Reduced formula: ~ treatment + cond 
+- Output prefix: ./deseq_lrt_step_1 
+- RPKM cutoff:  
+- Batch correction: none 
+Validating inputs...
+Input validation successful
+Loading and processing input data...
+Performing quality control and filtering...
+Running DESeq2 LRT analysis...
+Count matrix dimensions: 500 rows x 8 columns
+Count matrix columns: ABSK0218_CMR_rm, ABSK0222_CMR_rm, ABSK0219_CMA_rm, ABSK0223_CMA_rm, ABSK0226_KMR_rm, ABSK0230_KMR_rm, ABSK0227_KMA_rm, ABSK231238_rm 
+Generating contrasts and post-processing results...
+Creating Wald test DESeq object for contrast generation...
+Starting memory-efficient contrasts generation...
+Available memory: 1.78 GB
+Design formula: ~treatment + cond + treatment:cond 
+Analyzing factors: treatment, cond 
+Factor levels:
+   treatment : C, KO 
+   cond : Act, Rest 
+Generating main effect contrasts (memory efficient version)...
+Available coefficients: Intercept, treatment_KO_vs_C, cond_Rest_vs_Act, treatmentKO.condRest 
+Processing factor: treatment 
+Processing factor: cond 
+Main effect contrasts generation completed in 1.09 seconds
+Generated 2 main effect contrasts
+Generating interaction effect contrasts (memory efficient version)...
+Found interaction terms: treatmentKO.condRest 
+Processing interaction: treatmentKO.condRest 
+Interaction effect contrasts generation completed in 0.48 seconds
+Generated 1 interaction effect contrasts
+Total contrasts generated: 3 
+Saving contrasts to: ./deseq_lrt_step_1_contrasts.rds 
+Creating contrasts summary table...
+Total contrasts generation completed in 19.49 seconds
+Memory used after generation: 1.78 GB
+Exporting results...
+Exported contrasts table to: ./deseq_lrt_step_1_contrasts_table.tsv 
+[2025-06-29 19:34:07] INFO: Exporting DESeq2 LRT Step 1 results 
+[2025-06-29 19:34:39] INFO: Results exported successfully 
+Verifying outputs...
+  ✓ Output verified: deseq_lrt_step_1_contrasts_table.tsv 
+  ✓ Output verified: deseq_lrt_step_1_contrasts.rds 
+  ✓ Output verified: deseq_lrt_step_1_gene_exp_table.tsv 
+  ✗ Missing expected output: deseq_lrt_step_1_mds_plot.html 
+  ✓ Output verified: deseq_lrt_step_1_counts_all.gct 
+  ✗ Missing expected output: deseq_lrt_step_1_counts_filtered.gct 
+  ✓ Output verified: deseq_lrt_step_1_lrt_result.md 
+WARNING: 2 expected output files are missing
+DESeq2 LRT Step 1 analysis completed at:  2025-06-29 19:34:39 
+Total execution time:  2.11  minutes

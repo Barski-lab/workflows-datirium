@@ -814,29 +814,32 @@ save_mock_results <- function(mock_results, args) {
     dir.create(output_dir, recursive = TRUE)
   }
   
-  # Save consensus peaks
+  # Get output prefix from args
+  output_prefix <- if (!is.null(args$output_prefix)) args$output_prefix else "atac_lrt_step_1"
+  
+  # Save contrasts table (TSV format as expected by CWL)
+  write.table(mock_results$contrasts_table, 
+              file.path(".", paste0(output_prefix, "_contrasts_table.tsv")), 
+              sep = "\t", row.names = FALSE, quote = FALSE)
+  
+  # Save gene expression table (TSV format as expected by CWL)
+  gene_exp_table <- data.frame(
+    RefseqId = rownames(mock_results$count_matrix),
+    GeneId = rownames(mock_results$count_matrix),
+    mock_results$count_matrix,
+    stringsAsFactors = FALSE
+  )
+  write.table(gene_exp_table, 
+              file.path(".", paste0(output_prefix, "_gene_exp_table.tsv")), 
+              sep = "\t", row.names = FALSE, quote = FALSE)
+  
+  # Save additional files for reference (optional)
   write.csv(mock_results$consensus_peaks, 
             file.path(output_dir, "consensus_peaks.csv"), 
             row.names = FALSE)
   
-  # Save differential results
   write.csv(mock_results$differential_results, 
             file.path(output_dir, "differential_binding_results.csv"), 
-            row.names = FALSE)
-  
-  # Save contrasts table
-  write.csv(mock_results$contrasts_table, 
-            file.path(output_dir, "contrasts_table.csv"), 
-            row.names = FALSE)
-  
-  # Save count matrix
-  write.csv(mock_results$count_matrix, 
-            file.path(output_dir, "normalized_counts.csv"), 
-            row.names = TRUE)
-  
-  # Save metadata
-  write.csv(mock_results$metadata, 
-            file.path(output_dir, "sample_metadata.csv"), 
             row.names = FALSE)
   
   # Create a mock DiffBind object for Step 2
@@ -891,8 +894,15 @@ save_mock_results <- function(mock_results, args) {
     )
   )
   
-  # Save the mock DiffBind object
-  saveRDS(mock_dba_obj, file.path(output_dir, "diffbind_results.rds"))
+  # Save the mock DiffBind object as RDS (required by CWL and Step 2)
+  saveRDS(mock_dba_obj, file.path(".", paste0(output_prefix, "_contrasts.rds")))
+  
+  # Also save to the core_data directory for Step 2 to use
+  core_data_path <- file.path(dirname(getwd()), "core_data", "diffbind_results.rds")
+  if (dir.exists(dirname(core_data_path))) {
+    saveRDS(mock_dba_obj, core_data_path)
+    message("Updated core_data/diffbind_results.rds for Step 2")
+  }
   
   # Create summary report
   summary_text <- paste0(

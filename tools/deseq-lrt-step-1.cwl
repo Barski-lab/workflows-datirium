@@ -6,7 +6,7 @@ requirements:
 
 hints:
 - class: DockerRequirement
-  dockerPull: "biowardrobe2/scidap-deseq:v0.0.62"
+  dockerPull: "biowardrobe2/scidap-deseq:v0.0.72"
 
 inputs:
   expression_files:

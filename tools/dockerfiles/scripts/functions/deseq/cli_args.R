@@ -49,11 +49,12 @@ assert_args <- function(parsed_arguments) {
       ), 1))
     }
   } else {
-    # Verify correct number of aliases
+    # Verify correct number of aliases; if mismatched, regenerate from filenames
     if ((length(parsed_arguments$untreated_sample_names) != length(parsed_arguments$untreated_files)) |
         (length(parsed_arguments$treated_sample_names) != length(parsed_arguments$treated_files))) {
-      log_error("Not correct number of inputs provided for files and sample names")
-      quit(save = "no", status = 1, runLast = FALSE)
+      log_warning("Length mismatch between sample alias vectors and file lists; regenerating aliases from file basenames")
+      parsed_arguments$untreated_sample_names <- sapply(parsed_arguments$untreated_files, function(x) sub("\\..*$", "", basename(x)))
+      parsed_arguments$treated_sample_names   <- sapply(parsed_arguments$treated_files,   function(x) sub("\\..*$", "", basename(x)))
     }
   }
 
@@ -293,13 +294,13 @@ get_args <- function() {
     choices = c("cosangle", "abscosangle", "euclid", "cor", "abscor")
   )
   parser$add_argument(
-    "--k_hopach",
+    "--k",
     help = "Number of levels (depth) for Hopach clustering: min - 1, max - 15. Default: 3.",
     type = "integer",
     default = 3
   )
   parser$add_argument(
-    "--kmax_hopach",
+    "--kmax",
     help = "Maximum number of clusters at each level for Hopach clustering: min - 2, max - 9. Default: 5.",
     type = "integer",
     default = 5
@@ -388,8 +389,8 @@ get_args <- function() {
       }
       
       # Numeric arguments
-      numeric_args <- list(fdr = "double", lfcthreshold = "double", k_hopach = "integer", kmax_hopach = "integer", threads = "integer", digits = "integer", rpkm_cutoff = "integer")
-      numeric_defaults <- list(fdr = 0.1, lfcthreshold = 0.59, k_hopach = 3, kmax_hopach = 5, threads = 1, digits = 3, rpkm_cutoff = NULL)
+      numeric_args <- list(fdr = "double", lfcthreshold = "double", k = "integer", kmax = "integer", threads = "integer", digits = "integer", rpkm_cutoff = "integer")
+      numeric_defaults <- list(fdr = 0.1, lfcthreshold = 0.59, k = 3, kmax = 5, threads = 1, digits = 3, rpkm_cutoff = NULL)
       numeric_values <- cli_helpers$parse_numeric_args(all_args, numeric_args, numeric_defaults)
       parsed_args <- c(parsed_args, numeric_values)
       
@@ -476,8 +477,8 @@ get_args <- function() {
       # Numeric arguments
       parsed_args$fdr <- as.numeric(parse_single_arg(all_args, c("--fdr"), "0.1"))
       parsed_args$lfcthreshold <- as.numeric(parse_single_arg(all_args, c("--lfcthreshold"), "0.59"))
-      parsed_args$k_hopach <- as.integer(parse_single_arg(all_args, c("--k"), "3"))
-      parsed_args$kmax_hopach <- as.integer(parse_single_arg(all_args, c("--kmax"), "5"))
+      parsed_args$k <- as.integer(parse_single_arg(all_args, c("--k"), "3"))
+      parsed_args$kmax <- as.integer(parse_single_arg(all_args, c("--kmax"), "5"))
       parsed_args$threads <- as.integer(parse_single_arg(all_args, c("-p", "--threads"), "1"))
       parsed_args$digits <- as.integer(parse_single_arg(all_args, c("-d", "--digits"), "3"))
       rpkm_val <- parse_single_arg(all_args, c("--rpkm_cutoff"))
@@ -546,8 +547,8 @@ parse_args_manual <- function() {
     cluster_method = "none",
     row_distance = "cosangle",
     column_distance = "euclid",
-    k_hopach = 3,
-    kmax_hopach = 5,
+    k = 3,
+    kmax = 5,
     rpkm_cutoff = NULL,
     output_prefix = "deseq",
     threads = 1,

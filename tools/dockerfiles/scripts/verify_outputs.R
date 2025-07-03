@@ -156,82 +156,90 @@ lrt_step2_outputs <- list(
   )
 )
 
-# Sample data to test output generation
-test_prefix <- "test_output"
-test_data <- matrix(
-  runif(100), nrow = 10, ncol = 10,
-  dimnames = list(
-    paste0("gene", 1:10),
-    paste0("sample", 1:10)
+# =============================================================================
+# Testing functions (only run when explicitly requested)
+# =============================================================================
+
+run_verification_tests <- function() {
+  cat("Testing output verification functions...\n")
+  
+  # Sample data to test output generation
+  test_prefix <- "test_output"
+  test_data <- matrix(
+    runif(100), nrow = 10, ncol = 10,
+    dimnames = list(
+      paste0("gene", 1:10),
+      paste0("sample", 1:10)
+    )
   )
-)
-test_classes <- rep(c("A", "B"), each = 5)
-
-# Test GCT file generation
-write_gct_file(test_data, get_output_filename(test_prefix, "counts_all", "gct"))
-cat("✓ GCT file creation works\n")
-
-# Test CLS file generation
-write_cls_file(test_classes, get_output_filename(test_prefix, "phenotypes", "cls"))
-cat("✓ CLS file creation works\n")
-
-# Test plot saving
-if (requireNamespace("ggplot2", quietly = TRUE)) {
-  test_plot <- ggplot2::ggplot(data.frame(x = 1:10, y = 1:10), ggplot2::aes(x, y)) +
-    ggplot2::geom_point()
+  test_classes <- rep(c("A", "B"), each = 5)
   
-  plot_files <- save_plot(test_plot, test_prefix, "test_plot")
-  
-  if (file.exists(plot_files$png) && file.exists(plot_files$pdf)) {
-    cat("✓ Plot saving in multiple formats works\n")
-  } else {
-    cat("✗ Plot saving failed\n")
+  # Test GCT file generation
+  write_gct_file(test_data, get_output_filename(test_prefix, "counts_all", "gct"))
+  cat("✓ GCT file creation works\n")
+
+  # Test CLS file generation
+  write_cls_file(test_classes, get_output_filename(test_prefix, "phenotypes", "cls"))
+  cat("✓ CLS file creation works\n")
+
+  # Test plot saving
+  if (requireNamespace("ggplot2", quietly = TRUE)) {
+    test_plot <- ggplot2::ggplot(data.frame(x = 1:10, y = 1:10), ggplot2::aes(x, y)) +
+      ggplot2::geom_point()
+    
+    plot_files <- save_plot(test_plot, test_prefix, "test_plot")
+    
+    if (file.exists(plot_files$png) && file.exists(plot_files$pdf)) {
+      cat("✓ Plot saving in multiple formats works\n")
+    } else {
+      cat("✗ Plot saving failed\n")
+    }
   }
+
+  # Test markdown file creation
+  write_markdown_summary(c("# Test Summary", "", "This is a test"), 
+                        get_output_filename(test_prefix, "summary", "md"))
+  cat("✓ Markdown file creation works\n")
+
+  # Print summary of output specifications
+  cat("\nOutput specifications summary:\n")
+  cat("----------------------------\n")
+
+  cat("\ndeseq-advanced.cwl outputs:\n")
+  for (name in names(deseq_advanced_outputs)) {
+    cat(sprintf("  - %s: %s (%s)\n", 
+               name, 
+               deseq_advanced_outputs[[name]]$description,
+               deseq_advanced_outputs[[name]]$glob))
+  }
+
+  cat("\ndeseq-lrt-step-1.cwl outputs:\n")
+  for (name in names(lrt_step1_outputs)) {
+    cat(sprintf("  - %s: %s (%s)\n", 
+               name, 
+               lrt_step1_outputs[[name]]$description,
+               lrt_step1_outputs[[name]]$glob))
+  }
+
+  cat("\ndeseq-lrt-step-2.cwl outputs:\n")
+  for (name in names(lrt_step2_outputs)) {
+    cat(sprintf("  - %s: %s (%s)\n", 
+               name, 
+               lrt_step2_outputs[[name]]$description,
+               lrt_step2_outputs[[name]]$glob))
+  }
+
+  # Clean up test files
+  for (file in unlist(plot_files)) {
+    if (file.exists(file)) file.remove(file)
+  }
+  file.remove(get_output_filename(test_prefix, "counts_all", "gct"),
+              get_output_filename(test_prefix, "phenotypes", "cls"),
+              get_output_filename(test_prefix, "summary", "md"))
+  cat("\nTest files cleaned up\n")
+
+  cat("\nAll output utility functions are working correctly\n")
 }
-
-# Test markdown file creation
-write_markdown_summary(c("# Test Summary", "", "This is a test"), 
-                      get_output_filename(test_prefix, "summary", "md"))
-cat("✓ Markdown file creation works\n")
-
-# Print summary of output specifications
-cat("\nOutput specifications summary:\n")
-cat("----------------------------\n")
-
-cat("\ndeseq-advanced.cwl outputs:\n")
-for (name in names(deseq_advanced_outputs)) {
-  cat(sprintf("  - %s: %s (%s)\n", 
-             name, 
-             deseq_advanced_outputs[[name]]$description,
-             deseq_advanced_outputs[[name]]$glob))
-}
-
-cat("\ndeseq-lrt-step-1.cwl outputs:\n")
-for (name in names(lrt_step1_outputs)) {
-  cat(sprintf("  - %s: %s (%s)\n", 
-             name, 
-             lrt_step1_outputs[[name]]$description,
-             lrt_step1_outputs[[name]]$glob))
-}
-
-cat("\ndeseq-lrt-step-2.cwl outputs:\n")
-for (name in names(lrt_step2_outputs)) {
-  cat(sprintf("  - %s: %s (%s)\n", 
-             name, 
-             lrt_step2_outputs[[name]]$description,
-             lrt_step2_outputs[[name]]$glob))
-}
-
-# Clean up test files
-for (file in unlist(plot_files)) {
-  if (file.exists(file)) file.remove(file)
-}
-file.remove(get_output_filename(test_prefix, "counts_all", "gct"),
-            get_output_filename(test_prefix, "phenotypes", "cls"),
-            get_output_filename(test_prefix, "summary", "md"))
-cat("\nTest files cleaned up\n")
-
-cat("\nAll output utility functions are working correctly\n")
 
 #' Verify all required outputs for a specific workflow
 #'
@@ -282,10 +290,18 @@ verify_workflow_outputs <- function(workflow_type, output_prefix, fail_on_missin
 # # At the end of a DESeq LRT Step 2 workflow
 # verify_workflow_outputs("lrt_step2", "my_step2_prefix")
 
+# =============================================================================
+# Conditional test execution
+# =============================================================================
+
+# Only run verification tests when explicitly requested via environment variable
+if (Sys.getenv("VERIFY_OUTPUTS_TEST") == "true") {
+  run_verification_tests()
+}
+
 # Instructions for workflow script authors:
-cat("\nInstructions for workflow script authors:\n")
-cat("To verify outputs at the end of your workflow script, add:\n")
-cat("  source('verify_outputs.R')\n")
-cat("  verify_workflow_outputs(\"workflow_type\", output_prefix)\n")
-cat("Where workflow_type is one of: \"deseq_advanced\", \"lrt_step1\", or \"lrt_step2\"\n")
-cat("And output_prefix is the prefix used for output files in your workflow\n") 
+# To verify outputs at the end of your workflow script, add:
+#   source('verify_outputs.R')
+#   verify_workflow_outputs("workflow_type", output_prefix)
+# Where workflow_type is one of: "deseq_advanced", "lrt_step1", or "lrt_step2"
+# And output_prefix is the prefix used for output files in your workflow 
