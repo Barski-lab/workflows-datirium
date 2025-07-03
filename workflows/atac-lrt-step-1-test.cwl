@@ -33,6 +33,10 @@ inputs:
     type: boolean
     default: true
 
+  lrt_only_mode:
+    type: boolean
+    default: true
+
   output_prefix:
     type: string
     default: "atac_lrt_step_1"
@@ -57,6 +61,7 @@ steps:
       design_formula: design_formula
       reduced_formula: reduced_formula
       test_mode: test_mode
+      lrt_only_mode: lrt_only_mode
       output_prefix: output_prefix
     out:
       - contrasts_table

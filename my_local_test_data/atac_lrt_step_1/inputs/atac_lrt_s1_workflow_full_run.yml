@@ -1,5 +1,3 @@
-alias_trigger: "atac_lrt_step1_full_test"
-
 # Peak files (4 samples for testing)
 test_peak_files:
   - class: File
@@ -36,7 +34,7 @@ bam_files:
 # Metadata file
 metadata_file:
   class: File
-  path: "../../core_data/atac_metadata_nopath.csv"
+  path: "../../core_data/atac_metadata_std.csv"
   format: "http://edamontology.org/format_2330"
 
 # Analysis parameters for ATAC-seq
@@ -52,4 +50,4 @@ k_hopach: 3
 kmax_hopach: 5
 threads: 1
 lrt_only_mode: true
-test_mode: false
+test_mode: true

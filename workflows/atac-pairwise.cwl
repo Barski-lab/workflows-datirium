@@ -13,10 +13,22 @@ inputs:
     type: File[]
     label: "Treated files"
 
+  treated_sample_names:
+    type:
+      - "null"
+      - string[]
+    label: "Treated sample aliases"
+
   untreated_name:
     type: string
     default: "Control"
     label: "Untreated name"
+
+  untreated_sample_names:
+    type:
+      - "null"
+      - string[]
+    label: "Untreated sample aliases"
 
   treated_name:
     type: string
@@ -48,6 +60,8 @@ steps:
       treated_files: treated_files
       untreated_name: untreated_name
       treated_name: treated_name
+      untreated_sample_names: untreated_sample_names
+      treated_sample_names: treated_sample_names
       test_mode: test_mode
       output_prefix: output_prefix
     out:

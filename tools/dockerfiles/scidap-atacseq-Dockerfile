@@ -2,8 +2,7 @@
 # Dockerfile - ATAC-seq Analysis Container
 #
 # Software:         BioWardrobe ATAC-seq script with DiffBind
-# Software Version: v0.0.72
-# Description:      Dockerized version of ATAC-seq scripts from BioWardrobe
+# Software Version: v0.0.76 version of ATAC-seq scripts from BioWardrobe
 # Website:          https://github.com/Barski-lab/workflows
 # Base Image:       Built from scidap-deseq + ATAC-specific packages
 #
@@ -90,7 +89,7 @@
 # BASE IMAGE SELECTION
 #############################################
 # Incremental build from previous version
-FROM biowardrobe2/scidap-deseq:v0.0.65
+FROM biowardrobe2/scidap-atac:v0.0.75
 LABEL maintainer="pavlvalera3301@gmail.com"
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -111,7 +110,7 @@ COPY tools/dockerfiles/scripts/functions/ /usr/local/bin/functions/
 # Setting permissions
 RUN chmod +x /usr/local/bin/run_atac*.R && \
     chmod -R +r /usr/local/bin/functions/ && \
-    find /usr/local/bin/functions -name "*.R" -exec chmod +x {} \; 
+    find /usr/local/bin/functions -name "*.R" -exec chmod +x {} \; \
     && \
     apt-get clean && \
     apt-get purge && \
@@ -127,7 +126,7 @@ RUN chmod +x /usr/local/bin/run_atac*.R && \
 # For full build from scidap-deseq base, use this instead:
 # FROM biowardrobe2/scidap-deseq:v0.0.53
 
-# Install ATAC-specific packages on top of scidap-deseq:
-RUN Rscript -e "if (!require(\"BiocManager\", quietly = TRUE)) install.packages(\"BiocManager\"); \
-    BiocManager::install(c(\"DiffBind\", \"ChIPseeker\", \"GenomicFeatures\", \"rtracklayer\", \"Rsamtools\"), update = FALSE, ask = FALSE); \
-    install.packages(c(\"VennDiagram\", \"UpSetR\", \"corrplot\"));"
+# Install missing Bioconductor package DiffBind and ensure rtracklayer dependencies
+# RUN R -e "if (!require('BiocManager', quietly = TRUE)) install.packages('BiocManager'); BiocManager::install(c('DiffBind'), update = FALSE, ask = FALSE)"
+
+RUN echo "DiffBind already present in base image"

@@ -184,7 +184,7 @@ write_deseq_results <- function(results, file_path, add_rank = TRUE) {
   }
   
   # Write to TSV file
-  write.table(results_df, file = file_path, sep = "\t", quote = FALSE, row.names = TRUE)
+  write.table(results_df, file = file_path, sep = "\t", quote = FALSE, row.names = FALSE)
   message(paste("Created results TSV file:", file_path))
   
   return(file_path)

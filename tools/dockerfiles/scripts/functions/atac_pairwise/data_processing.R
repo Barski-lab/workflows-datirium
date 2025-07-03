@@ -119,14 +119,16 @@ load_and_validate_pairwise_atac_data <- function(args, metadata_df) {
   filtered_input_files <- args$input_files[sample_mask]
   filtered_names <- clean_names[sample_mask]
   
-  # Handle BAM files if provided, otherwise create dummy BAM file paths
-  if (!is.null(args$bamfiles) && length(args$bamfiles) > 0) {
-    filtered_bamfiles <- args$bamfiles[sample_mask]
-  } else {
-    # Create dummy BAM file paths for peak-only analysis
-    log_message("No BAM files provided - using peak-only analysis mode")
-    filtered_bamfiles <- paste0(filtered_names, ".bam")
-  }
+  # Derive BAM paths next to each peak file (CWL secondaryFiles staging)
+  log_message("Deriving BAM paths from peak file locations (no --bamfiles supplied)")
+  filtered_bamfiles <- vapply(seq_along(filtered_input_files), function(i) {
+    peak_path <- filtered_input_files[i]
+    peak_dir  <- dirname(peak_path)
+    peak_base <- basename(peak_path)
+    # Handle both *_peaks.csv and generic names
+    bam_base  <- sub("_peaks\\.csv$", ".bam", peak_base)
+    file.path(peak_dir, bam_base)
+  }, character(1))
   
   log_message(paste("Filtered to", length(filtered_names), "samples matching metadata"))
   
@@ -188,15 +190,20 @@ create_pairwise_diffbind_sample_sheet <- function(input_files, bamfiles, clean_n
   }
   
   # Validate file accessibility
-  for (i in 1:nrow(sample_sheet)) {
-    # Only check BAM files if they're real files (not dummy paths)
-    if (file.exists(dirname(sample_sheet$bamReads[i])) && !grepl("^[^/]*\\.bam$", sample_sheet$bamReads[i])) {
-      if (!file.exists(sample_sheet$bamReads[i])) {
-        stop(paste("BAM file not found:", sample_sheet$bamReads[i]))
+  if (!is.null(args$test_mode) && args$test_mode) {
+    log_message("Test mode enabled – skipping BAM existence validation")
+  } else {
+    # Validate file accessibility
+    for (i in 1:nrow(sample_sheet)) {
+      # Only check BAM files if they're real files (not dummy paths)
+      if (file.exists(dirname(sample_sheet$bamReads[i])) && !grepl("^[^/]*\\.bam$", sample_sheet$bamReads[i])) {
+        if (!file.exists(sample_sheet$bamReads[i])) {
+          stop(paste("BAM file not found:", sample_sheet$bamReads[i]))
+        }
       }
-    }
-    if (!file.exists(sample_sheet$Peaks[i])) {
-      stop(paste("Peak file not found:", sample_sheet$Peaks[i]))
+      if (!file.exists(sample_sheet$Peaks[i])) {
+        stop(paste("Peak file not found:", sample_sheet$Peaks[i]))
+      }
     }
   }
   

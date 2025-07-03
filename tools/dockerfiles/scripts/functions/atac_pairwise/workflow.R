@@ -239,11 +239,17 @@ run_workflow <- function(args) {
   # Export pairwise results table
   results_file <- paste0(args$output, "_pairwise_results.tsv")
   write_pairwise_atac_results(expDataDf, results_file, args)
+  write_pairwise_atac_results(expDataDf, paste0(args$output, "_report.tsv"), args)
   log_message(paste("Exported ATAC-seq pairwise results table to", results_file), "INFO")
   
   # Export normalized counts in GCT format
   write_gct_file(normCounts, paste0(args$output, "_normalized_counts.gct"))
+  write_gct_file(normCounts, paste0(args$output, "_counts_all.gct"))
   log_message("Exported normalized ATAC-seq counts to GCT format", "INFO")
+  
+  # Generate phenotypes CLS file for GSEA/CWL
+  condition_vector <- colData(dds)[[args$condition_column]]
+  write_cls_file(condition_vector, paste0(args$output, "_phenotypes.cls"))
   
   # Generate summary markdown
   log_message("Generating analysis summary", "INFO")
