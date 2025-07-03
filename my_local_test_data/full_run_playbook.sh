@@ -18,6 +18,26 @@ exec > >(tee -i FULL_RUN_$(date +%Y%m%d_%H%M).log) 2>&1
 
 echo "=== FULL-SCALE WORKFLOW SESSION START $(date) ==="
 
+# -----------------------------------------------------------------------------
+# A. Generate synthetic BAMs matching each sample*_peaks.csv file --------------
+# -----------------------------------------------------------------------------
+# We need real alignments so that DiffBind can count reads.  For every peaks
+# CSV found in core_data/ we create a BAM/BAI pair if it does not yet exist.
+# The Python helper emits one 100-bp read per peak at the peak start site.
+# File sizes stay tiny (<10 KB) but fully satisfy Rsamtools.  Requires samtools.
+
+PEAK_DIR="core_data"
+for peaks_csv in ${PEAK_DIR}/sample*_peaks.csv; do
+  [ -e "$peaks_csv" ] || continue  # guard against glob failure
+  bam_file="${peaks_csv%_peaks.csv}.bam"
+  if [[ -f "$bam_file" && -f "${bam_file}.bai" ]]; then
+    echo "[INFO] BAM already present for $(basename "$peaks_csv") – skipping"
+    continue
+  fi
+  echo "[INFO] Generating synthetic BAM for $(basename "$peaks_csv")"
+  python3 generate_synthetic_bams.py "$peaks_csv" "$bam_file"
+done
+
 # 1.  Duplicate & sanitise YAMLs  -------------------------------------------------
 for f in \
   deseq_lrt_step_1/inputs/*testmode.yml \
@@ -51,8 +71,26 @@ do
   if [[ "$full" == *"step_2"* ]]; then
     sed -i '' 's/^alias:/alias_trigger:/' "$full"
   fi
+
+  # For ATAC LRT Step 1 ensure lrt_only_mode flag is present and TRUE
+  if [[ "$full" == *"atac_lrt_step_1"* ]]; then
+    grep -q "^[[:space:]]*lrt_only_mode:" "$full" || echo "lrt_only_mode: true" >> "$full"
+  fi
 done
 echo "YAML duplication + placeholder insertion complete."
+
+# Quick fix for accidental duplicate 'format:' lines (schema_salad forbids dup keys)
+# Remove exact duplicate adjacent lines or global duplicates in YAMLs.
+for yaml in deseq_lrt_step_1/inputs/*_full.yml \
+            deseq_lrt_step_2/inputs/*_full.yml \
+            atac_lrt_step_1/inputs/*_full.yml \
+            atac_lrt_step_2/inputs/*_full.yml \
+            deseq_pairwise/inputs/*_full.yml \
+            atac_pairwise/inputs/*_full.yml; do
+  [ -f "$yaml" ] || continue
+  awk 'NR==1{prev=""} {if($0==prev){next} print; prev=$0}' "$yaml" > "${yaml}.tmp" && mv "${yaml}.tmp" "$yaml"
+done
+echo "Duplicate key cleanup complete."
 
 # Handle ATAC LRT Step 2 minimal_test.yml (has different naming convention)
 if [ -f atac_lrt_step_2/inputs/minimal_test.yml ]; then

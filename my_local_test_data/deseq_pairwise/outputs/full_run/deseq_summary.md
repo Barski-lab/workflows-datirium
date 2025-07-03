@@ -1,12 +1,12 @@
 # DESeq2 Analysis Summary
 
-Analysis performed on 2025-06-30
+Analysis performed on 2025-07-02
 
 ## Parameters
 
 * Condition 1 : CMR
 * Condition 2 : KMR
-* Batch correction : none
+* Batch correction : combatseq
 
 ## Results
 
