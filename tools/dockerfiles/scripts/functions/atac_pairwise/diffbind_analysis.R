@@ -19,7 +19,7 @@ run_pairwise_diffbind_analysis <- function(sample_sheet, args) {
   minoverlap <- if (is.null(args$minoverlap)) 2 else args$minoverlap
   
   # Auto-detect MACS2 format and adjust parameters
-  peak_files <- c(args$untreated, args$treated)
+  peak_files <- c(args$u, args$t)
   if (any(grepl("\\.xls$", peak_files))) {
     log_message("Detected MACS2 .xls peak files - adjusting format parameters...")
     log_message("  - Auto-corrected peakFormat to: macs (for .xls files)")
