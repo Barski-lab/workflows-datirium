@@ -224,11 +224,11 @@ $namespaces:
 $schemas:
   - https://github.com/schemaorg/schemaorg/raw/main/data/releases/11.01/schemaorg-current-http.rdf
 
-s:name: "DESeq2 (LRT Step 2) - Differential gene expression analysis using contrasts"
-label: "DESeq2 (LRT Step 2) - Differential gene expression analysis using contrasts"
-s:alternateName: "Differential gene expression analysis using DESeq2 contrasts"
+s:name: "ATAC-Seq LRT (step 2) - Differential accessibility analysis using contrasts"
+label: "ATAC-Seq LRT (step 2) - Differential accessibility analysis using contrasts"
+s:alternateName: "ATAC-Seq differential accessibility analysis based on LRT contrasts"
 
-s:downloadUrl: https://raw.githubusercontent.com/Barski-lab/workflows/master/tools/deseq-lrt-step-2.cwl
+s:downloadUrl: https://raw.githubusercontent.com/datirium/workflows/master/tools/atac-lrt-step-2.cwl
 s:codeRepository: https://github.com/Barski-lab/workflows
 s:license: http://www.apache.org/licenses/LICENSE-2.0
 
