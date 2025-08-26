@@ -1,0 +1,86 @@
+#########################################################################################################################
+# Build: docker build --platform linux/amd64 --no-cache --rm -t biowardrobe2/diff-tools:v0.0.1 -f diff-tools-Dockerfile .
+# Pull:  docker pull --platform linux/amd64 biowardrobe2/diff-tools:v0.0.1
+# Run:   docker run --platform linux/amd64 --rm -ti biowardrobe2/diff-tools:v0.0.1 /bin/bash
+#
+# Accessbile from the specific virtual environment:
+#   - r_base:
+#       - Rscript
+#       - argparse
+#       - pheatmap
+#       - plotly
+#       - tidyverse
+#       - devtools
+#       - modules
+#       - BiocParallel
+#       - Glimma
+#       - hopach
+#       - cmapR
+#       - sva
+#       - DESeq2
+#       - EnhancedVolcano
+#       - morpheus
+#
+# Accessbile globally:
+#   - run_deseq_lrt_step_1.sh
+#   - run_deseq_lrt_step_2.sh
+#
+# Should NOT be run directly:
+#   - run_deseq_lrt_step_1.R (use run_deseq_lrt_step_1.sh instead)
+#   - run_deseq_lrt_step_2.R (use run_deseq_lrt_step_2.sh instead)
+#
+# Tests:
+#   - test_tools.sh
+#
+#########################################################################################################################
+
+FROM condaforge/miniforge3:25.3.0-3
+LABEL maintainer="misha.kotliar@gmail.com"
+ENV DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /tmp
+
+ENV R_BASE_VERSION=4.4.3
+ENV R_ARGPARSE_VERSION=2.2.5
+ENV R_PHEATMAP_VERSION=1.0.13
+ENV R_PLOTLY_VERSION=4.9.4.1
+ENV R_TIDYVERSE_VERSION=2.0.0
+ENV R_DEVTOOLS_VERSION=2.4.5
+ENV R_MODULES_VERSION=0.13.0
+ENV R_BIOCPARALLEL_VERSION=1.40.0
+ENV R_GLIMMA_VERSION=2.16.0
+ENV R_HOPACH_VERSION=2.66.0
+ENV R_CMAPR_VERSION=1.18.0
+ENV R_SVA_VERSION=3.54.0
+ENV R_DESEQ2_VERSION=1.46.0
+ENV R_VOLCANO_VERSION=1.24.0
+
+COPY ./scripts/diff_tools/*.sh /usr/local/bin/
+COPY ./scripts/diff_tools/*.R /usr/local/bin/
+COPY ./scripts/diff_tools/modules/*.R /usr/local/bin/modules/
+
+RUN apt-get update && \
+    apt-get install vim -y && \
+    mamba create -y -n r_base conda-forge::r-base=${R_BASE_VERSION} && \
+    mamba install -y -n r_base conda-forge::r-argparse=${R_ARGPARSE_VERSION} && \
+    mamba install -y -n r_base conda-forge::r-pheatmap=${R_PHEATMAP_VERSION} && \
+    mamba install -y -n r_base conda-forge::r-plotly=${R_PLOTLY_VERSION} && \
+    mamba install -y -n r_base conda-forge::r-tidyverse=${R_TIDYVERSE_VERSION} && \
+    mamba install -y -n r_base conda-forge::r-devtools=${R_DEVTOOLS_VERSION} && \
+    mamba install -y -n r_base conda-forge::r-modules=${R_MODULES_VERSION} && \
+    mamba install -y -n r_base bioconda::bioconductor-biocparallel=${R_BIOCPARALLEL_VERSION} && \
+    mamba install -y -n r_base bioconda::bioconductor-glimma=${R_GLIMMA_VERSION} && \
+    mamba install -y -n r_base bioconda::bioconductor-hopach=${R_HOPACH_VERSION} && \
+    mamba install -y -n r_base bioconda::bioconductor-cmapr=${R_CMAPR_VERSION} && \
+    mamba install -y -n r_base bioconda::bioconductor-sva=${R_SVA_VERSION} && \
+    mamba install -y -n r_base bioconda::bioconductor-deseq2=${R_DESEQ2_VERSION} && \
+    mamba install -y -n r_base bioconda::bioconductor-enhancedvolcano=${R_VOLCANO_VERSION} && \
+    mamba run -n r_base R -e 'devtools::install_github("michael-kotliar/morpheus.R")' && \
+    chmod +x /usr/local/bin/run_deseq_lrt_step_1.sh && \
+    chmod +x /usr/local/bin/run_deseq_lrt_step_2.sh && \
+    chmod +x /usr/local/bin/test_tools.sh && \
+    mamba clean -a && \
+    apt-get clean && \
+    apt-get purge && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* && \
+    strip /usr/local/bin/*; true
