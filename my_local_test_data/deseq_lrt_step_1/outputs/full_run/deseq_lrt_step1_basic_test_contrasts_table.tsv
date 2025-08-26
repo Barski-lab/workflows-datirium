@@ -1,4 +1,0 @@
-contrast_number	effect	specificity_group	contrast	numerator	denominator	significant_genes
-1	1	main	treatment	treatment_KO_vs_C	KO	C	83
-2	2	main	cond	cond_Rest_vs_Act	Rest	Act	78
-3	3	interaction	cond_Rest	treatmentKO.condRest	treatmentKO	baseline	36

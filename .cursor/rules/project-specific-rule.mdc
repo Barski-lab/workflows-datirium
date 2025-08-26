@@ -1,9 +1,0 @@
----
-description: 
-globs: 
-alwaysApply: true
----
-Always use --platform linux/amd64 flag when running the Docker container with ARM architecture on my Apple Silicon Mac.
-Never create new files until making sure of existing of those already.
-At the end of the request always provide a reason chain to critique all just added files / code to remove all the redundant stuff to keep it managable and effective.
-Provide a plan with reason for each step. Explain why you have to do so. Critique that. Only after that start implementation. 
