@@ -256,8 +256,17 @@ for (i in 1:length(selected_contrasts)) {
 }
 print("Collected DESeq results")
 collected_deseq_results <- collected_deseq_results %>%
-                           rownames_to_column(var="Feature")                                               # we need to to join with cluster information
+                           rownames_to_column(var="Feature")                                 # we need to to join with cluster information
 print(head(collected_deseq_results))
+if(!any(grepl("_padj$", colnames(collected_deseq_results)))){                                # to check that we have at least one contrast successfully calculated
+    print(
+        paste(
+            "Exiting: neither of the selected",
+            "contrasts were successfully calculated."
+        )
+    )
+    quit(save="no", status=1, runLast=FALSE)
+}
 
 print(
     paste(
