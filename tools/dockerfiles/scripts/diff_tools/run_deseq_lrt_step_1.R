@@ -15,12 +15,13 @@ options(error=function(){traceback(3); quit(save="no", status=1, runLast=FALSE)}
 HERE <- (function() {return (dirname(sub("--file=", "", commandArgs(trailingOnly=FALSE)[grep("--file=", commandArgs(trailingOnly=FALSE))])))})()
 suppressMessages(io <- modules::use(file.path(HERE, "modules/io.R")))
 suppressMessages(analyses <- modules::use(file.path(HERE, "modules/analyses.R")))
+suppressMessages(logger <- modules::use(file.path(HERE, "modules/logger.R")))
 
 
 assert_args <- function(args){
 
     if (length(args$expression) != length(args$aliases)) {
-        print(
+        logger$info(
             paste(
                 "Exiting: the --expression and --aliases",
                 "parameters should have the same length."
@@ -30,7 +31,7 @@ assert_args <- function(args){
     }
 
     if (is.null(args$batch) != is.null(args$correction)){
-        print(
+        logger$info(
             paste(
                 "Exiting: for batch correction both",
                 "--batch and --correction parameters",
@@ -44,7 +45,7 @@ assert_args <- function(args){
         grepl("\\*", args$design) ||
         grepl("\\*", args$reduced)
     ){
-        print(
+        logger$info(
             paste(
                 "Exiting: both of the --design and",
                 "--reduced formulas should be povided",
@@ -60,7 +61,7 @@ assert_args <- function(args){
         !is.null(args$batch) &&
         !(args$batch %in% unique(all.vars(args$design)))
     ){
-        print(
+        logger$info(
             paste(
                 "Exiting: the --batch parameter should",
                 "also be used in the --design formula."
@@ -71,7 +72,7 @@ assert_args <- function(args){
 
     args$aliases <- io$adjust_names(args$aliases)
     if (anyDuplicated(args$aliases) > 0) {
-        print(
+        logger$info(
             paste(
                 "Exiting: the sample names provided",
                 "in the --aliases parameter shouldn't",
@@ -276,7 +277,12 @@ get_args <- function() {
         type="integer",
         default=1
     )
-    args <- assert_args(parser$parse_args(commandArgs(trailingOnly=TRUE)))
+    args <- parser$parse_args(commandArgs(trailingOnly=TRUE))
+    logger$setup(
+        file.path(dirname(ifelse(args$output == "", "./", args$output)), "error_report.txt"),
+        header="DESeq2 LRT Step 1 (run_deseq_lrt_step_1.R)"
+    )
+    args <- assert_args(args)
     return(args)
 }
 
@@ -289,12 +295,42 @@ print(paste("Setting parallelizations to", args$cpus, "cores."))
 register(MulticoreParam(args$cpus))
 
 print("Loading metadata.")
-metadata <- io$load_metadata(
-    location=args$metadata,
-    aliases=args$aliases,
-    batch=args$batch
-)
+metadata <- io$load_metadata(args$metadata)
 print(metadata)
+
+if (anyDuplicated(rownames(metadata)) > 0) {
+    logger$info(
+        paste(
+            "Exiting: the first columns in",
+            "the metadata shouldn't include",
+            "any duplicates."
+        )
+    )
+    quit(save="no", status=1, runLast=FALSE)
+}
+
+if (!setequal(rownames(metadata), args$aliases)){                               # we already cheched that neither metadata nor aliases have duplicates
+    logger$info(
+        paste(
+            "Exiting: the sample names in the",
+            "metadata should correspond to the",
+            "sample names provided in the aliases",
+            "parameter."
+        )
+    )
+    quit(save="no", status=1, runLast=FALSE)
+}
+
+if (!is.null(args$batch) && !(args$batch %in% colnames(metadata))){
+    logger$info(
+        paste(
+            "Exiting: the batch parameter",
+            "should be used as one of the",
+            "samples metadata column."
+        )
+    )
+    quit(save="no", status=1, runLast=FALSE)
+}
 
 print("Loading gene expression.")
 expression_data <- io$load_expression_data(

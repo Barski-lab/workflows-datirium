@@ -215,7 +215,7 @@ export_morpheus_html_heatmap <- function(gct_location, rootname, color_scheme=NU
     )
 }
 
-load_metadata <- function(location, aliases, batch=NULL){
+load_metadata <- function(location){
     metadata <- utils::read.table(
         location,
         sep=get_file_type(location),
@@ -223,43 +223,9 @@ load_metadata <- function(location, aliases, batch=NULL){
         stringsAsFactors=FALSE,
         row.names=1,
         quote="",
-        colClasses="character"                                               # to prevent loading numbers as numerical types
-    ) %>% dplyr::mutate_at(base::colnames(.), forcats::fct_inorder)                       # assigns levels bases on the first appearance in the metadata
-    base::rownames(metadata) <- adjust_names(base::rownames(metadata))                   # to make it correspond to the aliases
-
-    if (base::anyDuplicated(base::rownames(metadata)) > 0) {
-        base::print(
-            base::paste(
-                "Exiting: the first columns in",
-                "the metadata shouldn't include",
-                "any duplicates."
-            )
-        )
-        base::quit(save="no", status=1, runLast=FALSE)
-    }
-
-    if (!generics::setequal(base::rownames(metadata), aliases)){                        # we already cheched that neither metadata nor aliases have duplicates
-        base::print(
-            base::paste(
-                "Exiting: the sample names in the",
-                "metadata should correposnd to the",
-                "sample names provided in the aliases",
-                "parameter."
-            )
-        )
-        base::quit(save="no", status=1, runLast=FALSE)
-    }
-
-    if (!is.null(batch) && !(batch %in% base::colnames(metadata))){
-        base::print(
-            base::paste(
-                "Exiting: the batch parameter",
-                "should be used as one of the",
-                "samples metadata column."
-            )
-        )
-        base::quit(save="no", status=1, runLast=FALSE)
-    }
+        colClasses="character"                                                          # to prevent loading numbers as numerical types
+    ) %>% dplyr::mutate_at(base::colnames(.), forcats::fct_inorder)                     # assigns levels bases on the first appearance in the metadata
+    base::rownames(metadata) <- adjust_names(base::rownames(metadata))                  # to make it correspond to the aliases
 
     for (i in 1:length(base::colnames(metadata))){
         base::print(
@@ -269,7 +235,6 @@ load_metadata <- function(location, aliases, batch=NULL){
             )
         )
     }
-
     return (metadata)
 }
 

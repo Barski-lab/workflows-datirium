@@ -13,6 +13,7 @@ HERE <- (function() {return (dirname(sub("--file=", "", commandArgs(trailingOnly
 suppressMessages(io <- modules::use(file.path(HERE, "modules/io.R")))
 suppressMessages(analyses <- modules::use(file.path(HERE, "modules/analyses.R")))
 suppressMessages(graphics <- modules::use(file.path(HERE, "modules/graphics.R")))
+suppressMessages(logger <- modules::use(file.path(HERE, "modules/logger.R")))
 
 
 assert_args <- function(args){
@@ -138,7 +139,12 @@ get_args <- function() {
         type="integer",
         default=1
     )
-    args <- assert_args(parser$parse_args(commandArgs(trailingOnly=TRUE)))
+    args <- parser$parse_args(commandArgs(trailingOnly=TRUE))
+    logger$setup(
+        file.path(dirname(ifelse(args$output == "", "./", args$output)), "error_report.txt"),
+        header="DESeq2 LRT Step 2 (run_deseq_lrt_step_2.R)"
+    )
+    args <- assert_args(args)
     return(args)
 }
 
@@ -184,7 +190,7 @@ selected_contrasts <- all_contrasts[intersect(args$target, names(all_contrasts))
 print(selected_contrasts)
 
 if (length(selected_contrasts) == 0) {
-    print(
+    logger$info(
         paste(
             "Exiting: no target contrasts found."
         )
@@ -259,7 +265,7 @@ collected_deseq_results <- collected_deseq_results %>%
                            rownames_to_column(var="Feature")                                 # we need to to join with cluster information
 print(head(collected_deseq_results))
 if(!any(grepl("_padj$", colnames(collected_deseq_results)))){                                # to check that we have at least one contrast successfully calculated
-    print(
+    logger$info(
         paste(
             "Exiting: neither of the selected",
             "contrasts were successfully calculated."

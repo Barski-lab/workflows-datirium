@@ -321,6 +321,14 @@ outputs:
       All contrasts produced by DESeq2 Wald tests.
       RDS format.
 
+  human_log:
+    type: File?
+    outputSource: deseq_lrt_step_1/human_log
+    label: "Human readable error log"
+    doc: |
+      Human readable error log
+      from the deseq_lrt_step_1 step.
+
   stdout_log:
     type: File
     outputSource: deseq_lrt_step_1/stdout_log
@@ -371,5 +379,6 @@ steps:
     - diff_expr_tsv
     - all_contrasts_rds
     - all_contrasts_tsv
+    - human_log
     - stdout_log
     - stderr_log

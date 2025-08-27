@@ -169,6 +169,11 @@ outputs:
     outputBinding:
       glob: "*_all_contrasts.tsv"
 
+  human_log:
+    type: File?
+    outputBinding:
+      glob: "error_report.txt"
+
   stdout_log:
     type: stdout
 
@@ -177,4 +182,4 @@ outputs:
 
 baseCommand: [run_deseq_lrt_step_1.sh]
 stdout: error_msg.txt
-stderr: error_report.txt
+stderr: deseq_lrt_step_1_stderr.log

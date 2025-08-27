@@ -231,6 +231,14 @@ outputs:
       Morpheus compatible heatmap of normalized read counts.
       GCT format.
 
+  human_log:
+    type: File?
+    outputSource: deseq_lrt_step_2/human_log
+    label: "Human readable error log"
+    doc: |
+      Human readable error log
+      from the deseq_lrt_step_2 step.
+
   stdout_log:
     type: File
     outputSource: deseq_lrt_step_2/stdout_log
@@ -268,5 +276,6 @@ steps:
     - read_counts_gct
     - read_counts_html
     - diff_expr_tsv
+    - human_log
     - stdout_log
     - stderr_log
