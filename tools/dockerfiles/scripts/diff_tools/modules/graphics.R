@@ -91,11 +91,6 @@ volcano_plot <- function(
                         plot.subtitle=ggplot2::element_text(size=8, face="italic", color="gray30")
                     )
 
-            if (max(-log10(data[[y_axis]]), na.rm=TRUE) >= 50){
-                plot <- plot + ggplot2::scale_y_log10() +
-                        ggplot2::annotation_logticks(sides="l", alpha=0.3)
-            }
-
             if(!is.null(overlay_by) && !is.null(size_by)){                                                 # bigger dots will be always behind the smaller ones
                 plot <- plot +
                         ggplot2::geom_point(                                                               # layer with the smaller than size_by dots

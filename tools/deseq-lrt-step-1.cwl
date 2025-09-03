@@ -58,6 +58,11 @@ inputs:
     inputBinding:
       prefix: "--batch"
 
+  rpkm_threshold:
+    type: float?
+    inputBinding:
+      prefix: "--rpkm"
+
   padj_threshold:
     type: float?
     inputBinding:

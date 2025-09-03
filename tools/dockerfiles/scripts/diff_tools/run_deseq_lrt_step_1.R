@@ -192,6 +192,14 @@ get_args <- function() {
         type="character"
     )
     parser$add_argument(
+        "--rpkm",
+        help=paste(
+            "Filtering threshold to keep only those features where the max RPKM for",
+            "all datasets is bigger than or equal to the provided value. Default: 3"
+        ),
+        type="double", default=3
+    )
+    parser$add_argument(
         "--padj",
         help=paste(
             "In the exploratory visualization part of the analysis output only features",
@@ -336,9 +344,21 @@ print("Loading gene expression.")
 expression_data <- io$load_expression_data(
     locations=args$expression,
     aliases=args$aliases,
-    groupby=args$groupby
+    groupby=args$groupby,
+    rpkm_threshold=args$rpkm
 )
 print(head(expression_data))
+
+if (nrow(expression_data) == 0){
+    logger$info(
+        paste(
+            "Exiting: loaded expression",
+            "data is empty - check the",
+            "minimum RPKM threshold."
+        )
+    )
+    quit(save="no", status=1, runLast=FALSE)
+}
 
 print("Extracting counts data.")
 counts_data <- io$get_counts_data(expression_data, metadata)

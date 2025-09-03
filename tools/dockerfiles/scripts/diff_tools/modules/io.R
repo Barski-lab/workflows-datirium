@@ -238,7 +238,7 @@ load_metadata <- function(location){
     return (metadata)
 }
 
-load_expression_data <- function(locations, aliases, groupby=NULL, read_colname=READ_COL, rpkm_colname=RPKM_COL, intersect_by=INTERSECT_BY){
+load_expression_data <- function(locations, aliases, groupby=NULL, rpkm_threshold=0, read_colname=READ_COL, rpkm_colname=RPKM_COL, intersect_by=INTERSECT_BY){
     collected_expression_data <- NULL
     for (i in 1:length(locations)){
         current_location <- locations[i]
@@ -346,9 +346,32 @@ load_expression_data <- function(locations, aliases, groupby=NULL, read_colname=
                                  tibble::column_to_rownames("Feature")
     base::print(
         base::paste(
-            "Total", base::nrow(expression_data), "features loaded"
+            "Total", base::nrow(collected_expression_data), "features loaded"
         )
     )
+
+    if (rpkm_threshold > 0){
+        selected_columns <- base::grep(
+            base::paste0(rpkm_colname, "$"),
+            base::colnames(collected_expression_data),
+            value=TRUE
+        )
+        collected_expression_data <- collected_expression_data[
+            base::apply(
+                collected_expression_data[, selected_columns, drop=FALSE],
+                1,                                                               # applying function per row
+                function(x) any(x >= rpkm_threshold)),
+            , drop=FALSE
+        ]
+        base::print(
+            base::paste(
+                "Total", base::nrow(collected_expression_data),
+                "features remained after applying minimum RPKM",
+                "threshold of", rpkm_threshold
+            )
+        )
+    }
+
     return(collected_expression_data)
 }
 

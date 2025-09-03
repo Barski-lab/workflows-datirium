@@ -103,6 +103,15 @@ inputs:
       correction variable should be provided. Default: do not correct
       for batch effect.
 
+  rpkm_threshold:
+    type: float?
+    default: 3
+    label: "Minimum RPKM threshold to exclude features with low expression across all RNA-Seq Analyses"
+    doc: |
+      Filtering threshold to keep only those features where
+      the max RPKM across all RNA-Seq Analyses is bigger
+      than or equal to the provided value. Default: 3
+
   padj_threshold:
     type: float?
     default: 0.1
@@ -358,6 +367,7 @@ steps:
       batch_correction_variable:
         source: batch_correction_variable
         valueFrom: $(self==""?null:self)
+      rpkm_threshold: rpkm_threshold
       padj_threshold: padj_threshold
       logfc_threshold: logfc_threshold
       cluster_method:
