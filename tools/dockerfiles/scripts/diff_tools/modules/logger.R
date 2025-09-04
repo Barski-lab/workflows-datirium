@@ -7,6 +7,7 @@ export(
 
 
 setup <- function(location, name="hlog", header=NULL, level=futile.logger::INFO, format="~m"){
+    base::file.create(location)                                      # to start with an empty file
     futile.logger::flog.logger(
         name,
         level,

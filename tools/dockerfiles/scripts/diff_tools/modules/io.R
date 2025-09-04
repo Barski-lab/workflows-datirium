@@ -12,7 +12,6 @@ export(
     "adjust_names",
     "export_data",
     "export_rds",
-    "export_lrt_summary",
     "export_mds_html_plot",
     "export_gct",
     "export_morpheus_html_heatmap",
@@ -83,34 +82,6 @@ export_rds <- function(data, location){
             base::print(base::paste("Failed to export data as RDS to", location))
         }
     )
-}
-
-export_lrt_summary <- function(deseq_results, location, args){
-    significant_genes <- sum(deseq_results$padj < args$padj, na.rm=TRUE)
-    total_genes <- sum(!is.na(deseq_results$padj))
-    summary_output <- utils::capture.output(DESeq2::summary(deseq_results))       # need to use not standard summary
-    outliers <- base::gsub(".*: ", "", summary_output[6])
-    low_counts <- base::gsub(".*: ", "", summary_output[7])
-    mean_count <- base::gsub("[^0-9]", "", summary_output[8])
-
-    md_content <- base::paste0(
-        "# Likelihood Ratio Test (LRT) Results\n\n---\n\n",
-        "Based on your **full formula**: `~", as.character(args$design)[2], "` and **reduced formula**: `~", as.character(args$reduced)[2], "`, ",
-        "this LRT analysis tests whether removing the term of interest significantly affects the expression levels. ",
-        "The test uses only the **FDR adjusted p-value** (padj) to determine significance, as Log Fold Change (LFC) is irrelevant in the context of LRT.\n\n",
-        "### Results Summary\n\n",
-        "From this LRT analysis, **", significant_genes, " features** (out of ", total_genes, " tested) are identified as significant with a padj value < ", args$padj, ".\n\n",
-        "**Outliers**<sup>1</sup>: ", outliers, " of features were detected as outliers and excluded from the analysis.\n\n",
-        "**Low counts**<sup>2</sup>: ", low_counts, " of features were removed due to low counts (mean <", mean_count, ") and independent filtering.\n\n",
-        "Arguments of ?DESeq2::results():   \n<sup>1</sup> - see 'cooksCutoff',\n<sup>2</sup> - see 'independentFiltering'\n\n",
-        "---\n\n",
-        "### Next Steps\n\n",
-        "If the number of significant features is substantial, consider including the interaction term in your design formula ",
-        "for a more detailed differential expression analysis.\n\n",
-        "For further insights and to explore detailed contrasts using the Wald test for the complex design formula, ",
-        "please visit the correspondent tab for more information.\n\n"
-    )
-    base::writeLines(md_content, con=location)
 }
 
 export_mds_html_plot <- function(counts_data, metadata, location) {

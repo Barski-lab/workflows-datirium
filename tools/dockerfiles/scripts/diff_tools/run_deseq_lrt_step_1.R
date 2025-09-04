@@ -290,6 +290,11 @@ get_args <- function() {
         file.path(dirname(ifelse(args$output == "", "./", args$output)), "error_report.txt"),
         header="DESeq2 LRT Step 1 (run_deseq_lrt_step_1.R)"
     )
+    logger$setup(
+        location=paste0(args$output, "_summary.md"),
+        name="summary",
+        header="# Results Summary\n---"
+    )
     args <- assert_args(args)
     return(args)
 }
@@ -305,6 +310,22 @@ register(MulticoreParam(args$cpus))
 print("Loading metadata.")
 metadata <- io$load_metadata(args$metadata)
 print(metadata)
+
+logger$info(
+    message="### Metadata",
+    name="summary",
+    skip_stdout=TRUE
+)
+for (i in 1:length(colnames(metadata))){
+    logger$info(
+        message=paste0(
+            "- Column ***", colnames(metadata)[i], "*** ",
+            "with levels ***", paste(levels(metadata[[i]]), collapse="***, ***"), "***."
+        ),
+        name="summary",
+        skip_stdout=TRUE
+    )
+}
 
 if (anyDuplicated(rownames(metadata)) > 0) {
     logger$info(
@@ -348,6 +369,25 @@ expression_data <- io$load_expression_data(
     rpkm_threshold=args$rpkm
 )
 print(head(expression_data))
+
+logger$info(
+    message="### Expression",
+    name="summary",
+    skip_stdout=TRUE
+)
+logger$info(
+    message=paste0(
+        "- Total of ***", nrow(expression_data), "*** features ",
+        "grouped by ***", args$groupby, "***",
+        ifelse(
+            args$rpkm > 0,
+            paste0(" filtered by minimum ***", args$rpkm, "*** rpkm."),
+            "."
+        )
+    ),
+    name="summary",
+    skip_stdout=TRUE
+)
 
 if (nrow(expression_data) == 0){
     logger$info(
@@ -479,6 +519,41 @@ if (!is.null(args$correction) && args$correction=="limma"){                    #
     print(head(counts_data))
 }
 
+logger$info(
+    message="### Experimental Design",
+    name="summary",
+    skip_stdout=TRUE
+)
+logger$info(
+    message=paste0(
+        "- Design formula ***~ ", as.character(args$design)[2], "***.\n",
+        "- Reduced formula ***~ ", as.character(args$reduced)[2], "***.\n",
+        ifelse(
+            !is.null(args$correction),
+            paste0(
+                "- Batch correction by ***", args$batch, "*** using ***",
+                args$correction, "*** method",
+                ifelse(
+                    args$correction == "combatseq",
+                    paste0(
+                        " (correcting raw read counts, all terms that include",
+                        " ***", args$batch, "*** are removed from the design",
+                        " and reduced formulas)."
+                    ),
+                    paste0(
+                        " (correcting normalized read counts, both design and",
+                        " reduced formulas remain unchanged, only MDS plot and",
+                        " heatmap show corrected results)."
+                    )
+                )
+            ),
+            ""
+        )
+    ),
+    name="summary",
+    skip_stdout=TRUE
+)
+
 io$export_mds_html_plot(
     counts_data=norm_counts_data,
     metadata=metadata,
@@ -494,10 +569,26 @@ deseq_lrt_results <- results(
     BPPARAM=MulticoreParam(args$cpus)
 )
 
-io$export_lrt_summary(
-    deseq_results=deseq_lrt_results,
-    location=paste0(args$output, "_summary.md"),
-    args=args
+logger$info(
+    message="### LRT Results",
+    name="summary",
+    skip_stdout=TRUE
+)
+deseq_lrt_summary <- capture.output(DESeq2::summary(deseq_lrt_results))
+logger$info(
+    message=paste0(
+        "- Removing the term(s) of interest from the reduced formula",
+        " resulted in changes in expression levels for ***",
+        sum(deseq_lrt_results$padj < args$padj, na.rm=TRUE), "*** features _<sup>1</sup>_",
+        " (***padj <= ", args$padj, "***).\n",
+        "- Number of features removed as outliers: ***",
+        gsub(".*: ", "", deseq_lrt_summary[6]), "***.\n",
+        "- Number of features removed due to low read counts",
+        " (***mean < ",  gsub("[^0-9]", "", deseq_lrt_summary[8]), "***):",
+        " ***", gsub(".*: ", "", deseq_lrt_summary[7]), "***."
+    ),
+    name="summary",
+    skip_stdout=TRUE
 )
 
 deseq_lrt_results <- as.data.frame(deseq_lrt_results) %>%
@@ -618,7 +709,7 @@ if (!is.null(args$wald) && args$wald) {
     rds_data <- list(
         expression_data=expression_data,                                              # original expression data loaded from the --expression files
         counts_data=counts_data,
-        norm_counts_data=norm_counts_data,                                            # not filtered normalized counts data. May be bathc corrected by limma
+        norm_counts_data=norm_counts_data,                                            # not filtered normalized counts data. May be batch corrected by limma
         metadata=metadata,
         contrasts=all_contrasts,
         args=args
@@ -709,5 +800,40 @@ if (!is.null(args$wald) && args$wald) {
         location=paste0(args$output, "_all_contrasts.tsv"),
         row_names=FALSE
     )
+    logger$info(
+        message="### Wald Results",
+        name="summary",
+        skip_stdout=TRUE
+    )
+    logger$info(
+        message=paste0(
+            "- Found ***",
+            ifelse(
+                !is.null(collected_contrast_data),
+                nrow(collected_contrast_data),
+                0
+            ), "*** pairwise contrasts _<sup>2</sup>_."
+        ),
+        name="summary",
+        skip_stdout=TRUE
+    )
 }
 
+logger$info(
+    message=paste0(
+        "\n\n_<sup>1</sup> If the number of significant differentially expressed",
+        " features is substantial, consider including the interaction term",
+        " in your design formula._\n",
+        ifelse(
+            !is.null(args$wald) && args$wald,
+            paste0(
+                "_<sup>2</sup> Refer to the correspondent tab to view the number",
+                " of significanlty differentially expressed features in each of",
+                " the calculated contrasts._"
+            ),
+            ""
+        )
+    ),
+    name="summary",
+    skip_stdout=TRUE
+)
