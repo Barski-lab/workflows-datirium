@@ -88,7 +88,7 @@ export_rds <- function(data, location){
 export_lrt_summary <- function(deseq_results, location, args){
     significant_genes <- sum(deseq_results$padj < args$padj, na.rm=TRUE)
     total_genes <- sum(!is.na(deseq_results$padj))
-    summary_output <- utils::capture.output(base::summary(deseq_results))
+    summary_output <- utils::capture.output(DESeq2::summary(deseq_results))       # need to use not standard summary
     outliers <- base::gsub(".*: ", "", summary_output[6])
     low_counts <- base::gsub(".*: ", "", summary_output[7])
     mean_count <- base::gsub("[^0-9]", "", summary_output[8])
@@ -108,7 +108,7 @@ export_lrt_summary <- function(deseq_results, location, args){
         "If the number of significant features is substantial, consider including the interaction term in your design formula ",
         "for a more detailed differential expression analysis.\n\n",
         "For further insights and to explore detailed contrasts using the Wald test for the complex design formula, ",
-        "please visit the **Complex Interaction Analysis** tab for more information.\n\n"
+        "please visit the correspondent tab for more information.\n\n"
     )
     base::writeLines(md_content, con=location)
 }
