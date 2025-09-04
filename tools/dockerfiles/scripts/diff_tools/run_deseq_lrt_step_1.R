@@ -821,13 +821,13 @@ if (!is.null(args$wald) && args$wald) {
 
 logger$info(
     message=paste0(
-        "\n\n_<sup>1</sup> If the number of significant differentially expressed",
+        "\n_<sup>1</sup> If the number of significant differentially expressed",
         " features is substantial, consider including the interaction term",
         " in your design formula._\n",
         ifelse(
             !is.null(args$wald) && args$wald,
             paste0(
-                "_<sup>2</sup> Refer to the correspondent tab to view the number",
+                "\n_<sup>2</sup> Refer to the correspondent tab to view the number",
                 " of significanlty differentially expressed features in each of",
                 " the calculated contrasts._"
             ),
