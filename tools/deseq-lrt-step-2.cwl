@@ -125,6 +125,11 @@ outputs:
     outputBinding:
       glob: "*_diff_expr.tsv"
 
+  summary_md:
+    type: File
+    outputBinding:
+      glob: "*_summary.md"
+
   human_log:
     type: File?
     outputBinding:

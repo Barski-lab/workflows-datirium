@@ -21,6 +21,64 @@ assert_args <- function(args){
     return(args)
 }
 
+print_query_data_config <- function(query_data) {
+    logger$info(
+        message="### Metadata",
+        name="summary",
+        skip_stdout=TRUE
+    )
+    for (i in 1:length(colnames(query_data$metadata))){
+        logger$info(
+            message=paste0(
+                "- Column ***", colnames(query_data$metadata)[i], "*** ",
+                "with levels ***", paste(levels(query_data$metadata[[i]]), collapse="***, ***"), "***."
+            ),
+            name="summary",
+            skip_stdout=TRUE
+        )
+    }
+    logger$info(
+        message=paste0(
+            "### Expression\n",
+            "- Total of ***", nrow(query_data$expression_data), "*** features ",
+            "grouped by ***", query_data$args$groupby, "***",
+            ifelse(
+                query_data$args$rpkm > 0,
+                paste0(
+                    " filtered by minimum ***", query_data$args$rpkm,
+                    "*** rpkm accross all samples.\n"
+                ),
+                ".\n"
+            ),
+            "### Experimental Design\n",
+            "- Design formula ***~ ", as.character(query_data$args$design)[2], "***.\n",
+            "- Reduced formula ***~ ", as.character(query_data$args$reduced)[2], "***.\n",
+            ifelse(
+                !is.null(query_data$args$correction),
+                paste0(
+                    "- Batch correction by ***", query_data$args$batch, "*** using ***",
+                    query_data$args$correction, "*** method",
+                    ifelse(
+                        query_data$args$correction == "combatseq",
+                        paste0(
+                            " (correcting raw read counts, all terms that include",
+                            " ***", query_data$args$batch, "*** have been removed from",
+                            " the design and reduced formulas)."
+                        ),
+                        paste0(
+                            " (correcting normalized read counts, both design and",
+                            " reduced formulas have not been changed, only heatmap",
+                            " shows corrected results)."
+                        )
+                    )
+                ),
+                ""
+            )
+        ),
+        name="summary",
+        skip_stdout=TRUE
+    )
+}
 
 get_args <- function() {
     parser <- ArgumentParser(description = "DESeq2 LRT Step 2")
@@ -144,6 +202,11 @@ get_args <- function() {
         file.path(dirname(ifelse(args$output == "", "./", args$output)), "error_report.txt"),
         header="DESeq2 LRT Step 2 (run_deseq_lrt_step_2.R)"
     )
+    logger$setup(
+        location=paste0(args$output, "_summary.md"),
+        name="summary",
+        header="# Results Summary\n---"
+    )
     args <- assert_args(args)
     return(args)
 }
@@ -158,6 +221,7 @@ register(MulticoreParam(args$cpus))
 
 print("Loading query data.")
 query_data <- readRDS(args$query)
+print_query_data_config(query_data)
 
 print("Loaded metadata.")
 metadata <- query_data$metadata
@@ -198,6 +262,21 @@ if (length(selected_contrasts) == 0) {
     quit(save="no", status=1, runLast=FALSE)
 }
 
+logger$info(
+    message="### Wald Results",
+    name="summary",
+    skip_stdout=TRUE
+)
+logger$info(
+    message=paste0(
+        "Selected ***", length(selected_contrasts),
+        "*** out of ***", length(all_contrasts),
+        "*** available contrasts."
+    ),
+    name="summary",
+    skip_stdout=TRUE
+)
+
 cached_deseq_wald <- NULL
 for (i in 1:length(selected_contrasts)) {
     current_contrast <- selected_contrasts[[i]]
@@ -229,6 +308,25 @@ for (i in 1:length(selected_contrasts)) {
         alternative_hypothesis=args$alternative,
         cpus=args$cpus,
         cached_deseq_wald=cached_deseq_wald
+    )
+    logger$info(
+        message=paste0(
+            "- ***", current_contrast_name, "***, ", current_contrast$alias,
+            ifelse(
+                is.null(diff_expr_data),
+                " - failed.",
+                paste0(
+                    " - ***",
+                    nrow(
+                        as.data.frame(diff_expr_data$results) %>%
+                        dplyr::filter(.$padj <= args$padj)
+                    ),
+                    "*** sign. diff. expr. features."
+                )
+            )
+        ),
+        name="summary",
+        skip_stdout=TRUE
     )
     if (!is.null(diff_expr_data)){
         current_deseq_results <- as.data.frame(diff_expr_data$results) %>%                                  # not filtered, may include NA's
@@ -292,6 +390,28 @@ row_metadata <- collected_deseq_results %>%
                     if_any(ends_with("_padj"), function(x) x<=args$padj)
                 )
 print(head(row_metadata))
+
+logger$info(
+    message=paste0(
+        "\nTotal of ***", nrow(row_metadata), "*** differentially ",
+        "expressed features with ***padj <= ", args$padj, "*** ",
+        "in at least one of the selected contrasts. The alternative ",
+        "hypothesis ***", args$alternative, "*** used in all selected ",
+        "contrasts tests if ",
+        switch(
+            args$alternative,
+            "greater" = "the log2 fold change is greater than ***",
+            "less" = paste0(
+                "the log2 fold change is less than ***",
+                ifelse(args$logfc != 0, "-", "")
+            ),
+            "lessAbs" = "the absolute log2 fold change is less than ***",
+            "greaterAbs" = "the the absolute log2 fold change is greater than ***"
+        ), args$logfc, "***."
+    ),
+    name="summary",
+    skip_stdout=TRUE
+)
 
 col_metadata <- metadata %>%
                 mutate_at(colnames(.), as.vector)

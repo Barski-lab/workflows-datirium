@@ -381,7 +381,10 @@ logger$info(
         "grouped by ***", args$groupby, "***",
         ifelse(
             args$rpkm > 0,
-            paste0(" filtered by minimum ***", args$rpkm, "*** rpkm."),
+            paste0(
+                " filtered by minimum ***", args$rpkm,
+                "*** rpkm accross all samples."
+            ),
             "."
         )
     ),
@@ -537,12 +540,12 @@ logger$info(
                     args$correction == "combatseq",
                     paste0(
                         " (correcting raw read counts, all terms that include",
-                        " ***", args$batch, "*** are removed from the design",
+                        " ***", args$batch, "*** have been removed from the design",
                         " and reduced formulas)."
                     ),
                     paste0(
                         " (correcting normalized read counts, both design and",
-                        " reduced formulas remain unchanged, only MDS plot and",
+                        " reduced formulas have not been changed, only MDS plot and",
                         " heatmap show corrected results)."
                     )
                 )

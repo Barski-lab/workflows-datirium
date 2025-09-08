@@ -195,6 +195,17 @@ outputs:
         tab: "Overview"
         target: "_blank"
 
+  summary_md:
+    type: File
+    outputSource: deseq_lrt_step_2/summary_md
+    label: "Analysis summary"
+    doc: |
+      Analysis summary produced by DESeq2 Wald
+      test.
+    "sd:visualPlugins":
+      - markdownView:
+          tab: "Overview"
+
   vlcn_png:
     type:
     - "null"
@@ -276,6 +287,7 @@ steps:
     - read_counts_gct
     - read_counts_html
     - diff_expr_tsv
+    - summary_md
     - human_log
     - stdout_log
     - stderr_log
