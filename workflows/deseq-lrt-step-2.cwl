@@ -50,13 +50,30 @@ inputs:
 
   logfc_threshold:
     type: float?
-    default: 0
-    label: "Log2 fold change threshold used in the alternative hypothesis for Wald test"
+    default: 0.59
+    label: "Log2 fold change threshold used in the Wald test results filtering"
     doc: |
-      Log2 fold change threshold used in the alternative
-      hypothesis test. The alternative hypothesis can be
-      set to one of: greater, less, lessAbs, or greaterAbs.
-      Default: 0.
+      Log2 fold change threshold used in the Wald
+      test results filtering. This value is also
+      used in the alternative hypothesis testing
+      when the analysis is run in a "strict" mode.
+      Otherwise, the alternative hypothesis is
+      tested with the log2 fold change value equal
+      to 0. Ignored when Wald test is skipped.
+      Default: 0.59.
+
+  strict:
+    type: boolean?
+    default: false
+    label: "Use log2 fold change threshold in the alternative hypothesis testing"
+    doc: |
+      Use the provided log2 fold change threshold
+      in the alternative hypothesis testing.
+      Default: not strict, use 0 as the log2 fold
+      change threshold in the alternative hypothesis
+      testing.
+    "sd:layout":
+      advanced: true
 
   alternative_hypothesis:
     type:
@@ -65,20 +82,19 @@ inputs:
       symbols:
       - "greater"
       - "less"
-      - "lessAbs"
       - "greaterAbs"
     default: "greaterAbs"
     label: "The alternative hypothesis for the Wald test"
     doc: |
       The alternative hypothesis for the Wald test.
       greater - tests if the log2 fold change is greater
-      than the specified logfc threshold, less - tests
-      if the log2 fold change is less than the negative
-      specified logfc threshold, lessAbs - tests if the
-      absolute log2 fold change is less than the specified
-      logfc threshold, greaterAbs - tests if the the
-      absolute log2 fold change is greater than the specified
-      logfc threshold. Default: greaterAbs
+      than 0 or the specified threshold when run in a
+      "strict" mode. less - tests if the log2 fold change
+      is less than 0 or the negative value of the specified
+      threshold when run in a "strict" mode. greaterAbs -
+      tests if the the absolute log2 fold change is greater
+      than 0 or the specified threshold when run in a "strict"
+      mode. Default: greaterAbs.
     "sd:layout":
       advanced: true
 
@@ -271,6 +287,7 @@ steps:
       target_contrasts: target_contrasts
       padj_threshold: padj_threshold
       logfc_threshold: logfc_threshold
+      strict: strict
       alternative_hypothesis: alternative_hypothesis
       cluster_method:
         source: cluster_method

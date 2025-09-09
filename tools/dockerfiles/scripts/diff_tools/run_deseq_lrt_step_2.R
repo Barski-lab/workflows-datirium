@@ -109,7 +109,7 @@ get_args <- function() {
         help=paste(
             "In the exploratory visualization part of the analysis output only features",
             "with adjusted p-value (FDR) not bigger than this value. Also this value is",
-            "used the significance cutoff used for optimizing the independent filtering.",
+            "used as the significance cutoff used for optimizing the independent filtering.",
             "Default: 0.1."
         ),
         type="double",
@@ -118,28 +118,40 @@ get_args <- function() {
     parser$add_argument(
         "--logfc",
         help=paste(
-            "Log2 fold change threshold used in the alternative",
-            "hypothesis test. The alternative hypothesis can be",
-            "selected in the --alternative parameter. Default: 0."
+            "In the exploratory visualization part of the analysis output only features",
+            "with the absolute log2 fold changes not smaller than this value. This value",
+            "is also used in the alternative hypothesis testing when the analysis is run",
+            "with the --strict parameter. Otherwise, the alternative hypothesis is tested",
+            "with the log2 fold change value equal to 0. Default: 0.59."
         ),
-        type="double", default=0
+        type="double", default=0.59
+    )
+    parser$add_argument(
+        "--strict",
+        help=paste(
+            "Use provided --logfc threshold in the alternative hypothesis",
+            "testing. The alternative hypothesis can be set with the",
+            "--alternative parameter. Default: not strict, use 0 as the",
+            "log2 fold change threshold in the alternative hypothesis testing."
+        ),
+        action="store_true"
     )
     parser$add_argument(
         "--alternative",
         help=paste(
             "The alternative hypothesis for the Wald test.",
             "greater - tests if the log2 fold change is greater",
-            "than the threshold specified in the --logfc parameter,",
-            "less - tests if the log2 fold change is less than the",
-            "negative threshold specified in the --logfc parameter,",
-            "lessAbs - tests if the absolute log2 fold change is",
-            "less than the threshold specified in the --logfc parameter,",
+            "than 0 or the threshold specified in the --logfc parameter",
+            "when run with --strict.",
+            "less - tests if the log2 fold change is less than 0 or the",
+            "negative threshold specified in the --logfc parameter",
+            "when run with --strict.",
             "greaterAbs - tests if the the absolute log2 fold change is",
-            "greater than the threshold specified in the --logfc parameter.",
-            "Default: greaterAbs"
+            "greater than 0 or the threshold specified in the --logfc parameter",
+            "when run with --strict. Default: greaterAbs"
         ),
         type="character", default="greaterAbs",
-        choices=c("greater", "less", "lessAbs", "greaterAbs")
+        choices=c("greater", "less", "greaterAbs")
     )
     parser$add_argument(
         "--cluster",
@@ -232,7 +244,8 @@ args$design <- query_data$args$design                # should be already parsed 
 print(args$design)
 
 print("Loaded expression data.")
-collected_deseq_results <- query_data$expression_data                                # we will save in this variable all deseq results
+collected_deseq_results <- query_data$expression_data %>%                            # we will save in this variable all deseq results
+                           rownames_to_column(var="Feature")                         # we need the Feature as a column for inner join
 print(head(collected_deseq_results))
 
 print("Loaded counts data.")
@@ -304,63 +317,105 @@ for (i in 1:length(selected_contrasts)) {
         contrast=current_contrast,
         design_formula=args$design,
         padj=args$padj,
-        logfc=args$logfc,
+        logfc=ifelse(args$strict, args$logfc, 0),                       # if run with --strict, we want to use --logfc in the alternative hypothesis testing
         alternative_hypothesis=args$alternative,
         cpus=args$cpus,
         cached_deseq_wald=cached_deseq_wald
     )
-    logger$info(
-        message=paste0(
-            "- ***", current_contrast_name, "***, ", current_contrast$alias,
-            ifelse(
-                is.null(diff_expr_data),
-                " - failed.",
-                paste0(
-                    " - ***",
-                    nrow(
-                        as.data.frame(diff_expr_data$results) %>%
-                        dplyr::filter(.$padj <= args$padj)
-                    ),
-                    "*** sign. diff. expr. features."
-                )
-            )
-        ),
-        name="summary",
-        skip_stdout=TRUE
-    )
     if (!is.null(diff_expr_data)){
         current_deseq_results <- as.data.frame(diff_expr_data$results) %>%                                  # not filtered, may include NA's
-                                 dplyr::select(log2FoldChange, pvalue, padj) %>%
+                                 dplyr::mutate(
+                                     passed = (.$padj <= args$padj) &                                       # for easy filtering when joined with collected_deseq_results
+                                     (abs(.$log2FoldChange) >= args$logfc)
+                                 ) %>%
+                                 dplyr::select(log2FoldChange, pvalue, padj, passed) %>%
                                  dplyr::rename(
                                      !!paste0(current_contrast_name, "_log2FoldChange"):=log2FoldChange,
                                      !!paste0(current_contrast_name, "_pvalue"):=pvalue,
-                                     !!paste0(current_contrast_name, "_padj"):=padj
-                                 )
-        collected_deseq_results <- collected_deseq_results[rownames(current_deseq_results), ] %>%                   # to make sure the proper order
-                                   bind_cols(current_deseq_results)
+                                     !!paste0(current_contrast_name, "_padj"):=padj,
+                                     !!paste0(current_contrast_name, "_passed"):=passed,
+                                 ) %>%
+                                 rownames_to_column(var="Feature")
+
+        if(nrow(collected_deseq_results) != nrow(current_deseq_results)){
+            logger$info(
+                paste(
+                    "Exiting: the number of not filtered",
+                    "differentially expressed features",
+                    "should be equal to the number of",
+                    "features in the loaded expression",
+                    "data."
+                )
+            )
+            quit(save="no", status=1, runLast=FALSE)
+        }
+
+        collected_deseq_results <- collected_deseq_results %>%
+                                   dplyr::inner_join(                             # doesn't matter which join to use here as the fetures should be the same
+                                       current_deseq_results,
+                                       by="Feature"
+                                   )
         cached_deseq_wald <- diff_expr_data$deseq_wald
 
-        volcano_plot_data <- as.data.frame(diff_expr_data$results) %>%
-                             rownames_to_column(var="Feature")
+        filtered_features_count <- nrow(
+                                      current_deseq_results %>%
+                                      dplyr::filter(.[[paste0(current_contrast_name, "_passed")]])
+                                   )
+        logger$info(
+            message=paste0(
+                "- ***", current_contrast_name, "*** (", current_contrast$alias,
+                ") - ***", filtered_features_count, "***"
+            ),
+            name="summary",
+            skip_stdout=TRUE
+        )
+
         graphics$volcano_plot(
-            data=volcano_plot_data,
-            x_axis="log2FoldChange",
-            y_axis="padj",
+            data=current_deseq_results,
+            x_axis=paste0(current_contrast_name, "_log2FoldChange"),
+            y_axis=paste0(current_contrast_name, "_padj"),
             x_cutoff=args$logfc,
             y_cutoff=args$padj,
             x_label="log2 FC",
             y_label="-log10 Padj",
             label_column="Feature",
-            plot_title=paste(current_contrast_name, current_contrast$alias, sep=", "),
-            plot_subtitle="",
-            caption=paste(nrow(volcano_plot_data), "features"),
+            plot_title=paste0(
+                "Contrast ", current_contrast_name,
+                " (", current_contrast$alias, ")"
+            ),
+            plot_subtitle=paste0(
+                filtered_features_count, "/", nrow(current_deseq_results),
+                " features with padj <= ", args$padj,
+                " and |log2FoldChange| >= ", args$logfc,
+                ". The alternative hypothesis ", args$alternative,
+                " tested with log2FoldChange = ", ifelse(args$strict, args$logfc, 0)
+            ),
+            caption=paste0(
+                "Main effect: ", current_contrast$main_effect,
+                ifelse(
+                    length(current_contrast$interaction_effects) > 0,
+                    paste0(
+                        ", interaction effects: ",
+                        paste(current_contrast$interaction_effects, collapse=", ")
+                    ),
+                    ""
+                )
+            ),
             rootname=paste(args$output, current_contrast_name, "vlcn", sep="_")
+        )
+    } else {
+        logger$info(
+            message=paste0(
+                "- ***", current_contrast_name, "*** (", current_contrast$alias,
+                ") - failed",
+            ),
+            name="summary",
+            skip_stdout=TRUE
         )
     }
 }
+
 print("Collected DESeq results")
-collected_deseq_results <- collected_deseq_results %>%
-                           rownames_to_column(var="Feature")                                 # we need to to join with cluster information
 print(head(collected_deseq_results))
 if(!any(grepl("_padj$", colnames(collected_deseq_results)))){                                # to check that we have at least one contrast successfully calculated
     logger$info(
@@ -374,27 +429,31 @@ if(!any(grepl("_padj$", colnames(collected_deseq_results)))){                   
 
 print(
     paste(
-        "Filtering collected DESeq results to include",
-        "only differentially expressed features with padj <=", args$padj,
-        "in at least one contrast"
+        "Filtering collected DESeq results to include only",
+        "differentially expressed features with padj <=", args$padj,
+        "and |log2FoldChange| >=", args$logfc, "in at least one of the",
+        "selected contrasts. Both padj and log2FoldChange values should",
+        "satisfy filtering criteria within the same contrast."
     )
 )
 row_metadata <- collected_deseq_results %>%
                 remove_rownames() %>%
-                column_to_rownames("Feature") %>%
+                column_to_rownames("Feature") %>%                                              # we need Feature to be the row names
+                dplyr::filter(if_any(ends_with("_passed"))) %>%                                # to keep only those rows which passed filtering in at leas one contrast 
                 dplyr::select(
                     RefseqId, GeneId, Chrom, TxStart, TxEnd, Strand,
                     ends_with("_log2FoldChange"), ends_with("_pvalue"), ends_with("_padj")
-                ) %>%
-                dplyr::filter(
-                    if_any(ends_with("_padj"), function(x) x<=args$padj)
                 )
 print(head(row_metadata))
+
+collected_deseq_results <- collected_deseq_results %>%                                         # no reason to keep _passed columns anymore
+                           dplyr::select(-ends_with("_passed"))
 
 logger$info(
     message=paste0(
         "\nTotal of ***", nrow(row_metadata), "*** differentially ",
         "expressed features with ***padj <= ", args$padj, "*** ",
+        "and ***|log2FoldChange| >= ", args$logfc, "*** ",
         "in at least one of the selected contrasts. The alternative ",
         "hypothesis ***", args$alternative, "*** used in all selected ",
         "contrasts tests if ",
@@ -403,11 +462,12 @@ logger$info(
             "greater" = "the log2 fold change is greater than ***",
             "less" = paste0(
                 "the log2 fold change is less than ***",
-                ifelse(args$logfc != 0, "-", "")
+                ifelse(args$strict && args$logfc != 0, "-", "")
             ),
-            "lessAbs" = "the absolute log2 fold change is less than ***",
             "greaterAbs" = "the the absolute log2 fold change is greater than ***"
-        ), args$logfc, "***."
+        ),
+        ifelse(args$strict, args$logfc, 0),
+        "***."
     ),
     name="summary",
     skip_stdout=TRUE
@@ -456,13 +516,11 @@ if(nrow(row_metadata) > 0){
                 ignore.case=TRUE
             )
             if (length(cluster_columns) > 0){                                  # check the length just in case
-                collected_deseq_results <- merge(
-                    collected_deseq_results,
-                    row_metadata[, cluster_columns, drop=FALSE] %>% rownames_to_column(var="Feature"),    # need drop=FALSE in case only one HCL column present
-                    by="Feature",
-                    all.x=TRUE,
-                    sort=FALSE
-                )
+                collected_deseq_results <- collected_deseq_results %>%         # may change the order, but it's not important here
+                                           dplyr::left_join(
+                                               row_metadata[, cluster_columns, drop=FALSE] %>% rownames_to_column(var="Feature"),
+                                               by="Feature"
+                                           )
                 print(head(collected_deseq_results))
             }
         }

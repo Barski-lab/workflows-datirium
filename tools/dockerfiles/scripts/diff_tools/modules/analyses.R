@@ -291,7 +291,7 @@ get_all_contrasts <- function(metadata, design_formula) {
 
 get_diff_expr_data <- function(
     counts_data, metadata, contrast, design_formula,
-    padj, logfc, alternative_hypothesis="greaterAbs",
+    padj=0.1, logfc=0, alternative_hypothesis="greaterAbs",
     cpus=1, cached_deseq_wald=NULL
 ){
     diff_expr_data <- NULL

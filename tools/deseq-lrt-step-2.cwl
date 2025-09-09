@@ -29,6 +29,11 @@ inputs:
     inputBinding:
       prefix: "--logfc"
 
+  strict:
+    type: boolean?
+    inputBinding:
+      prefix: "--strict"
+
   alternative_hypothesis:
     type:
     - "null"
@@ -36,7 +41,6 @@ inputs:
       symbols:
       - "greater"
       - "less"
-      - "lessAbs"
       - "greaterAbs"
     inputBinding:
       prefix: "--alternative"

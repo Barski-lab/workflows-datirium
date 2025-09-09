@@ -213,13 +213,43 @@ get_args <- function() {
     parser$add_argument(
         "--logfc",
         help=paste(
-            "Log2 fold change threshold used in the alternative",
-            "hypothesis test. The alternative hypothesis is always",
-            "greaterAbs - tests if the absolute log2 fold change is",
-            "greater than the provided threshold. Ignored when --wald",
-            "parameter is not provided. Default: 0."
+            "Log2 fold change threshold used in the Wald test results filtering.",
+            "This value is also used in the alternative hypothesis testing when",
+            "the analysis is run with the --strict parameter. Otherwise, the",
+            "alternative hypothesis is tested with the log2 fold change value",
+            "equal to 0. Ignored when --wald parameter is not provided.",
+            "Default: 0.59."
         ),
-        type="double", default=0
+        type="double", default=0.59
+    )
+    parser$add_argument(
+        "--strict",
+        help=paste(
+            "Use provided --logfc threshold in the alternative hypothesis",
+            "testing. The alternative hypothesis can be set with the",
+            "--alternative parameter. Ignored when --wald parameter is",
+            "not provided. Default: not strict, use 0 as the log2 fold",
+            "change threshold in the alternative hypothesis testing."
+        ),
+        action="store_true"
+    )
+    parser$add_argument(
+        "--alternative",
+        help=paste(
+            "The alternative hypothesis for the Wald test.",
+            "greater - tests if the log2 fold change is greater",
+            "than 0 or the threshold specified in the --logfc parameter",
+            "when run with --strict.",
+            "less - tests if the log2 fold change is less than 0 or the",
+            "negative threshold specified in the --logfc parameter",
+            "when run with --strict.",
+            "greaterAbs - tests if the the absolute log2 fold change is",
+            "greater than 0 or the threshold specified in the --logfc parameter",
+            "when run with --strict. Ignored when --wald parameter is",
+            "not provided. Default: greaterAbs"
+        ),
+        type="character", default="greaterAbs",
+        choices=c("greater", "less", "greaterAbs")
     )
     parser$add_argument(
         "--cluster",
@@ -658,13 +688,11 @@ if(nrow(row_metadata) > 0){
                 ignore.case=TRUE
             )
             if (length(cluster_columns) > 0){                                  # check the length just in case
-                deseq_lrt_results <- merge(
-                    deseq_lrt_results,
-                    row_metadata[, cluster_columns, drop=FALSE] %>% rownames_to_column(var="Feature"),    # need drop=FALSE in case only one HCL column present
-                    by="Feature",
-                    all.x=TRUE,
-                    sort=FALSE
-                )
+                deseq_lrt_results <- deseq_lrt_results %>%
+                                     dplyr::left_join(
+                                         row_metadata[, cluster_columns, drop=FALSE] %>% rownames_to_column(var="Feature"),
+                                         by="Feature"
+                                     )
                 print(head(deseq_lrt_results))
             }
         }
@@ -758,12 +786,17 @@ if (!is.null(args$wald) && args$wald) {
                 contrast=current_contrast,
                 design_formula=args$design,
                 padj=args$padj,
-                logfc=args$logfc,
+                logfc=ifelse(args$strict, args$logfc, 0),                       # if run with --strict, we want to use --logfc in the alternative hypothesis testing
+                alternative_hypothesis=args$alternative,
                 cpus=args$cpus,
                 cached_deseq_wald=cached_deseq_wald
             )
             if (!is.null(diff_expr_data)){
-                filtered_features_count <- sum(diff_expr_data$results$padj <= args$padj, na.rm=TRUE)
+                filtered_features_count <- nrow(
+                                               as.data.frame(diff_expr_data$results) %>%
+                                               dplyr::filter(.$padj <= args$padj) %>%
+                                               dplyr::filter(abs(.$log2FoldChange) >= args$logfc)
+                                           )
                 cached_deseq_wald <- diff_expr_data$deseq_wald
             }
         }
@@ -831,8 +864,21 @@ logger$info(
             !is.null(args$wald) && args$wald,
             paste0(
                 "\n_<sup>2</sup> Refer to the correspondent tab to view the number",
-                " of significanlty differentially expressed features in each of",
-                " the calculated contrasts._"
+                " of significanlty differentially expressed features. The results",
+                " were filtered by padj <= ",args$padj, " and |log2FoldChange| >= ",
+                args$logfc, " in each of the calculated contrasts. The alternative",
+                " hypothesis ", args$alternative, " tests if ",
+                switch(
+                    args$alternative,
+                        "greater" = "the log2 fold change is greater than ",
+                        "less" = paste0(
+                                     "the log2 fold change is less than ",
+                                     ifelse(args$strict && args$logfc != 0, "-", "")
+                                 ),
+                        "greaterAbs" = "the the absolute log2 fold change is greater than "
+                ),
+                ifelse(args$strict, args$logfc, 0),
+                "._"
             ),
             ""
         )

@@ -124,14 +124,54 @@ inputs:
 
   logfc_threshold:
     type: float?
-    default: 0
-    label: "Log2 fold change threshold used in the alternative hypothesis for Wald test"
+    default: 0.59
+    label: "Log2 fold change threshold used in the Wald test results filtering"
     doc: |
-      Log2 fold change threshold used in the alternative
-      hypothesis test. The alternative hypothesis is always
-      greaterAbs - tests if the absolute log2 fold change is
-      greater than the provided threshold. Ignored when Wald
-      test is skipped. Default: 0.
+      Log2 fold change threshold used in the Wald
+      test results filtering. This value is also
+      used in the alternative hypothesis testing
+      when the analysis is run in a "strict" mode.
+      Otherwise, the alternative hypothesis is
+      tested with the log2 fold change value equal
+      to 0. Ignored when Wald test is skipped.
+      Default: 0.59.
+
+  strict:
+    type: boolean?
+    default: false
+    label: "Use log2 fold change threshold in the alternative hypothesis testing"
+    doc: |
+      Use the provided log2 fold change threshold
+      in the alternative hypothesis testing. Ignored
+      when Wald test is skipped. Default: not strict,
+      use 0 as the log2 fold change threshold in the
+      alternative hypothesis testing.
+    "sd:layout":
+      advanced: true
+
+  alternative_hypothesis:
+    type:
+    - "null"
+    - type: enum
+      symbols:
+      - "greater"
+      - "less"
+      - "greaterAbs"
+    default: "greaterAbs"
+    label: "The alternative hypothesis for the Wald test"
+    doc: |
+      The alternative hypothesis for the Wald test.
+      greater - tests if the log2 fold change is greater
+      than 0 or the specified threshold when run in a
+      "strict" mode. less - tests if the log2 fold change
+      is less than 0 or the negative value of the specified
+      threshold when run in a "strict" mode. greaterAbs -
+      tests if the the absolute log2 fold change is greater
+      than 0 or the specified threshold when run in a "strict"
+      mode. Ignored when Wald test is skipped.
+      Default: greaterAbs.
+    "sd:layout":
+      advanced: true
 
   wald_test:
     type: boolean?
@@ -370,6 +410,8 @@ steps:
       rpkm_threshold: rpkm_threshold
       padj_threshold: padj_threshold
       logfc_threshold: logfc_threshold
+      strict: strict
+      alternative_hypothesis: alternative_hypothesis
       cluster_method:
         source: cluster_method
         valueFrom: $(self=="none"?null:self)

@@ -73,6 +73,22 @@ inputs:
     inputBinding:
       prefix: "--logfc"
 
+  strict:
+    type: boolean?
+    inputBinding:
+      prefix: "--strict"
+
+  alternative_hypothesis:
+    type:
+    - "null"
+    - type: enum
+      symbols:
+      - "greater"
+      - "less"
+      - "greaterAbs"
+    inputBinding:
+      prefix: "--alternative"
+
   cluster_method:
     type:
     - "null"
