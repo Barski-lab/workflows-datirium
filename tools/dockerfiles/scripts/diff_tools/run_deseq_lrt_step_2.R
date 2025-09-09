@@ -387,8 +387,18 @@ for (i in 1:length(selected_contrasts)) {
                 filtered_features_count, "/", nrow(current_deseq_results),
                 " features with padj <= ", args$padj,
                 " and |log2FoldChange| >= ", args$logfc,
-                ". The alternative hypothesis ", args$alternative,
-                " tested with log2FoldChange = ", ifelse(args$strict, args$logfc, 0)
+                ". The alternative hypothesis \"", args$alternative,
+                "\" tested with ",
+                switch(
+                    args$alternative,
+                    "greater" = "log2FoldChange >= ",
+                    "less" = paste0(
+                        "log2FoldChange <= ",
+                        ifelse(args$strict && args$logfc != 0, "-", "")
+                    ),
+                    "greaterAbs" = "|log2FoldChange| >= "
+                ),
+                ifelse(args$strict, args$logfc, 0)
             ),
             caption=paste0(
                 "Main effect: ", current_contrast$main_effect,
