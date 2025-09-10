@@ -52,7 +52,6 @@ print_query_data_config <- function(query_data) {
             ),
             "### Experimental Design\n",
             "- Design formula ***~ ", as.character(query_data$args$design)[2], "***.\n",
-            "- Reduced formula ***~ ", as.character(query_data$args$reduced)[2], "***.\n",
             ifelse(
                 !is.null(query_data$args$correction),
                 paste0(
@@ -462,8 +461,8 @@ collected_deseq_results <- collected_deseq_results %>%                          
 logger$info(
     message=paste0(
         "\nTotal of ***", nrow(row_metadata), "*** differentially ",
-        "expressed features with ***padj <= ", args$padj, "*** ",
-        "and ***|log2FoldChange| >= ", args$logfc, "*** ",
+        "expressed features with ***padj <= ", args$padj,
+        " and |log2FoldChange| >= ", args$logfc, "*** ",
         "in at least one of the selected contrasts. The alternative ",
         "hypothesis ***", args$alternative, "*** used in all selected ",
         "contrasts tests if ",
