@@ -535,11 +535,6 @@ if(nrow(row_metadata) > 0){
         }
     }
 
-    print("Converting expression data to z-scores")                            # we always run it, because we don't use the modified expression data from the get_clustered_data
-    filtered_norm_counts_data <- t(
-        scale(t(filtered_norm_counts_data), center=TRUE, scale=TRUE)
-    )
-
     io$export_gct(
         counts_mat=filtered_norm_counts_data,
         row_metadata=row_metadata,
@@ -547,16 +542,22 @@ if(nrow(row_metadata) > 0){
         location=paste0(args$output, "_read_counts.gct")
     )
     expression_limits <- stats::quantile(                                      # to exclude outliers
-        abs(filtered_norm_counts_data), 0.99, na.rm=TRUE, names=FALSE
+        abs(
+            t(scale(t(filtered_norm_counts_data), center=TRUE, scale=TRUE))
+        ),
+        0.99,
+        na.rm=TRUE,
+        names=FALSE
     )
     io$export_morpheus_html_heatmap(
         gct_location=paste0(args$output, "_read_counts.gct"),
         rootname=paste0(args$output, "_read_counts"),
         color_scheme=list(
             scalingMode="fixed",
+            transformValues=1,
             stepped=FALSE,
             values=as.list(c(-expression_limits, 0, expression_limits)),
-            colors=c("darkblue", "black", "yellow")
+            colors=c("blue", "white", "red")
         )
     )
     rm(filtered_norm_counts_data)                                              # no reason to keep it
