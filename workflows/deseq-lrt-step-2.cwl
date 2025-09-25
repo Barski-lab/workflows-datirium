@@ -8,7 +8,6 @@ sd:version: 100
 "sd:upstream":
   deseq_lrt_step_1:
     - "deseq-lrt-step-1.cwl"
-    - "https://github.com/datirium/workflows/workflows/deseq-lrt-step-1.cwl"
 
 requirements:
   - class: StepInputExpressionRequirement
@@ -30,48 +29,47 @@ inputs:
 
   target_contrasts:
     type: string
-    label: "Target contrasts to run Wald test with"
+    label: "Target contrasts to run pairwise Wald test with"
     doc: |
       Space or comma separated list of target contrasts
-      to run Wald test with. The available values can be
-      selected from the Contrast number column of the
-      DESeq2 Wald tests contrasts table produced by the
-      DESeq2 LRT Step 1 Analysis.
+      to run pairwise Wald test with. The available values
+      can be selected from the "Contrast number" column of
+      the Wald tests contrasts table produced by the
+      "DESeq2 LRT Step 1" Analysis.
 
   padj_threshold:
     type: float?
     default: 0.1
-    label: "P-adjusted threshold for exploratory visualization part of the analysis"
+    label: "Maximum P-adjusted for considering features significantly differentially expressed"
     doc: |
-      In the exploratory visualization part of the analysis output
-      only features with the adjusted p-value (FDR) not bigger than
-      this value. Also this value is used the significance cutoff
-      used for optimizing the independent filtering. Default: 0.1.
+      The significance cutoff for optimizing the Wald
+      test's independent filtering. It is also used in
+      the exploratory visualization part of the analysis
+      for generating read counts heatmap, volcano plots,
+      and results table.
+      Default: 0.1.
 
   logfc_threshold:
     type: float?
     default: 0.59
-    label: "Log2 fold change threshold used in the Wald test results filtering"
+    label: "Minimum log2 fold change for the Wald test results filtering"
     doc: |
-      Log2 fold change threshold used in the Wald
-      test results filtering. This value is also
-      used in the alternative hypothesis testing
-      when the analysis is run in a "strict" mode.
-      Otherwise, the alternative hypothesis is
-      tested with the log2 fold change value equal
-      to 0. Ignored when Wald test is skipped.
+      Log2 fold change threshold used in the Wald test
+      results filtering. This value can also be used as
+      the threshold in the alternative hypothesis testing.
+      Otherwise, the alternative hypothesis is tested
+      with the log2 fold change value equal to 0.
       Default: 0.59.
 
   strict:
     type: boolean?
     default: false
-    label: "Use log2 fold change threshold in the alternative hypothesis testing"
+    label: "Use minimum log2 fold change in the Wald test's alternative hypothesis testing"
     doc: |
-      Use the provided log2 fold change threshold
+      Use the provided log2 fold change threshold in
+      the Wald test's alternative hypothesis testing.
+      Default: use 0 as the log2 fold change threshold
       in the alternative hypothesis testing.
-      Default: not strict, use 0 as the log2 fold
-      change threshold in the alternative hypothesis
-      testing.
     "sd:layout":
       advanced: true
 
@@ -84,17 +82,17 @@ inputs:
       - "less"
       - "greaterAbs"
     default: "greaterAbs"
-    label: "The alternative hypothesis for the Wald test"
+    label: "Wald test's alternative hypothesis"
     doc: |
-      The alternative hypothesis for the Wald test.
-      greater - tests if the log2 fold change is greater
-      than 0 or the specified threshold when run in a
-      "strict" mode. less - tests if the log2 fold change
-      is less than 0 or the negative value of the specified
-      threshold when run in a "strict" mode. greaterAbs -
-      tests if the the absolute log2 fold change is greater
-      than 0 or the specified threshold when run in a "strict"
-      mode. Default: greaterAbs.
+      The alternative hypothesis used in the Wald
+      test. "greater" - tests if the log2 fold
+      change is greater than 0 or the specified
+      threshold. "less" - tests if the log2 fold
+      change is less than 0 or the negative value
+      of the specified threshold. "greaterAbs" -
+      tests if the absolute log2 fold change is
+      greater than 0 or the specified threshold.
+      Default: greaterAbs.
     "sd:layout":
       advanced: true
 
@@ -108,10 +106,11 @@ inputs:
       - "both"
       - "none"
     default: "none"
-    label: "Clustering method"
+    label: "Heatmap clustering method"
     doc: |
-      Hopach clustering method to be run on normalized read
-      counts for the exploratory visualization analysis.
+      Hopach clustering method to be run on the
+      normalized read counts for the exploratory
+      visualization part of the analysis (heatmap).
       Default: do not run clustering.
     "sd:layout":
       advanced: true
@@ -129,9 +128,9 @@ inputs:
     default: "cosangle"
     label: "Row clustering distance metric"
     doc: |
-      Distance metric for row clustering.
-      Ignored clustering method is set to none.
-      Default: cosangle
+      Distance metric for row (feature) clustering.
+      Ignored if the heatmap clustering method is
+      set to none. Default: cosangle
     "sd:layout":
       advanced: true
 
@@ -148,9 +147,9 @@ inputs:
     default: "euclid"
     label: "Column clustering distance metric"
     doc: |
-      Distance metric for column clustering.
-      Ignored clustering method is set to none.
-      Default: euclid
+      Distance metric for column (sample) clustering.
+      Ignored if the heatmap clustering method is
+      set to none. Default: euclid
     "sd:layout":
       advanced: true
 
@@ -214,8 +213,7 @@ outputs:
     outputSource: deseq_lrt_step_2/summary_md
     label: "Analysis summary"
     doc: |
-      Analysis summary produced by DESeq2 Wald
-      test.
+      Analysis summary
     "sd:visualPlugins":
       - markdownView:
           tab: "Overview"
@@ -238,22 +236,22 @@ outputs:
   diff_expr_tsv:
     type: File
     outputSource: deseq_lrt_step_2/diff_expr_tsv
-    label: "Differentially expressed features"
+    label: "Differentially expressed features (not filtered)"
     doc: |
       TSV file with not filtered differentially
-      expressed features produced by DESeq2 Wald
-      tests for target contrasts.
+      expressed features produced by the pairwise
+      DESeq2 Wald tests for the target contrasts.
     "sd:visualPlugins":
     - syncfusiongrid:
-        tab: "DESeq2 Wald"
-        Title: "Differentially expressed features"
+        tab: "Wald"
+        Title: "Differentially expressed features (not filtered)"
 
   read_counts_gct:
     type: File?
     outputSource: deseq_lrt_step_2/read_counts_gct
     label: "Heatmap of normalized read counts (GCT)"
     doc: |
-      Morpheus compatible heatmap of normalized read counts.
+      Morpheus heatmap of normalized read counts.
       GCT format.
 
   human_log:

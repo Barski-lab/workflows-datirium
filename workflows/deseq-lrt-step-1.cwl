@@ -11,10 +11,6 @@ sd:version: 100
     - "trim-rnaseq-se.cwl"
     - "trim-rnaseq-pe-dutp.cwl"
     - "trim-rnaseq-se-dutp.cwl"
-    - "https://github.com/datirium/workflows/workflows/trim-rnaseq-pe.cwl"
-    - "https://github.com/datirium/workflows/workflows/trim-rnaseq-se.cwl"
-    - "https://github.com/datirium/workflows/workflows/trim-rnaseq-pe-dutp.cwl"
-    - "https://github.com/datirium/workflows/workflows/trim-rnaseq-se-dutp.cwl"
 
 requirements:
   - class: StepInputExpressionRequirement
@@ -51,22 +47,27 @@ inputs:
 
   design_formula:
     type: string
-    label: "Design formula"
+    label: "Design formula (represents the full model)"
     doc: |
-      A design formula should start with ~ and consist
-      of values that correspond to the column names of the
-      samples metadata. The formula should be provided in
+      Specifies all variables you want to model in
+      your data, including possible interactions
+      between them, representing the full model. The
+      formula should start with ~ and consist of the
+      values that correspond to the column names of
+      the samples metadata. It should be provided in
       the expanded format (without *).
 
   reduced_formula:
     type: string
-    label: "Reduced formula"
+    label: "Reduced formula (same as the design formula but with variables of interest removed)"
     doc: |
-      A reduced formula should start with ~ and consist
-      of values that correspond to the column names of the
-      samples metadata. The formula should be provided in
-      the expanded format (without *). The term(s) of
-      interest should be removed.
+      Same as the design formula but with the variables
+      or entire terms of interest removed; used to test
+      if those variables significantly improve the model
+      in the LRT. The formula should start with ~ and
+      consist of values that correspond to the column
+      names of the samples metadata. The formula should
+      be provided in the expanded format (without *).
 
   batch_correction_method:
     type:
@@ -79,72 +80,104 @@ inputs:
     default: "none"
     label: "Batch correction method"
     doc: |
-      An optional batch correction method. When combatseq is selected
-      the batch effect is removed from the read counts before running
-      the differential expression analysis. limma corrects batch effect
-      only after differential expression analysis has already finished
-      running and mainly impacts the read counts heatmap. Both batch
-      correction method and batch correction variable should be provided.
-      Default: do not correct for batch effect.
+      An optional batch correction method. When combatseq
+      is selected the batch effect is removed from the raw
+      read counts before running the differential expression
+      analysis. limma corrects batch effect only after
+      differential expression analysis has already finished
+      running and mainly impacts the read counts heatmap.
+      Both batch correction method and batch correction
+      variable should be provided. Default: do not correct
+      for batch effect.
 
   batch_correction_variable:
     type: string?
     default: ""
     label: "Batch correction variable"
     doc: |
-      Column from the samples metadata to correct for batch effect.
-      If provided it should also be present in the design formula.
-      When batch correction method is set to combatseq, all formula
-      terms that include the batch correction variable will be removed
-      from the design and reduced formulas as the batch effect was
-      corrected on the raw read counts level. When batch correction
-      method is set to limma, no adjustments of the design or reduced
-      formulas are made. Both batch correction method and batch
-      correction variable should be provided. Default: do not correct
-      for batch effect.
+      Column from the samples metadata to correct for
+      batch effect. If provided, it should also be present
+      in the design formula. When batch correction method
+      is set to combatseq, all formula terms that include
+      the batch correction variable will be removed from
+      the design and reduced formulas as the batch effect
+      was corrected on the raw read counts level. When batch
+      correction method is set to limma, no adjustments of
+      the design or reduced formulas are made. Both batch
+      correction method and batch correction variable should
+      be provided. Default: do not correct for batch effect.
 
   rpkm_threshold:
     type: float?
     default: 3
-    label: "Minimum RPKM threshold to exclude features with low expression across all RNA-Seq Analyses"
+    label: "Minimum RPKM to exclude features with low expression across all RNA-Seq Analyses"
     doc: |
       Filtering threshold to keep only those features where
       the max RPKM across all RNA-Seq Analyses is bigger
-      than or equal to the provided value. Default: 3
+      than or equal to the provided value. The filtering
+      is applied before running the differential expression
+      analysis. Default: 3
 
   padj_threshold:
     type: float?
     default: 0.1
-    label: "P-adjusted threshold for exploratory visualization part of the analysis"
+    label: "Maximum P-adjusted for considering features significantly differentially expressed"
     doc: |
-      In the exploratory visualization part of the analysis output
-      only features with the adjusted p-value (FDR) not bigger than
-      this value. Also this value is used the significance cutoff
-      used for optimizing the independent filtering. Default: 0.1.
+      The significance cutoff for optimizing the independent
+      filtering for both LRT and optional Wald tests. It is
+      also used in the exploratory visualization part of the
+      analysis for generating read counts heatmap and reports.
+      Default: 0.1.
+
+  wald_test:
+    type: boolean?
+    default: true
+    label: "Run Wald test for all possible pairwise contrasts (needed for DESeq2 LRT Step 2)"
+    doc: |
+      Based on the sample metadata, generates all possible
+      pairwise contrasts and runs Wald test for each of
+      them. The number of the significantly differentially
+      expressed features is reported after filtering by the
+      maximum P-adjusted and minimum log2 fold change
+      thresholds. This step is required if you plan to run
+      "DESeq2 LRT Step 2" with the results of this analysis,
+      but can be skipped to save computational time if the
+      main interest is only the LRT analysis. Default: true
 
   logfc_threshold:
     type: float?
     default: 0.59
-    label: "Log2 fold change threshold used in the Wald test results filtering"
+    label: "Minimum log2 fold change for the Wald test results filtering"
     doc: |
-      Log2 fold change threshold used in the Wald
-      test results filtering. This value is also
-      used in the alternative hypothesis testing
-      when the analysis is run in a "strict" mode.
-      Otherwise, the alternative hypothesis is
-      tested with the log2 fold change value equal
-      to 0. Ignored when Wald test is skipped.
-      Default: 0.59.
+      Log2 fold change threshold used in the Wald test
+      results filtering. This value can also be used as
+      the threshold in the alternative hypothesis testing.
+      Otherwise, the alternative hypothesis is tested
+      with the log2 fold change value equal to 0. Ignored
+      if running Wald test for all possible pairwise
+      contrasts is disabled. Default: 0.59.
+
+  metadata_file:
+    type: File
+    label: "Metadata file to describe the relation between the RNA-Seq analyses"
+    doc: |
+      TSV/CSV file to describe the relation between the
+      selected RNA-Seq analyses. All column names can be
+      arbitrary but should be unique. The first column
+      should correspond to the names of the selected
+      RNA-Seq analyses. All the remaining columns can be
+      used in the design and reduced formulas.
 
   strict:
     type: boolean?
     default: false
-    label: "Use log2 fold change threshold in the alternative hypothesis testing"
+    label: "Use minimum log2 fold change in the Wald test's alternative hypothesis testing"
     doc: |
-      Use the provided log2 fold change threshold
-      in the alternative hypothesis testing. Ignored
-      when Wald test is skipped. Default: not strict,
-      use 0 as the log2 fold change threshold in the
+      Use the provided log2 fold change threshold in
+      the Wald test's alternative hypothesis testing.
+      Ignored if running Wald test for all possible
+      pairwise contrasts is disabled. Default: use 0
+      as the log2 fold change threshold in the
       alternative hypothesis testing.
     "sd:layout":
       advanced: true
@@ -158,39 +191,21 @@ inputs:
       - "less"
       - "greaterAbs"
     default: "greaterAbs"
-    label: "The alternative hypothesis for the Wald test"
+    label: "Wald test's alternative hypothesis"
     doc: |
-      The alternative hypothesis for the Wald test.
-      greater - tests if the log2 fold change is greater
-      than 0 or the specified threshold when run in a
-      "strict" mode. less - tests if the log2 fold change
-      is less than 0 or the negative value of the specified
-      threshold when run in a "strict" mode. greaterAbs -
-      tests if the the absolute log2 fold change is greater
-      than 0 or the specified threshold when run in a "strict"
-      mode. Ignored when Wald test is skipped.
+      The alternative hypothesis used in the Wald
+      test. "greater" - tests if the log2 fold
+      change is greater than 0 or the specified
+      threshold. "less" - tests if the log2 fold
+      change is less than 0 or the negative value
+      of the specified threshold. "greaterAbs" -
+      tests if the absolute log2 fold change is
+      greater than 0 or the specified threshold.
+      Ignored if running Wald test for all possible
+      pairwise contrasts is disabled.
       Default: greaterAbs.
     "sd:layout":
       advanced: true
-
-  wald_test:
-    type: boolean?
-    default: true
-    label: "Run Wald test for multiple contrasts"
-    doc: |
-      Run Wald test for multiple contrasts.
-      Default: true
-
-  metadata_file:
-    type: File
-    label: "Metadata file to describe the relation between the RNA-Seq analyses"
-    doc: |
-      TSV/CSV file to describe the relation between the
-      selected RNA-Seq analyses. All columns names can be
-      arbitrary but should be unique. The first column should
-      correspond to the names of the selected RNA-Seq analyses.
-      All the remaining columns can be used in the design and
-      reduced formulas.
 
   cluster_method:
     type:
@@ -202,10 +217,11 @@ inputs:
       - "both"
       - "none"
     default: "none"
-    label: "Clustering method"
+    label: "Heatmap clustering method"
     doc: |
-      Hopach clustering method to be run on normalized read
-      counts for the exploratory visualization analysis.
+      Hopach clustering method to be run on the
+      normalized read counts for the exploratory
+      visualization part of the analysis (heatmap).
       Default: do not run clustering.
     "sd:layout":
       advanced: true
@@ -223,9 +239,9 @@ inputs:
     default: "cosangle"
     label: "Row clustering distance metric"
     doc: |
-      Distance metric for row clustering.
-      Ignored clustering method is set to none.
-      Default: cosangle
+      Distance metric for row (feature) clustering.
+      Ignored if the heatmap clustering method is
+      set to none. Default: cosangle
     "sd:layout":
       advanced: true
 
@@ -242,9 +258,9 @@ inputs:
     default: "euclid"
     label: "Column clustering distance metric"
     doc: |
-      Distance metric for column clustering.
-      Ignored clustering method is set to none.
-      Default: euclid
+      Distance metric for column (sample) clustering.
+      Ignored if the heatmap clustering method is
+      set to none. Default: euclid
     "sd:layout":
       advanced: true
 
@@ -294,27 +310,27 @@ outputs:
   diff_expr_tsv:
     type: File
     outputSource: deseq_lrt_step_1/diff_expr_tsv
-    label: "Differentially expressed features"
+    label: "Differentially expressed features (not filtered)"
     doc: |
       TSV file with not filtered differentially
       expressed features produced by DESeq2 LRT
       test.
     "sd:visualPlugins":
     - syncfusiongrid:
-        tab: "DESeq2 LRT"
-        Title: "Differentially expressed features"
+        tab: "LRT"
+        Title: "Differentially expressed features (not filtered)"
 
   all_contrasts_tsv:
     type: File?
     outputSource: deseq_lrt_step_1/all_contrasts_tsv
-    label: "All contrasts produced by DESeq2 Wald tests"
+    label: "All pairwise contrasts produced by DESeq2 Wald tests"
     doc: |
-      All contrasts produced by DESeq2 Wald tests.
+      All pairwise contrasts produced by DESeq2 Wald tests.
       TSV format.
     "sd:visualPlugins":
     - syncfusiongrid:
-        tab: "DESeq2 Wald"
-        Title: "DESeq2 Wald tests contrasts"
+        tab: "Wald"
+        Title: "All pairwise contrasts produced by DESeq2 Wald tests"
 
   mds_plot_html:
     type: File?
@@ -346,8 +362,7 @@ outputs:
     outputSource: deseq_lrt_step_1/summary_md
     label: "Analysis summary"
     doc: |
-      Analysis summary produced by DESeq2 LRT
-      test.
+      Analysis summary
     "sd:visualPlugins":
       - markdownView:
           tab: "Overview"
@@ -357,15 +372,15 @@ outputs:
     outputSource: deseq_lrt_step_1/read_counts_gct
     label: "Heatmap of normalized read counts (GCT)"
     doc: |
-      Morpheus compatible heatmap of normalized read counts.
+      Morpheus heatmap of normalized read counts.
       GCT format.
 
   all_contrasts_rds:
     type: File?
     outputSource: deseq_lrt_step_1/all_contrasts_rds
-    label: "All contrasts produced by DESeq2 Wald tests"
+    label: "All pairwise contrasts produced by DESeq2 Wald tests"
     doc: |
-      All contrasts produced by DESeq2 Wald tests.
+      All pairwise contrasts produced by DESeq2 Wald tests.
       RDS format.
 
   human_log:
