@@ -122,6 +122,16 @@ outputs:
     outputBinding:
       glob: "*_read_counts.html"
 
+  volcano_plot_html:
+    type: File?
+    outputBinding:
+      glob: "*_volcano_plot/html_data/index.html"
+
+  volcano_plot_data:
+    type: Directory?
+    outputBinding:
+      glob: "*_volcano_plot/html_data"
+
   diff_expr_tsv:
     type: File
     outputBinding:
