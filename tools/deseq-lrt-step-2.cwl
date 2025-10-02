@@ -130,7 +130,7 @@ outputs:
   volcano_plot_data:
     type: Directory?
     outputBinding:
-      glob: "*_volcano_plot/html_data"
+      glob: "*_volcano_plot"
 
   ma_plot_html:
     type: File?
@@ -140,7 +140,7 @@ outputs:
   ma_plot_data:
     type: Directory?
     outputBinding:
-      glob: "*_ma_plot/html_data"
+      glob: "*_ma_plot"
 
   diff_expr_tsv:
     type: File
