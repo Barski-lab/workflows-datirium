@@ -132,6 +132,16 @@ outputs:
     outputBinding:
       glob: "*_volcano_plot/html_data"
 
+  ma_plot_html:
+    type: File?
+    outputBinding:
+      glob: "*_ma_plot/html_data/index.html"
+
+  ma_plot_data:
+    type: Directory?
+    outputBinding:
+      glob: "*_ma_plot/html_data"
+
   diff_expr_tsv:
     type: File
     outputBinding:

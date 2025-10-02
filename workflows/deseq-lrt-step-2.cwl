@@ -216,6 +216,26 @@ outputs:
       Directory with the html data needed for
       the interactive volcano plots to function.
 
+  ma_plot_html:
+    type: File?
+    outputSource: deseq_lrt_step_2/ma_plot_html
+    label: "MA plots for target contrasts"
+    doc: |
+      Interactive MA plots for selected contrasts.
+      HTML format.
+    "sd:visualPlugins":
+    - linkList:
+        tab: "Overview"
+        target: "_blank"
+
+  ma_plot_data:
+    type: Directory?
+    outputSource: deseq_lrt_step_2/ma_plot_data
+    label: "MA plots for target contrasts (data)"
+    doc: |
+      Directory with the html data needed for
+      the interactive MA plots to function.
+
   read_counts_html:
     type: File?
     outputSource: deseq_lrt_step_2/read_counts_html
@@ -321,6 +341,8 @@ steps:
     - read_counts_html
     - volcano_plot_data
     - volcano_plot_html
+    - ma_plot_data
+    - ma_plot_html
     - diff_expr_tsv
     - summary_md
     - human_log
