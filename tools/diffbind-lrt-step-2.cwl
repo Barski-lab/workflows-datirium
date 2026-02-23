@@ -97,6 +97,36 @@ inputs:
     inputBinding:
       prefix: "--branches"
 
+  coverage_folder_in:
+    type: Directory?
+    inputBinding:
+      prefix: "--coverage"
+
+  export_density:
+    type: boolean?
+    inputBinding:
+      prefix: "--density"
+
+  flank_distance:
+    type: int?
+    inputBinding:
+      prefix: "--flank"
+
+  bin_size:
+    type: int?
+    inputBinding:
+      prefix: "--binsize"
+
+  bw_norm_method:
+    type:
+    - "null"
+    - type: enum
+      symbols:
+      - "consensus"
+      - "filtered"
+    inputBinding:
+      prefix: "--bwnorm"
+
   output_prefix:
     type: string?
     inputBinding:
@@ -120,16 +150,6 @@ outputs:
     outputBinding:
       glob: "*_read_counts.html"
 
-  gsea_counts_gct:
-    type: File?
-    outputBinding:
-      glob: "*_gsea_counts.gct"
-
-  gsea_ptypes_cls:
-    type: File?
-    outputBinding:
-      glob: "*_gsea_ptypes.cls"
-
   volcano_plot_html:
     type: File?
     outputBinding:
@@ -150,15 +170,63 @@ outputs:
     outputBinding:
       glob: "*_ma_plot"
 
-  diff_expr_tsv:
+  diff_access_tsv:
     type: File
     outputBinding:
-      glob: "*_diff_expr.tsv"
+      glob: "*_diff_access.tsv"
+
+  all_cons_peaks_bed:
+    type: File
+    outputBinding:
+      glob: "*_all_cons_peaks.bed"
+
+  fltr_cons_peaks_bed:
+    type: File?
+    outputBinding:
+      glob: "*_fltr_cons_peaks.bed"
+
+  trgt_peaks_bed:
+    type:
+    - "null"
+    - type: array
+      items: File
+    outputBinding:
+      glob: "*_trgt_peaks_*.bed"
+
+  coverage_folder_out:
+    type: Directory?
+    outputBinding:
+      glob: "coverage"
+
+  tag_dnst_score:
+    type: File?
+    outputBinding:
+      glob: "*_tag_dnst_score.gz"
+
+  tag_dnst_htmp_gct:
+    type: File?
+    outputBinding:
+      glob: "*_tag_dnst_htmp.gct"
+
+  tag_dnst_htmp_html:
+    type: File?
+    outputBinding:
+      glob: "*_tag_dnst_htmp.html"
 
   summary_md:
     type: File
     outputBinding:
       glob: "*_summary.md"
+
+  igv_html:
+    type: File?
+    outputBinding:
+      glob: "*_igv.html"
+
+  igv_json:
+    type: File?
+    outputBinding:
+      glob: "*_igv.json"
 
   human_log:
     type: File?
@@ -171,6 +239,6 @@ outputs:
   stderr_log:
     type: stderr
 
-baseCommand: [run_deseq_lrt_step_2.sh]
+baseCommand: [run_diffbind_lrt_step_2.sh]
 stdout: error_msg.txt
-stderr: deseq_lrt_step_2_stderr.log
+stderr: diffbind_lrt_step_2_stderr.log

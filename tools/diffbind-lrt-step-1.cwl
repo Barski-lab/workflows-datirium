@@ -12,31 +12,55 @@ requirements:
 
 inputs:
 
-  expression_files:
+  alignment_files:
+    type: File[]
+    secondaryFiles:
+    - .bai
+    inputBinding:
+      prefix: "--reads"
+
+  peak_files:
     type: File[]
     inputBinding:
-      prefix: "--expression"
+      prefix: "--peaks"
 
-  expression_names:
+  alignment_names:
     type: string[]
     inputBinding:
       prefix: "--aliases"
 
-  feature_type:
-    type:
-    - "null"
-    - type: enum
-      symbols:
-      - "gene"
-      - "isoform"
-      - "tss"
+  qvalue_threshold:
+    type: float?
     inputBinding:
-      prefix: "--groupby"
+      prefix: "--qvalue"
 
   metadata_file:
     type: File
     inputBinding:
       prefix: "--metadata"
+
+  group_variable:
+    type:
+    - "null"
+    - string
+    - string[]
+    inputBinding:
+      prefix: "--group"
+
+  overlap_threshold:
+    type: float?
+    inputBinding:
+      prefix: "--overlap"
+
+  extend_distance:
+    type: int?
+    inputBinding:
+      prefix: "--extend"
+
+  rpkm_threshold:
+    type: float?
+    inputBinding:
+      prefix: "--rpkm"
 
   design_formula:
     type: string
@@ -63,11 +87,6 @@ inputs:
     inputBinding:
       prefix: "--batch"
 
-  rpkm_threshold:
-    type: float?
-    inputBinding:
-      prefix: "--rpkm"
-
   padj_threshold:
     type: float?
     inputBinding:
@@ -93,6 +112,31 @@ inputs:
       - "greaterAbs"
     inputBinding:
       prefix: "--alternative"
+
+  annotation_tsv_file:
+    type: File
+    inputBinding:
+      prefix: "--annotation"
+
+  chrom_length_file:
+    type: File
+    inputBinding:
+      prefix: "--seqinfo"
+
+  genome_name:
+    type: string
+    inputBinding:
+      prefix: "--genome"
+
+  promoter_distance:
+    type: int?
+    inputBinding:
+      prefix: "--promoter"
+
+  upstream_distance:
+    type: int?
+    inputBinding:
+      prefix: "--upstream"
 
   cluster_method:
     type:
@@ -146,6 +190,31 @@ inputs:
     inputBinding:
       prefix: "--wald"
 
+  export_density:
+    type: boolean?
+    inputBinding:
+      prefix: "--density"
+
+  flank_distance:
+    type: int?
+    inputBinding:
+      prefix: "--flank"
+
+  bin_size:
+    type: int?
+    inputBinding:
+      prefix: "--binsize"
+
+  bw_norm_method:
+    type:
+    - "null"
+    - type: enum
+      symbols:
+      - "consensus"
+      - "filtered"
+    inputBinding:
+      prefix: "--bwnorm"
+
   output_prefix:
     type: string?
     inputBinding:
@@ -158,6 +227,14 @@ inputs:
       prefix: "--cpus"
 
 outputs:
+
+  pk_vrlp_plot_png:
+    type:
+    - "null"
+    - type: array
+      items: File
+    outputBinding:
+      glob: "*_pk_vrlp_*.png"
 
   mds_plot_html:
     type: File?
@@ -179,10 +256,40 @@ outputs:
     outputBinding:
       glob: "*_read_counts.html"
 
-  diff_expr_tsv:
+  diff_access_tsv:
     type: File
     outputBinding:
-      glob: "*_diff_expr.tsv"
+      glob: "*_diff_access.tsv"
+
+  all_cons_peaks_bed:
+    type: File
+    outputBinding:
+      glob: "*_all_cons_peaks.bed"
+
+  fltr_cons_peaks_bed:
+    type: File?
+    outputBinding:
+      glob: "*_fltr_cons_peaks.bed"
+
+  coverage_folder_out:
+    type: Directory?
+    outputBinding:
+      glob: "coverage"
+
+  tag_dnst_score:
+    type: File?
+    outputBinding:
+      glob: "*_tag_dnst_score.gz"
+
+  tag_dnst_htmp_gct:
+    type: File?
+    outputBinding:
+      glob: "*_tag_dnst_htmp.gct"
+
+  tag_dnst_htmp_html:
+    type: File?
+    outputBinding:
+      glob: "*_tag_dnst_htmp.html"
 
   all_contrasts_rds:
     type: File?
@@ -193,6 +300,16 @@ outputs:
     type: File?
     outputBinding:
       glob: "*_all_contrasts.tsv"
+
+  igv_html:
+    type: File?
+    outputBinding:
+      glob: "*_igv.html"
+
+  igv_json:
+    type: File?
+    outputBinding:
+      glob: "*_igv.json"
 
   human_log:
     type: File?
@@ -205,6 +322,6 @@ outputs:
   stderr_log:
     type: stderr
 
-baseCommand: [run_deseq_lrt_step_1.sh]
+baseCommand: [run_diffbind_lrt_step_1.sh]
 stdout: error_msg.txt
-stderr: deseq_lrt_step_1_stderr.log
+stderr: diffbind_lrt_step_1_stderr.log

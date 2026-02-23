@@ -1,8 +1,8 @@
 cwlVersion: v1.0
 class: Workflow
 
-label: "DESeq2 LRT Step 1"
-doc: "DESeq2 LRT Step 1"
+label: "Multi-factor DESeq2 Step 1 LRT"
+doc: "Multi-factor DESeq2 Step 1 LRT"
 sd:version: 100
 
 "sd:upstream":
@@ -110,7 +110,7 @@ inputs:
   rpkm_threshold:
     type: float?
     default: 3
-    label: "Minimum RPKM to exclude features with low expression across all RNA-Seq Analyses"
+    label: "Minimum RPKM to exclude features with low expression across all samples"
     doc: |
       Filtering threshold to keep only those features where
       the max RPKM across all RNA-Seq Analyses is bigger
@@ -127,6 +127,7 @@ inputs:
       filtering for both LRT and optional Wald tests. It is
       also used in the exploratory visualization part of the
       analysis for generating read counts heatmap and reports.
+      To enable -log10 scale, use negative numbers.
       Default: 0.1.
 
   wald_test:
@@ -159,7 +160,7 @@ inputs:
 
   metadata_file:
     type: File
-    label: "Metadata file to describe the relation between the RNA-Seq analyses"
+    label: "Metadata file to describe the relation between samples"
     doc: |
       TSV/CSV file to describe the relation between the
       selected RNA-Seq analyses. All column names can be
@@ -281,27 +282,6 @@ inputs:
     doc: |
       The maximum number of clustering branches.
       Default: 5.
-    "sd:layout":
-      advanced: true
-
-  threads:
-    type:
-    - "null"
-    - type: enum
-      symbols:
-      - "1"
-      - "2"
-      - "3"
-      - "4"
-      - "5"
-      - "6"
-    default: "4"
-    label: "Cores/CPUs"
-    doc: |
-      Parallelization parameter to define the
-      number of cores/CPUs that can be utilized
-      simultaneously.
-      Default: 4
     "sd:layout":
       advanced: true
 
@@ -433,9 +413,6 @@ steps:
       cluster_max_depth: cluster_max_depth
       cluster_max_branches: cluster_max_branches
       wald_test: wald_test
-      threads:
-        source: threads
-        valueFrom: $(parseInt(self))
     out:
     - mds_plot_html
     - summary_md

@@ -1,8 +1,8 @@
 cwlVersion: v1.0
 class: Workflow
 
-label: "DESeq2 LRT Step 2"
-doc: "DESeq2 LRT Step 2"
+label: "Multi-factor DESeq2 Step 2 Wald"
+doc: "Multi-factor DESeq2 Step 2 Wald"
 sd:version: 100
 
 "sd:upstream":
@@ -46,7 +46,8 @@ inputs:
       test's independent filtering. It is also used in
       the exploratory visualization part of the analysis
       for generating read counts heatmap, volcano plots,
-      and results table.
+      and results table. To enable -log10 scale, use
+      negative numbers.
       Default: 0.1.
 
   logfc_threshold:
@@ -173,27 +174,6 @@ inputs:
     "sd:layout":
       advanced: true
 
-  threads:
-    type:
-    - "null"
-    - type: enum
-      symbols:
-      - "1"
-      - "2"
-      - "3"
-      - "4"
-      - "5"
-      - "6"
-    default: "4"
-    label: "Cores/CPUs"
-    doc: |
-      Parallelization parameter to define the
-      number of cores/CPUs that can be utilized
-      simultaneously.
-      Default: 4
-    "sd:layout":
-      advanced: true
-
 outputs:
 
   volcano_plot_html:
@@ -258,21 +238,6 @@ outputs:
       - markdownView:
           tab: "Overview"
 
-  vlcn_png:
-    type:
-    - "null"
-    - type: array
-      items: File
-    outputSource: deseq_lrt_step_2/vlcn_png
-    label: "Volcano plots for target contrasts"
-    doc: |
-      Volcano plots for target contrasts.
-      PNG format.
-    "sd:visualPlugins":
-    - image:
-        tab: "Volcano Plots"
-        Caption: "Volcano plots for target contrasts"
-
   diff_expr_tsv:
     type: File
     outputSource: deseq_lrt_step_2/diff_expr_tsv
@@ -293,6 +258,26 @@ outputs:
     doc: |
       Morpheus heatmap of normalized read counts.
       GCT format.
+
+  gsea_counts_gct:
+    type: File?
+    outputSource: deseq_lrt_step_2/gsea_counts_gct
+    label: "GSEA compatible normalized read counts (GCT)"
+    doc: |
+      GSEA compatible normalized read counts for
+      the selected target contrast (when only one
+      was provided or available).
+      GCT format.
+
+  gsea_ptypes_cls:
+    type: File?
+    outputSource: deseq_lrt_step_2/gsea_ptypes_cls
+    label: "GSEA compatible phenotypes file (CLS)"
+    doc: |
+      GSEA compatible phenotypes file for the
+      selected target contrast (when only one
+      was provided or available).
+      CLS format.
 
   human_log:
     type: File?
@@ -332,13 +317,11 @@ steps:
       cluster_col_distance: cluster_col_distance
       cluster_max_depth: cluster_max_depth
       cluster_max_branches: cluster_max_branches
-      threads:
-        source: threads
-        valueFrom: $(parseInt(self))
     out:
-    - vlcn_png
     - read_counts_gct
     - read_counts_html
+    - gsea_counts_gct
+    - gsea_ptypes_cls
     - volcano_plot_data
     - volcano_plot_html
     - ma_plot_data
